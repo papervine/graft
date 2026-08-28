@@ -1,0 +1,226 @@
+---
+title: "Diagnostics"
+description: "Every code besdk reports, what it means, and how to resolve it."
+---
+
+Codes are stable — people suppress them in config and grep them in CI logs — so they are treated as
+a public contract. Every warning carries a `besdk.yaml` fragment that resolves it.
+
+Severities: **error** stops the run, **warn** is gated by `--strict`, **info** is besdk telling you
+what it decided.
+
+## Models — `M`
+
+### `M001` — read/write conflation
+**warn.** A schema is used as both a request and a response body, so write methods would accept
+fields the server assigns. This is the highest-leverage finding besdk produces: the result compiles,
+which is why nothing else catches it.
+
+```yaml
+models:
+  WidgetsResponse:
+    split: { read: Widget, create: WidgetCreate, update: WidgetUpdate }
+    serverOwned: [_id, createdAt]
+```
+
+See [Read and write models](/guides/read-write-models).
+
+### `M002` — all fields optional
+**warn.** An object declares no `required` fields, so every property becomes optional and your users
+null-check everything.
+
+```yaml
+models:
+  WidgetsResponse:
+    required: [id, name]
+```
+
+### `M003` — structural dedupe
+**info.** Structurally identical inline schemas were collapsed into one named type.
+
+### `M004` — name synthesized
+**info.** A name was generated for an anonymous inline schema. Override with `x-besdk-name` or
+`models.<schema>.rename`.
+
+## Errors — `E`
+
+### `E001` — error schema missing
+**warn.** Error responses declare no schema, so error bodies cannot be typed. Extremely common.
+
+```yaml
+errors:
+  default: { schema: { error: string } }
+```
+
+## Pagination — `P`
+
+### `P001` — pagination inferred
+**warn.** An operation returns a collection and accepts paging parameters, but the spec declares no
+pagination structure. Without configuration its method returns a single page instead of an iterator.
+
+### `P002` — pagination unresolved
+**info.** An operation accepts paging parameters but does not appear to return a collection, so
+besdk did **not** paginate it. Usually means a shared parameter block was applied to every
+operation. Override per operation if one of them really does page.
+
+See [Pagination](/sdk/pagination).
+
+## Headers — `H`
+
+### `H001` — constant header hoisted
+**info.** A header parameter carries the same value on every operation, so it moved into the client's
+default headers and out of every method signature.
+
+## Types — `T`
+
+### `T001` — empty map collapsed
+**info.** A `oneOf` of `{object} | {array, maxItems: 0}` was collapsed into a map. Some servers —
+PHP ones especially — serialize an empty map as `[]`. That is a serialization artifact, not a union,
+so the runtime absorbs it and you never branch.
+
+Disable with `normalize.phpEmptyMap: false`.
+
+### `T002` — scalar union
+**info.** A `oneOf` of bare scalars, e.g. `string | integer`. Usually means the server is loose about
+encoding rather than that the value has two meanings. Control with `normalize.scalarUnion`.
+
+### `T003` — empty schema
+**warn.** A request or response declares content with no schema. Becomes `unknown` — never `any` —
+so callers must narrow before use.
+
+### `T004` — reference cycle
+**info.** Schemas participate in a `$ref` cycle. Recorded rather than inlined, and handled.
+
+## Spec — `S`
+
+### `S001` — spec violation tolerated
+**warn.** The document deviates from OpenAPI and besdk absorbed it: a missing `openapi` version, an
+unresolvable `$ref`, a config key naming a field that does not exist. Tolerating malformed specs is
+a feature; not telling you would not be.
+
+### `S002` — vendor extension used
+**info** or **warn.** Reports which extensions supplied the SDK shape, which operations an extension
+excluded, extensions recognised but not acted on (**warn**), and unrecognised `x-*` keys.
+
+See [Spec extensions](/reference/extensions).
+
+### `S003` — server variable undeclared
+**warn.** A server URL references a `{variable}` it does not declare, so there is no default to
+substitute and the base URL keeps a literal placeholder. A hostname containing braces does not
+resolve, so this surfaces as a DNS failure at the first request unless you fix the spec or pass an
+explicit base URL.
+
+```yaml
+servers:
+  - url: https://{tenant}.api.example.com   # {tenant} is never declared
+```
+
+The placeholder is left in place rather than stripped: `https://{tenant}.api.example.com` is obviously
+wrong to anyone reading it, where `https://.api.example.com` looks plausible and fails the same way.
+
+## Webhooks — `W`
+
+### `W001` — no signature scheme configured
+**warn.** Your spec declares webhooks, so the SDK has typed events — but no `webhooks.signature` is
+configured, so it cannot verify that a payload actually came from your API.
+
+```yaml besdk.yaml
+webhooks:
+  signature:
+    header: Stripe-Signature
+    format: structured
+    signatureKey: v1
+    timestampKey: t
+    signedTemplate: '{timestamp}.{body}'
+```
+
+A warning rather than an error, because typed events are useful alone and your spec is not at fault:
+OpenAPI has no field describing a signature scheme, so besdk cannot infer one. But it has to be *said* —
+the failure mode of not knowing is accepting forged requests, and unlike most gaps besdk reports, nothing
+downstream will ever surface this one.
+
+No verifier is emitted until you configure it. See [Webhooks](/sdk/webhooks) for why an unconfigured
+`verify()` would be worse than none.
+
+## Protocol — `X`
+
+### `X001` — target protocol
+**error.** A target failed its handshake, declared an incompatible IR version, or returned an
+invalid manifest. An IR version mismatch is always an error, never a warning: a target reading an IR
+it does not understand produces a subtly wrong SDK, which is worse than no SDK.
+
+## Authentication
+
+### `A001` — no usable OAuth2 flow
+
+The security scheme declares OAuth2 but no flow besdk can perform, so the generated client accepts a
+token directly. Obtain one however your provider requires and pass it as `token`.
+
+This also covers `openIdConnect`, which points at a discovery document rather than declaring flows.
+Fetching it would make generation depend on the network, so besdk does not.
+
+### `A002` — authorization-code flow
+
+Informational, not a problem. The redirect needs a browser and a human, so it stays your
+application's job — besdk will not pretend to own it. Pass the resulting access token as `token`, or a
+refresh token to have the SDK keep it current.
+
+```ts
+const client = new Acme({ refreshToken: process.env.ACME_REFRESH_TOKEN });
+```
+
+### `A003` — deprecated flow only
+
+The scheme declares only the implicit or password flow. Both are deprecated by OAuth 2.1 and besdk
+does not implement them; the client accepts a token instead.
+
+## Unions
+
+### `T005` — conflicting discriminator values
+
+A schema is mapped to more than one discriminator value, which cannot be true — a schema carries one
+value. Its discriminator field stays widely typed, so callers cannot narrow on it.
+
+```yaml
+# Widget is claimed to be both. Only one can be right.
+Created:
+  oneOf: [{ $ref: "#/components/schemas/Widget" }]
+  discriminator: { propertyName: kind, mapping: { created: "#/components/schemas/Widget" } }
+Updated:
+  oneOf: [{ $ref: "#/components/schemas/Widget" }]
+  discriminator: { propertyName: kind, mapping: { updated: "#/components/schemas/Widget" } }
+```
+
+Give each union its own schema, or use one shared discriminator value.
+
+### `T006` — a `oneOf` that cannot be told apart
+
+`oneOf` promises exactly one branch matches, and a consumer has to work out which. Without a
+`discriminator` the only handle is structure — and when every branch is an object, there is nothing to
+decide on. Every language will guess, and they may guess differently.
+
+```yaml
+# GitHub has this: two error shapes with no way to tell them apart.
+oneOf:
+  - $ref: "#/components/schemas/validation-error"
+  - $ref: "#/components/schemas/validation-error-simple"
+```
+
+Adding a discriminator is the only fix that works in every language:
+
+```yaml
+discriminator:
+  propertyName: type
+  mapping:
+    detailed: "#/components/schemas/validation-error"
+    simple: "#/components/schemas/validation-error-simple"
+```
+
+besdk then narrows each branch on that property, so callers can switch on it — see
+[Discriminated unions](/guides/read-write-models#discriminated-unions).
+
+<Note>
+  Only reported when branches genuinely cannot be resolved: two or more object-shaped branches with no
+  discriminator. A union of differently shaped branches — `string | Widget` — is unambiguous and is not
+  flagged.
+</Note>

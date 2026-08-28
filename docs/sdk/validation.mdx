@@ -1,0 +1,176 @@
+---
+title: "Response validation"
+description: "Generated SDKs check that responses match the shape your spec declared, and tell you which field broke."
+---
+
+A generated type is a *claim* about what the server sends. besdk checks it.
+
+```ts
+const widgets = await client.widgets.list();
+// If the server omitted `name`, you already know:
+//   widgets.list: the response did not match the API's declared shape —
+//   [0].name is required but was absent
+```
+
+Without the check, that failure surfaces later as `Cannot read properties of undefined` somewhere in
+your own code, with nothing pointing at the API that broke its contract.
+
+## Modes
+
+```yaml
+targets:
+  typescript:
+    out: sdks/typescript
+    validation: strict     # strict (default) | warn | off
+```
+
+| Mode | Behaviour |
+|---|---|
+| `strict` | Throws `ResponseValidationError`, naming the field and its path |
+| `warn` | Logs the same message and returns the value |
+| `off` | Skips the check, and omits the descriptor table from the package entirely |
+
+Override per client at runtime, which wins over the configured default:
+
+```ts
+const client = new Acme({ validation: 'warn' });
+```
+
+<Note>
+  `strict` is the default because a missing required field breaks your code either way — the only
+  question is whether you find out at the SDK boundary, with the API's own violation named, or three
+  frames later. If your server is known to deviate from its spec, `warn` gets you the diagnostics
+  without the failure.
+</Note>
+
+## What is checked
+
+- **Required fields are present.** This is the claim that actually lies.
+- **Declared types match** — a `string` field holding a number is a violation.
+- **`null` only where the spec allows it.** The presence/nullability distinction is worthless if
+  nothing enforces it.
+
+## What is deliberately not checked
+
+**Unknown fields are always ignored.** A server adding a field must never break a client. Extra keys
+pass, at every level.
+
+**Enum membership is never checked.** Servers add enum values without warning, which is why besdk types
+them openly in the first place. Checking membership would reintroduce exactly the decode failure that
+design avoids — so an enum is validated as its base type, `string` or `number`.
+
+<Warning>
+  Together these mean validation catches an API that **broke its contract**, not an API that **grew**.
+  That is the distinction worth having: growth is normal and must not fail.
+</Warning>
+
+## Handling the error
+
+`ResponseValidationError` is **not** an `APIError`. The request succeeded and the contract was
+violated — a different problem, so a `catch` that meant "handle a 4xx" does not swallow it.
+
+```ts
+import { ResponseValidationError, APIError } from '@acme/sdk';
+
+try {
+  await client.widgets.list();
+} catch (error) {
+  if (error instanceof ResponseValidationError) {
+    for (const problem of error.problems) {
+      console.error(problem.path, problem.message);
+    }
+    // The decoded body is attached, if you want to proceed anyway.
+    console.error(error.body);
+  } else if (error instanceof APIError) {
+    console.error(error.status);
+  }
+}
+```
+
+Values are never interpolated into the message — a field might hold a token or a key, so the message
+describes the *shape* it found and not its content.
+
+## Cost
+
+Validation ships a descriptor table: compact data walked by the vendored runtime, rather than a
+generated validator function per type. Only types that can appear in a *response* get one — on Stripe
+that is 2,841 descriptors out of 5,409 declared types, and the table is 624 KB of a 4.2 MB SDK.
+
+A bundler cannot tree-shake it, because the table is one object. If that cost is not worth it for you,
+`validation: off` omits the table *and* the call sites, which takes the same Stripe SDK from 4.2 MB to
+3.5 MB.
+
+## Per-language status
+
+| Target | Validation |
+|---|---|
+| TypeScript | Descriptor table, `strict` by default |
+| Python | Via pydantic, always on — responses are also *coerced*, so `format: date-time` arrives as a `datetime` |
+| Go | Descriptor table, `strict` by default |
+
+Paginated responses are validated too — every item, not just the envelope. All three reject the same violation and report the same path — a conformance suite asserts it, so this
+is a tested guarantee rather than three separate implementations that happen to look similar.
+
+<Note>
+  Go needs validation **more** than the other two, not less. `encoding/json` silently ignores a field
+  whose type does not match, so a server sending `"slug": 123` for a string leaves the field empty and
+  your code cannot tell that from a legitimate empty string. Nothing fails, and the wrong value
+  propagates. besdk validates before decoding into the struct, which is the only point where that
+  mismatch is still visible.
+</Note>
+
+## Dates are revived
+
+A `format: date-time` field arrives as your language's native instant type, not a string:
+
+<CodeGroup>
+```ts TypeScript
+const widget = await client.widgets.get('w_1');
+widget.created_at.getFullYear();   // a Date, not a string
+```
+
+```python Python
+widget.created_at.year             # a datetime, via pydantic
+```
+
+```go Go
+widget.CreatedAt.Year()            // a *time.Time
+```
+</CodeGroup>
+
+Passing one back into a request body still works: `JSON.stringify` renders a `Date` as RFC 3339, which
+is what the server declared.
+
+<Note>
+  `format: date` stays a **string** in TypeScript, and that is deliberate. JavaScript has no date-only
+  type, and `new Date('2026-08-06')` is midnight *UTC* — so a caller in UTC-5 reading `.getDate()` gets
+  the day before. Handing you a `Date` for a calendar date is how you walk into that bug. Python uses
+  `datetime.date` and Go has only `time.Time`, so this is the one place the three targets differ.
+</Note>
+
+An unparseable timestamp is reported as a violation and left as the original string, because an
+`Invalid Date` is strictly less useful than the text the server actually sent.
+
+## Go
+
+```go
+client := acme.New(acme.WithValidation(core.ValidationWarn))
+
+_, err := client.Categories.List(ctx, nil)
+var validation *acme.ResponseValidationError
+if errors.As(err, &validation) {
+    for _, problem := range validation.Problems {
+        log.Println(problem.Path, problem.Message)
+    }
+}
+```
+
+`ResponseValidationError` is not an `APIError` here either, so `AsAPIError` will not match it.
+
+## Relationship to `besdk check`
+
+[`besdk check`](/reference/cli) reports where your spec is *under-specified* — fields with no declared
+type, schemas where nothing is required. Validation is the runtime consequence of that same
+under-specification: a field the spec never marked required is a field besdk cannot check for you.
+
+Filling in `required` is what makes validation worth having.

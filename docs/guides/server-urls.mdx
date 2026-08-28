@@ -1,0 +1,114 @@
+---
+title: "Server URLs"
+description: "Which server the client points at, and how to configure a templated one."
+---
+
+## The default
+
+The default base URL is the **last** server in the spec. Specs conventionally list staging first and
+production last, and a generated SDK that defaulted to staging would be a footgun.
+
+Override it per client:
+
+<CodeGroup>
+
+```ts TypeScript
+const client = new Acme({ baseURL: 'https://api.staging.acme.com' });
+```
+
+```python Python
+client = Acme(base_url="https://api.staging.acme.com")
+```
+
+```go Go
+client := acme.New(acme.WithBaseURL("https://api.staging.acme.com"))
+```
+
+</CodeGroup>
+
+## Templated servers
+
+OpenAPI lets a server URL carry variables:
+
+```yaml
+servers:
+  - url: https://{region}.api.example.com/{version}
+    variables:
+      region:
+        default: us-east-1
+        enum: [us-east-1, eu-west-1]
+        description: Data residency.
+      version:
+        default: v2
+```
+
+Each variable becomes a client option, and the defaults are already applied — so the common case needs
+no configuration at all. A variable with an `enum` is typed to those values, because the spec said what
+they are:
+
+<CodeGroup>
+
+```ts TypeScript
+// Defaults: https://us-east-1.api.example.com/v2
+const client = new Acme();
+
+// region is "us-east-1" | "eu-west-1" — a typo does not compile.
+const eu = new Acme({ region: 'eu-west-1' });
+```
+
+```python Python
+# Defaults: https://us-east-1.api.example.com/v2
+client = Acme()
+
+# region is Literal["us-east-1", "eu-west-1"] — a typo fails the typechecker.
+eu = Acme(region="eu-west-1")
+```
+
+```go Go
+// Defaults: https://us-east-1.api.example.com/v2
+client := acme.New()
+
+// Region is a named string type, so the constants are discoverable by name.
+eu := acme.New(acme.WithRegion(acme.RegionEuWest1))
+```
+
+</CodeGroup>
+
+A variable with no `enum` takes any string:
+
+<CodeGroup>
+
+```ts TypeScript
+new Acme({ version: 'v3' });
+```
+
+```python Python
+Acme(version="v3")
+```
+
+```go Go
+acme.New(acme.WithVersion("v3"))
+```
+
+</CodeGroup>
+
+<Note>
+  An explicit base URL wins over every variable. That is what makes it usable for a proxy, a private
+  deployment, or a test server — a template quietly overriding it would defeat the purpose.
+</Note>
+
+## When a variable is not declared
+
+A placeholder the spec never declares has no default, so there is nothing to substitute. besdk warns
+at generation time ([`S003`](/reference/diagnostics#s003-server-variable-undeclared)) and leaves the
+placeholder in the URL:
+
+```
+⚠ Server URL `https://{tenant}.api.example.com` references a variable it does not
+  declare, so it cannot be substituted. The base URL will contain a literal
+  placeholder, which will not resolve.
+```
+
+The placeholder stays visible on purpose. `https://{tenant}.api.example.com` is obviously wrong to
+anyone who reads it; `https://.api.example.com` looks plausible and fails the same way. Fix the spec,
+or pass an explicit base URL.

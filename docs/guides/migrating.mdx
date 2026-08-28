@@ -1,0 +1,136 @@
+---
+title: "Migrating from another generator"
+description: "Moving off Fern, Speakeasy, or openapi-generator without re-annotating your spec."
+---
+
+Your OpenAPI document is the portable part, and besdk reads other generators' annotations natively.
+In most cases migrating is a `besdk.yaml` and a `generate`, not a re-annotation project.
+
+## From Fern
+
+besdk reads `x-fern-*` extensions as a first-class overlay source, at the same precedence as its own.
+Nothing to rewrite:
+
+| Extension | Effect in besdk |
+|---|---|
+| `x-fern-sdk-group-name` | Resource group |
+| `x-fern-sdk-method-name` | Method name |
+| `x-fern-ignore` | Left out of the SDK |
+| `x-fern-server-name` | Server name |
+
+<Steps>
+  <Step title="Point besdk at the same spec">
+    ```sh
+    besdk check openapi.yaml
+    ```
+
+    A spec already annotated for Fern usually has complete group and method coverage, so `check` should
+    report no naming gaps at all. What it *will* report is the things Fern took from its own config
+    rather than from the spec — error shapes and pagination in particular.
+  </Step>
+
+  <Step title="Scaffold a config and move what lived in generators.yml">
+    ```sh
+    besdk init openapi.yaml
+    ```
+
+    Fern's `generators.yml` holds package names, versions, and per-generator options. Those become
+    `targets` entries:
+
+    ```yaml
+    targets:
+      typescript: { out: sdks/typescript, packageName: "@acme/sdk" }
+      python:     { out: sdks/python,     packageName: acme }
+      go:         { out: sdks/go,         modulePath: github.com/acme/acme-go }
+    ```
+  </Step>
+
+  <Step title="Check the generated surface against what you publish today">
+    ```sh
+    besdk generate openapi.yaml --out sdks/typescript-new
+    ```
+
+    Diff it against your current SDK by hand once. This is the step worth not skipping: besdk makes
+    different calls than Fern in a few places, listed below, and you would rather find them here than in
+    a release.
+  </Step>
+</Steps>
+
+### Where besdk deliberately differs
+
+| | Fern | besdk |
+|---|---|---|
+| Client name | `${Namespace}Client` | no suffix — `new Acme()` |
+| Custom code | a subclass or a wrapper you maintain | [regions inside the generated file](/guides/custom-code) |
+| Request/response reuse | one type both ways | [split into read and write models](/guides/read-write-models) |
+| Response validation | none by default | on by default, and it names the field |
+| Definition source | a Fern definition or OpenAPI | OpenAPI only |
+
+The client-name change is the one your users see. If you would rather not break them:
+
+```yaml
+name: AcmeClient
+```
+
+<Warning>
+  **The read/write split changes method signatures.** Once you configure it, where Fern gave you
+  `widgets.create(Widget)` besdk gives you `widgets.create(WidgetCreate)` with the server-owned fields
+  removed. That is a better signature and it is a breaking change for your users, so time it with a
+  major version — [`besdk diff`](/guides/breaking-changes) will classify it as one.
+
+  Splitting is **opt-in**: `check` reports every conflated schema and hands you the config, and nothing
+  changes until you paste it in. So migrating in two steps — same signatures first, split at your next
+  major — needs no extra configuration. Just leave `models.<Schema>.split` out until you are ready.
+</Warning>
+
+## From Speakeasy
+
+The same story with `x-speakeasy-*`:
+
+| Extension | Effect in besdk |
+|---|---|
+| `x-speakeasy-group` | Resource group |
+| `x-speakeasy-name-override` | Method name |
+| `x-speakeasy-ignore` | Left out of the SDK |
+
+Speakeasy's `gen.yaml` maps onto `targets` the same way `generators.yml` does.
+
+### Extensions besdk reports rather than acts on
+
+Some extensions have no faithful translation, and guessing at one would be worse than saying so.
+`check` lists each with the config key that replaces it:
+
+| Extension | Why, and what to use |
+|---|---|
+| `x-fern-pagination`, `x-speakeasy-pagination` | Nested structures whose meaning differs between generators → [`pagination`](/sdk/pagination) |
+| `x-speakeasy-retries` | Retries are a runtime concern → configure them on the client |
+| `x-fern-sdk-return-value` | Not supported; besdk returns the whole response body |
+| `x-fern-examples`, `x-speakeasy-usage-example` | Examples are generated from the spec's own `example` fields |
+| `x-fern-audiences`, `x-speakeasy-max-method-params` | Not supported |
+
+`x-internal` is honoured everywhere, whoever wrote it.
+
+## From openapi-generator or swagger-codegen
+
+There is nothing to carry over — those generators are configured by templates and CLI flags rather
+than by annotations — so this is a fresh `besdk init`, and the diff against your current output will
+be large. That is expected: the whole reason to move is that the output is different.
+
+The two things to look at first:
+
+- **`required`.** openapi-generator honours your spec exactly, so if it declares nothing required
+  your current SDK has every field optional. besdk will too, until you fill in
+  [`models.<Schema>.required`](/guides/read-write-models) — the single biggest quality win available.
+- **Method names.** openapi-generator's `operationId`-derived names are often long
+  (`getWidgetsByIdUsingGET`). besdk uses the same source, so set `x-besdk-method` on the ones that
+  read badly, or a grouping extension to shorten them structurally.
+
+## Migrating away from besdk
+
+The same way you came. Your spec is untouched — besdk never writes to it — and `x-besdk-*`
+annotations are additive, so any other generator ignores them. The generated SDKs have no runtime
+dependency on besdk, so anything already published keeps working regardless.
+
+This is the point of the project rather than a courtesy. The realistic risk in depending on a
+generator is not being stranded; it is a **forced migration at an inconvenient time**, landing on
+your SDK's users as breaking changes. An exit that costs nothing is what makes the risk go away.

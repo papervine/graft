@@ -1,0 +1,100 @@
+---
+title: "besdk"
+description: "An open-source OpenAPI to SDK generator whose output reads as hand-written."
+---
+
+besdk turns an OpenAPI document into client libraries for six languages that look like somebody wrote
+them by hand.
+
+```ts
+import { Acme } from '@acme/sdk';
+
+const client = new Acme();                    // reads ACME_TOKEN
+
+const widget = await client.widgets.create({ name: 'Sprocket' });
+
+for await (const widget of client.widgets.list({ limit: 50 })) {
+  console.log(widget.id);
+}
+```
+
+No `id` on create, because the server assigns it. `list` is async-iterable, because that is what
+TypeScript developers expect. `widgets.get(id)`, not `widgets.get_(id)`.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Three commands to a publishable SDK.
+  </Card>
+  <Card title="Language support" icon="table-cells" href="/sdk/capabilities">
+    What each of the six targets can do today.
+  </Card>
+  <Card title="What gets generated" icon="folder-tree" href="/project-structure">
+    The files you get, and which ones are yours.
+  </Card>
+  <Card title="Publishing" icon="box-open" href="/guides/publishing">
+    Versioning, changelogs, and each registry.
+  </Card>
+</CardGroup>
+
+## What your users get
+
+<CardGroup cols={2}>
+  <Card title="Authentication" href="/sdk/authentication">
+    Every scheme your spec declares, read from the environment by default.
+  </Card>
+  <Card title="Pagination" href="/sdk/pagination">
+    Native iteration in each language, lazily.
+  </Card>
+  <Card title="Errors" href="/sdk/errors">
+    Classes you narrow with `instanceof`, not error-code enums.
+  </Card>
+  <Card title="Retries" href="/sdk/retries">
+    Jittered backoff, and a `POST` that will not replay itself blind.
+  </Card>
+  <Card title="Validation" href="/sdk/validation">
+    A broken contract named at the SDK boundary, not three frames later.
+  </Card>
+  <Card title="Streaming and uploads" href="/sdk/streaming">
+    SSE and binary responses, where the target supports them.
+  </Card>
+  <Card title="Webhooks" href="/sdk/webhooks">
+    Typed events, and verification that refuses a forged payload.
+  </Card>
+</CardGroup>
+
+## Six languages from one document
+
+| | |
+|---|---|
+| [TypeScript](/targets/typescript) | zero dependencies, `tsc --noEmit` as a gate |
+| [Python](/targets/python) | pydantic models, sync and async, `mypy --strict` |
+| [Go](/targets/go) | standard library only, `go vet` as a gate |
+| [PHP](/targets/php) | PSR-4, PHPStan level 9 |
+| [Java](/targets/java) | records and builders, no Jackson, `-Werror` |
+| [.NET](/targets/dotnet) | `sealed record`s, nullable references as errors |
+
+Every judgment — the read/write split, the pagination scheme, the error taxonomy, the hoisted headers
+— is made once and every target reads the same answer. So a list operation paginates the same way in
+all six while each still looks native: `userId` in TypeScript, `user_id` in Python, `UserID` in Go.
+
+A cross-language conformance suite runs all six SDKs against one real HTTP server and asserts both
+that each matched the expected wire trace *and* that every language observed the same thing.
+
+## Generated code that has to compile
+
+Generation **fails** if the output does not pass the target language's own formatter and strict
+typechecker — `tsc --noEmit`, `mypy --strict`, `go vet`, PHPStan level 9, `javac -Werror`,
+`dotnet build -warnaserror`. A generated SDK that does not typecheck is a bug, not a warning.
+
+## Nothing depends on besdk
+
+The transport, retries, auth, pagination, and validation internals are hand-written and vendored into
+your package as `core/`. Your published SDK has no runtime dependency on this tool, so nothing that
+happens to it can reach your users. [Migrating away](/guides/migrating#migrating-away-from-besdk)
+costs nothing, which is the point rather than a courtesy.
+
+<Note>
+  besdk is early, and the project name is a working title. Six languages are implemented; support is
+  uneven in the places listed under [Language support](/sdk/capabilities), and each gap is a method
+  besdk declines to generate rather than one that quietly does the wrong thing.
+</Note>

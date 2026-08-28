@@ -1,0 +1,169 @@
+---
+title: "Python"
+description: "Generating a Python SDK: pydantic models, sync and async clients, and the ruff/mypy gates."
+---
+
+```sh
+besdk generate openapi.yaml --target python --out sdks/python
+```
+
+```python
+from acme import Acme
+
+client = Acme()                                  # reads ACME_TOKEN
+widget = client.widgets.create(name="Sprocket")
+
+for widget in client.widgets.list(limit=50):     # walks every page
+    print(widget.id)
+```
+
+`widget.id`, not `widget.id_`. Keyword arguments, not a positional body. `list()` is not `list_()`.
+
+## Sync and async
+
+Every client and resource exists twice. The async half is a real mirror, not a wrapper.
+
+<CodeGroup>
+```python Sync
+from acme import Acme
+
+with Acme() as client:
+    widget = client.widgets.create(name="Sprocket")
+```
+
+```python Async
+import asyncio
+from acme import AsyncAcme
+
+
+async def main() -> None:
+    async with AsyncAcme() as client:
+        widget = await client.widgets.create(name="Sprocket")
+
+
+asyncio.run(main())
+```
+</CodeGroup>
+
+<Note>
+  A paginated method is **not** a coroutine, even on the async client. `client.widgets.list()`
+  returns a paginator immediately and `async for` drives the requests — so you never write
+  `async for x in await client...`.
+</Note>
+
+## Models
+
+Read models are pydantic; write models are `TypedDict`.
+
+```python
+class Widget(BaseModel):          # a response: attribute access, validated
+    id: str
+    name: str
+    archived_at: datetime | None = None
+
+
+class WidgetCreate(TypedDict):    # a request: pass a plain dict, still type-checked
+    name: str
+    description: NotRequired[str]
+```
+
+This is the split OpenAI's and Anthropic's SDKs use, and it follows from the same read/write analysis
+described in [Read and write models](/guides/read-write-models): a response is something you receive,
+so you want validation and dotted access; a request body is something you construct, so you want a
+literal.
+
+**Responses are validated at runtime**, not just annotated. If the server omits a required field you
+get a `ValidationError` naming it, at the call site.
+
+<Warning>
+  The TypeScript target does not currently validate responses — its types are unchecked assertions.
+  If you generate both, expect a contract violation to surface differently in each.
+</Warning>
+
+## Absent versus null
+
+`NotRequired[T]` means the key may be missing. `T | None` means it may be `null`. They are different,
+and both survive into the generated types.
+
+On the way *out*, omitting an argument and passing `None` also differ — `None` clears a field, absent
+leaves it untouched:
+
+```python
+client.widgets.update(id, description=None)   # sends {"description": null}
+client.widgets.update(id, name="new")         # does not mention description
+```
+
+That is what the `NOT_GIVEN` default on every optional argument is for.
+
+## Errors
+
+```python
+from acme import APIError, NotFoundError, RateLimitError
+
+try:
+    client.widgets.get("missing")
+except NotFoundError as error:
+    print(error.status, error.request_id)
+except RateLimitError as error:
+    print(error.retry_after)
+except APIError as error:
+    print(error.message, error.body)
+```
+
+Every exception subclasses `SDKError`, also exported as `AcmeError`.
+
+## Configuration
+
+```yaml
+targets:
+  python:
+    out: sdks/python
+    packageName: acme          # the importable module and the PyPI name
+    clientName: Acme           # optional; defaults from info.title
+```
+
+## Gates
+
+Generation fails if the output does not pass the language's own tools, run in this order:
+
+| | |
+|---|---|
+| `ruff check --fix` | import sorting and safe fixes |
+| `ruff format` | layout |
+| `ruff check` | lint |
+| `mypy --strict` | types — **not** skippable |
+
+They come from the same environment as the target, so a different global `mypy` cannot produce
+confusing failures. Install them with `pip install ruff mypy`.
+
+<Accordion title="Why E501 is disabled in generated packages">
+  `ruff format` already decides layout. The lines that remain too long are class definitions whose
+  *name* comes from your spec — Stripe declares a schema whose name is 110 characters before any
+  Python is written. No formatter can wrap an identifier, and renaming your schema to satisfy a line
+  limit would be the wrong trade.
+</Accordion>
+
+## Not supported yet
+
+**Streaming is raw lines, not decoded events.** `stream()` returns `Iterator[str]`, so the `data:`
+parsing and JSON decoding are yours. See [Streaming](/sdk/streaming).
+
+**OAuth2 in the async client** shares one token source across concurrent `await`s, so ten in-flight
+calls make one token request.
+
+## What you get
+
+```
+sdks/python/
+├── pyproject.toml
+├── README.md
+└── src/acme/
+    ├── __init__.py         every model and error, by name
+    ├── _client.py          Acme and AsyncAcme
+    ├── models.py
+    ├── widgets.py          one module per resource, sync and async classes
+    ├── py.typed            PEP 561 — without it, your users get no types
+    └── _core/              the hand-written runtime, vendored
+```
+
+`_core/` is vendored, so the package depends on `httpx` and `pydantic` and **not on besdk**.

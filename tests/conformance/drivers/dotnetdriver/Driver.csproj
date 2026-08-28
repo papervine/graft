@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ConformanceDriver</RootNamespace>
+    <AssemblyName>dotnet-driver</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The *generated* SDK, referenced as a consumer would. -->
+    <ProjectReference Include="../../../../sdks/kitchen-sink-dotnet/Acme.KitchenSink.csproj" />
+  </ItemGroup>
+
+</Project>

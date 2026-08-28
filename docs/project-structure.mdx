@@ -1,0 +1,170 @@
+---
+title: "What gets generated"
+description: "The files a generated SDK contains, which ones are yours, and where the runtime lives."
+---
+
+`besdk generate` writes a complete, publishable package — not a folder of modules you have to wire
+up. Every language follows the same shape: a client, one module per resource, the models, and a
+vendored runtime.
+
+## TypeScript
+
+```
+sdks/typescript/
+├── package.json          publishable as-is
+├── tsconfig.json
+├── .prettierrc.json      so regenerating produces identical bytes
+├── README.md             auth, pagination, errors, retries
+├── api.md                every resource and method
+├── examples/
+│   ├── create.ts         thematic — one per usage pattern
+│   └── operations/       one per operation, inside the typecheck gate
+├── tests/
+│   └── operations/       one per operation, run against an injected transport
+└── src/
+    ├── index.ts          the public surface
+    ├── client.ts         Acme, its options, and the resource tree
+    ├── shared.ts         types used by more than one resource
+    ├── schemas.ts        the response-shape descriptor table
+    ├── webhooks.ts       typed events and a verifier, when the spec declares webhooks
+    ├── resources/        one module per resource, with its own types
+    └── core/             the hand-written runtime, vendored
+```
+
+## Python
+
+```
+sdks/python/
+├── pyproject.toml        ruff and mypy config included
+├── README.md
+└── src/acme/
+    ├── __init__.py       the public surface
+    ├── _client.py        Acme and AsyncAcme
+    ├── models.py         every pydantic model and enum
+    ├── _reading.py
+    ├── widgets.py        one module per resource — Widgets and AsyncWidgets
+    ├── py.typed          so mypy trusts the annotations downstream
+    └── _core/            the hand-written runtime, vendored
+```
+
+Leading underscores mark what is not the public surface. `py.typed` is what makes the annotations
+visible to your users' typecheckers — without it a package is untyped no matter how annotated it is.
+
+## Go
+
+```
+sdks/go/
+├── go.mod
+├── README.md
+├── client.go             Acme, New, and the With… options
+├── models.go             every struct, enum, and alias
+├── schemas.go            the response-shape descriptor table
+├── widgets.go            one file per resource
+└── internal/core/        the hand-written runtime, vendored
+```
+
+`internal/` is load-bearing: Go's compiler forbids importing it from outside the module, so the
+runtime cannot become part of your public API by accident.
+
+## PHP
+
+```
+sdks/php/
+├── composer.json         PSR-4 autoload configured
+├── phpstan.neon          level 9
+├── .php-cs-fixer.php
+├── phpunit.xml
+├── README.md
+├── examples/operations/   one per operation, inside the PHPStan gate
+├── tests/operations/      one per operation, plus a self-contained bootstrap
+└── src/
+    ├── Acme.php          the client
+    ├── Widget.php        one file per class — PSR-4 requires it
+    ├── WidgetsResource.php
+    └── Core/             the hand-written runtime, vendored
+```
+
+One class per file, because that is what PSR-4 autoloading requires — so the file count is higher
+than the other languages for the same API.
+
+## Java
+
+```
+sdks/java/
+├── pom.xml
+├── README.md
+├── src/test/java/…/        one example and one test per operation
+└── src/main/java/com/acme/sdk/
+    ├── Acme.java         the client and its builder
+    ├── Widget.java       one record per type
+    ├── Widgets.java      one class per resource
+    └── core/             the hand-written runtime, vendored
+```
+
+## .NET
+
+```
+sdks/dotnet/
+├── Acme.Sdk.csproj       nullable enabled, warnings as errors
+├── README.md
+├── tests/                a separate project — one example and one test per operation
+└── src/
+    ├── AcmeClient.cs
+    ├── Widget.cs         one record per type
+    ├── Widgets.cs        one class per resource
+    └── Core/             the hand-written runtime, vendored
+```
+
+## The runtime is vendored, not depended on
+
+`core/` is copied into your package verbatim. Transport, retries, auth, pagination, error mapping,
+and response validation all live there, hand-written and unit-tested independently of any generated
+code.
+
+This is the answer to "what happens if besdk goes away": nothing. Your published SDK has no runtime
+dependency on this tool, so its users are unaffected by anything that happens to it.
+
+<Note>
+  It also means the runtime is where quality lives. Generated code is a thin, obvious surface over
+  hand-written internals — which is the opposite of generating the machinery and hand-writing the
+  surface, and the reason output reads as written rather than emitted.
+</Note>
+
+## What besdk will overwrite — and remove
+
+Everything above, on every run. besdk also **removes files it previously generated and no longer
+generates**, so renaming a resource or an operation does not leave an orphan behind:
+
+```
+Wrote 24 files to sdks/typescript
+Removed 3 files no longer generated:
+  examples/operations/widgets-list.ts
+  src/resources/widgets.ts
+  tests/operations/widgets-list.test.ts
+```
+
+<Note>
+  Only files besdk itself wrote are ever removed — it keeps a record of them in `.besdk/`. A file you
+  added and never marked preserved is left alone, because deleting something a generator did not create is
+  worse than leaving a stale file. If the record is missing or unreadable, nothing is removed.
+</Note>
+
+Three things survive a regeneration:
+
+1. **Preservation regions.** Code between the `region`/`endregion` markers in a resource file is
+   carried across. On by default. Note that `examples/` and `tests/` have none — see
+   [Examples and tests](/sdk/examples-and-tests#editing-them).
+2. **Files you claim.** `preserve.files` and `.besdkignore` mark paths besdk must never write.
+3. **`package.json` additions.** Dependencies and scripts you added are kept without configuration.
+
+See [Custom code](/guides/custom-code) for all three.
+
+## Should you commit it?
+
+Yes, in most cases. It makes [`besdk diff`](/guides/breaking-changes) meaningful, it lets reviewers
+see what a spec change did to the public surface, and it lets CI assert that regenerating changes
+nothing — which is how you know what you are publishing matches the spec.
+
+```sh
+besdk generate openapi.yaml && git diff --exit-code
+```

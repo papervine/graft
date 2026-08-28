@@ -1,0 +1,69 @@
+#!/usr/bin/env sh
+#
+# Launch the Java target.
+#
+# A wrapper rather than `java -jar` in configuration, for one reason that bit immediately: this target is
+# compiled for Java 21 (SPEC.md §3.3.9 explains why the floor is 21), and a machine can easily have an older
+# `java` first on PATH — or a `JAVA_HOME` pointing at one. The failure then reads
+# `UnsupportedClassVersionError: class file version 65.0`, which looks like a build problem rather than a
+# wrong-JVM problem.
+#
+# So this collects every JVM it can find and picks the first that is actually new enough, rather than the
+# first that exists. Preferring `JAVA_HOME` unconditionally was the first attempt, and it failed on a machine
+# whose `JAVA_HOME` was 17 while devbox provided 21 — which is the normal situation here.
+
+set -e
+
+here=$(cd "$(dirname "$0")" && pwd)
+jar="$here/../target/besdk-target-java.jar"
+required=21
+
+if [ ! -f "$jar" ]; then
+  echo "besdk-target-java: $jar is missing; run \`mvn package\` in packages/target-java" >&2
+  exit 2
+fi
+
+# `java -version` writes to stderr and prints e.g. `openjdk version "21.0.8"`.
+major_version() {
+  "$1" -version 2>&1 | head -1 | sed -n 's/.*version "\([0-9]*\).*/\1/p'
+}
+
+candidates=""
+add_candidate() {
+  [ -n "$1" ] && [ -x "$1" ] && candidates="$candidates
+$1"
+  return 0
+}
+
+# Explicit first, for CI and for anyone with several JDKs installed.
+add_candidate "${SDK_JAVA_HOME:+$SDK_JAVA_HOME/bin/java}"
+# devbox's, which is the JDK this repository pins.
+if command -v devbox >/dev/null 2>&1; then
+  add_candidate "$(cd "$here/../../.." 2>/dev/null && devbox run -- sh -c 'command -v java' 2>/dev/null | tail -1 || true)"
+fi
+add_candidate "${JAVA_HOME:+$JAVA_HOME/bin/java}"
+add_candidate "$(command -v java || true)"
+
+found=""
+for candidate in $candidates; do
+  version=$(major_version "$candidate")
+  if [ -n "$version" ] && [ "$version" -ge "$required" ] 2>/dev/null; then
+    # The chosen JVM's own directory goes on PATH, because that is also where the toolchain that installed it
+    # put google-java-format. Without this the target's handshake could not find the formatter and simply
+    # declared no format gate — silently, which is the failure mode SPEC.md §3.4 says a gate must never have.
+    PATH="$(dirname "$candidate"):$PATH"
+    export PATH
+    exec "$candidate" -jar "$jar" "$@"
+  fi
+  found="$found  $candidate (Java ${version:-unknown})
+"
+done
+
+if [ -z "$found" ]; then
+  echo "besdk-target-java: no java found. Install JDK $required (\`devbox install\`) or set JAVA_HOME." >&2
+else
+  echo "besdk-target-java: no JVM new enough. This target needs Java $required or later; found:" >&2
+  printf '%s' "$found" >&2
+  echo "  Set SDK_JAVA_HOME to a JDK $required+, or run \`devbox install\`." >&2
+fi
+exit 2

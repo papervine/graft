@@ -1,0 +1,52 @@
+{
+  "name": "besdk-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter \"./packages/*\" build",
+    "clean": "pnpm -r --filter \"./packages/*\" clean",
+    "typecheck": "pnpm -r --filter \"./packages/*\" typecheck",
+    "test": "pnpm -r --filter \"./packages/*\" test",
+    "boundaries": "depcruise packages/*/src --config .dependency-cruiser.cjs",
+    "besdk": "node packages/cli/dist/bin.js",
+    "demo": "node packages/cli/dist/bin.js check corpus/twilio/spec.yaml",
+    "verify": "pnpm build && pnpm typecheck && pnpm boundaries && pnpm test && pnpm test:python && pnpm test:go && pnpm test:php && pnpm test:java && pnpm test:dotnet && pnpm generate:all && pnpm diff && pnpm test:conformance && pnpm test:snapshot",
+    "generate": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --out sdks/twilio --clean",
+    "test:conformance": "tsc -p tests/conformance/tsconfig.json && pnpm build:sdk-kitchen-sink && pnpm install:sdk-kitchen-sink-php && vitest run tests/conformance",
+    "test:snapshot": "vitest run tests/snapshot",
+    "generate:kitchen-sink": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --out sdks/kitchen-sink --clean",
+    "generate:all": "pnpm generate && pnpm generate:kitchen-sink && pnpm generate:python && pnpm generate:go && pnpm generate:php && pnpm generate:java && pnpm generate:dotnet && pnpm generate:twilio-python && pnpm generate:twilio-go && pnpm generate:twilio-php && pnpm generate:twilio-java && pnpm generate:twilio-dotnet",
+    "diff": "node packages/cli/dist/bin.js diff corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --strict && node packages/cli/dist/bin.js diff corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --strict",
+    "corpus:fetch": "node scripts/fetch-corpus.mjs",
+    "corpus:private": "node scripts/private-corpus.mjs",
+    "test:python": "node scripts/python-suite.mjs",
+    "generate:python": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --target python --out sdks/kitchen-sink-python --clean",
+    "test:go": "node scripts/go-suite.mjs",
+    "generate:go": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --target go --out sdks/kitchen-sink-go --clean",
+    "build:sdk-kitchen-sink": "npx tsc -p sdks/kitchen-sink/tsconfig.json",
+    "test:php": "node scripts/php-suite.mjs",
+    "generate:php": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --target php --out sdks/kitchen-sink-php --clean",
+    "test:java": "node scripts/java-suite.mjs",
+    "generate:java": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --target java --out sdks/kitchen-sink-java --clean",
+    "install:sdk-kitchen-sink-php": "cd sdks/kitchen-sink-php && composer install --no-interaction --quiet || true",
+    "test:dotnet": "node scripts/dotnet-suite.mjs",
+    "generate:dotnet": "node packages/cli/dist/bin.js generate corpus/kitchen-sink/spec.yaml --config corpus/kitchen-sink/besdk.yaml --target dotnet --out sdks/kitchen-sink-dotnet --clean",
+    "generate:twilio-python": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --target python --clean",
+    "generate:twilio-go": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --target go --clean",
+    "generate:twilio-php": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --target php --clean",
+    "generate:twilio-java": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --target java --clean",
+    "generate:twilio-dotnet": "node packages/cli/dist/bin.js generate corpus/twilio/spec.yaml --config corpus/twilio/besdk.yaml --target dotnet --clean"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "dependency-cruiser": "^16.9.0",
+    "prettier": "^3",
+    "ts-morph": "^25",
+    "typescript": "^5.8.3",
+    "vitest": "^3.0.5"
+  }
+}

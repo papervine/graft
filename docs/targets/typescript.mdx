@@ -1,0 +1,115 @@
+---
+title: "TypeScript"
+description: "What the generated TypeScript SDK looks like, and the idiom decisions behind it."
+---
+
+## Layout
+
+```
+package.json  tsconfig.json  .prettierrc.json
+README.md     api.md         examples/
+src/
+├── index.ts        the public entry point
+├── client.ts       the client class and its options
+├── shared.ts       types used by more than one resource
+├── resources/      one module per resource, with its own types
+└── core/           the hand-written runtime, vendored
+```
+
+Types are **colocated with the resource that owns them**. A type reachable from exactly one resource
+lives in that resource's module; anything reachable from several goes to `shared.ts`. On a
+121-operation API that put 168 types beside their resources and left 72 shared, taking the largest
+file from 2,736 lines to 753.
+
+`src/core/` is vendored, so your package has **no runtime dependency on besdk**.
+
+## Idiom decisions
+
+| Decision | Why |
+|---|---|
+| Path params positional, body next, `options` last | `assets.update(id, body)` — the ordering every mainstream TS SDK uses, so it needs no learning |
+| Query and header params collapse into one `params` object | 16 positional arguments is not an API |
+| `interface`, never `class`, for models | Structural, zero runtime cost, accepts plain object literals |
+| Literal unions, never `enum` | TS `enum` emits runtime code. Open enums union with `(string & {})`, so a new server value is not a decode failure |
+| `unknown`, never `any` | Forces narrowing. `any` would silently disable the gate the whole pipeline rests on |
+| `?` for absent, `\| null` for null | Presence and nullability are different questions |
+| Reserved words stay as method names | `assets.delete(id)` and `.get(id)`. ES5+ allows them; `delete_` is a tell-tale of generated code |
+| No `Client` suffix on the class | `new Acme()` already says "construct a client" |
+| Wire names kept verbatim on fields | `display_name` stays `display_name`. Renaming needs a serialization layer on every request and response, and a lossy one wherever the mapping is not bijective. Stripe's and OpenAI's TS SDKs do the same |
+
+## Client construction
+
+```ts
+const client = new Acme({
+  token: process.env.ACME_TOKEN,   // or username/password, or apiKey
+  baseURL: 'https://api.acme.com/v1',
+  timeout: 60_000,
+  maxRetries: 2,
+  fetch: myFetch,                     // any runtime with fetch
+});
+```
+
+Auth is a discriminated union internally, so illegal combinations cannot typecheck. When a spec
+accepts several schemes you get an option per scheme and a token takes precedence.
+
+The default `baseURL` is the **last** server in the spec, because specs conventionally list staging
+first and production last — defaulting to staging would be a footgun.
+
+A templated server URL becomes one client option per variable; see [Server URLs](/guides/server-urls).
+
+## Constant headers
+
+A spec that puts an `Accept` parameter on all 121 operations would pollute all 121 method signatures.
+besdk detects headers constant across every operation and hoists them into the client's defaults, so
+they appear in **no** signature. Reported as
+[`H001`](/reference/diagnostics#h001-constant-header-hoisted).
+
+## Content types
+
+| Spec declares | Method returns |
+|---|---|
+| `application/json` | the decoded type |
+| `text/csv`, `text/plain` | `Promise<string>` |
+| `application/pdf`, other binary | `Promise<Blob>` |
+| `text/event-stream` | `AsyncGenerator<T>` |
+| `application/x-ndjson` | `AsyncGenerator<T>` |
+| `204`, no content | `Promise<void>` |
+
+Multipart request bodies are sent as `FormData`, with the boundary left to `fetch`. See
+[File uploads](/sdk/file-uploads).
+
+## Webhooks
+
+A spec declaring webhooks gets a typed event union and, once a signature scheme is configured, a verifier:
+
+```ts
+import { verifyWebhook } from '@acme/sdk';
+
+const event = await verifyWebhook(await request.text(), request.headers, secret);
+if (event.type === 'invoice.paid') {
+  event.data.invoice.id;
+}
+```
+
+Verification lives in the vendored runtime, hand-written, and uses `crypto.subtle` — so it works in a
+worker and an edge function as well as in Node. See [Webhooks](/sdk/webhooks).
+
+## Generated docs
+
+`README.md` covers install, auth, pagination, errors, retries, timeouts, and abort. `api.md` lists
+every resource and method with its signature.
+
+`examples/` holds runnable scripts, and they are **inside the typecheck gate** — a second
+`tsconfig.examples.json` compiles them alongside `src/`. A renamed method makes generation fail
+rather than shipping a snippet that lies.
+
+<Note>
+  Example values come from your spec's own `example:` fields where present, and are obvious
+  placeholders (`'...'`) otherwise. besdk never invents data that looks real, because a
+  realistic-looking id in a sample gets copied into production.
+</Note>
+
+## Requirements
+
+Node 18+, or any runtime with a global `fetch`. The generated package's only devDependency is
+`typescript`.

@@ -1,0 +1,188 @@
+---
+title: "Authentication"
+description: "How generated clients take credentials, and the environment variables they read."
+---
+
+Whatever your spec declares under `securitySchemes` becomes a named constructor argument. A spec
+declaring Bearer gets `token`; an API key gets `apiKey`; Basic gets `username` and `password`.
+
+```ts
+const client = new Acme({ token: 'pat_…' });
+```
+
+You do not configure any of this. If a scheme is missing from the client, it is missing from the
+spec — run [`besdk check`](/reference/cli#besdk-check) to see what besdk found.
+
+## Credentials come from the environment by default
+
+Every credential falls back to an environment variable, so the first line of a script is a bare
+constructor:
+
+<CodeGroup>
+```ts TypeScript
+const client = new Acme();          // reads ACME_TOKEN
+```
+
+```python Python
+client = Acme()                     # reads ACME_TOKEN
+```
+
+```go Go
+client := acme.New()                // reads ACME_TOKEN
+```
+
+```php PHP
+$client = new Acme();               // reads ACME_TOKEN
+```
+
+```java Java
+var client = Acme.builder().build(); // reads ACME_TOKEN
+```
+
+```csharp C#
+var client = new AcmeClient();       // reads ACME_TOKEN
+```
+</CodeGroup>
+
+An explicit argument always wins. The variable is only consulted when you pass nothing.
+
+The names are built from your client name, and every language reads the same one:
+
+| Scheme | Variable |
+|---|---|
+| HTTP Bearer | `ACME_TOKEN` |
+| API key | `ACME_API_KEY` |
+| HTTP Basic | `ACME_USERNAME`, `ACME_PASSWORD` |
+| OAuth2 client credentials | `ACME_CLIENT_ID`, `ACME_CLIENT_SECRET` |
+| OAuth2 refresh token | `ACME_REFRESH_TOKEN` |
+
+An empty value counts as absent. `ACME_TOKEN=` in a `.env` file is how a variable gets unset in
+practice, and treating it as a credential sends `Authorization: Bearer ` — a 401 whose cause is
+invisible from either side.
+
+### Choosing the prefix
+
+Set `envPrefix` when your organisation's variables do not match your client's name:
+
+```yaml
+name: Acme
+envPrefix: ACME_PLATFORM     # ACME_PLATFORM_TOKEN, ACME_PLATFORM_API_KEY, …
+```
+
+Separate from `name` because renaming the class to match the variables is the wrong end of the
+problem.
+
+## Several schemes at once
+
+A spec listing more than one scheme means *alternatives*, not a conjunction — Pixwel accepts a
+personal access token or Basic credentials, and Twilio accepts only Basic. The generated client
+offers every scheme the spec declares and picks the first one you supply:
+
+```ts
+const client = new Acme({ token: 'pat_…' });              // Bearer
+const client = new Acme({ username: 'u', password: 'p' }); // Basic
+```
+
+Precedence is a fetched OAuth2 token, then a bearer token, then an API key, then Basic. Supplying
+none produces an unauthenticated client rather than an error, because plenty of APIs have public
+endpoints.
+
+## OAuth2
+
+besdk implements the two flows an SDK can honestly own.
+
+### Client credentials
+
+Machine-to-machine, and entirely the SDK's job. Pass the credentials and the SDK fetches and
+refreshes tokens itself:
+
+<CodeGroup>
+```ts TypeScript
+const client = new Acme({
+  clientId: process.env.ACME_CLIENT_ID,
+  clientSecret: process.env.ACME_CLIENT_SECRET,
+});
+```
+
+```python Python
+client = Acme(client_id="…", client_secret="…")
+```
+
+```go Go
+client := acme.New(acme.WithClientCredentials(id, secret))
+```
+
+```php PHP
+$client = new Acme(clientId: $id, clientSecret: $secret);
+```
+
+```java Java
+var client = Acme.builder().clientId(id).clientSecret(secret).build();
+```
+
+```csharp C#
+var client = new AcmeClient(clientId: id, clientSecret: secret);
+```
+</CodeGroup>
+
+One token request per refresh however many calls are in flight, refreshed slightly before expiry,
+and retried once on a 401 in case the server expired it early.
+
+Scopes default to everything the spec declares. Pass `scopes` to narrow them.
+
+### Refresh token
+
+You obtained a token through your own authorization-code redirect and want the SDK to keep it
+current:
+
+```ts
+const client = new Acme({ refreshToken: process.env.ACME_REFRESH_TOKEN });
+```
+
+### What besdk will not do
+
+**The authorization-code redirect itself.** It needs a browser, a redirect URI you control, and a
+callback route in your application — none of which an SDK can supply. A spec declaring only
+`authorizationCode` still generates: you get `refreshToken`, and `token` for an access token you
+already hold. Generation says so:
+
+```
+info: Security scheme `OAuth2AuthCode` uses the authorization-code flow. The redirect needs a
+      browser, so it stays your application's job — pass the resulting token as `token`, or a
+      refresh token to have the SDK keep it current.
+```
+
+**The implicit and password flows.** Both are deprecated by OAuth 2.1. A spec declaring only these
+yields a client that accepts a token directly, and `check` reports it as
+[`A002`](/reference/diagnostics).
+
+**`openIdConnect` discovery.** Resolving the discovery URL means a network request at generation
+time, which would make generation depend on a server being up. The scheme becomes a bearer option
+instead.
+
+## Rotating a credential
+
+Construct a new client. Clients are cheap — they hold configuration and an HTTP client, not a
+connection pool you need to keep warm — and an immutable client is what makes it safe to share one
+across threads or requests.
+
+## Testing without real credentials
+
+Inject a transport rather than a fake token. Every target accepts one, and it is the only way to
+test code that calls the SDK without making network calls:
+
+<CodeGroup>
+```ts TypeScript
+const client = new Acme({ fetch: async () => new Response('{"id":"w_1"}') });
+```
+
+```python Python
+client = Acme(http_client=httpx.Client(transport=httpx.MockTransport(handler)))
+```
+
+```go Go
+client := acme.New(acme.WithHTTPClient(server.Client()), acme.WithBaseURL(server.URL))
+```
+</CodeGroup>
+
+See each language's page for the exact shape.

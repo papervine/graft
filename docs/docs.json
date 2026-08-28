@@ -1,0 +1,111 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "besdk",
+  "description": "An open-source OpenAPI to SDK generator whose output reads as hand-written.",
+  "colors": {
+    "primary": "#0F766E",
+    "light": "#5EEAD4",
+    "dark": "#134E4A"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": [
+              "index",
+              "quickstart",
+              "project-structure"
+            ]
+          },
+          {
+            "group": "What your users get",
+            "pages": [
+              "sdk/authentication",
+              "sdk/pagination",
+              "sdk/errors",
+              "sdk/retries",
+              "sdk/validation",
+              "sdk/streaming",
+              "sdk/file-uploads",
+              "sdk/webhooks",
+              "sdk/examples-and-tests",
+              "sdk/capabilities"
+            ]
+          },
+          {
+            "group": "Shaping the SDK",
+            "pages": [
+              "guides/read-write-models",
+              "guides/naming",
+              "guides/server-urls",
+              "guides/custom-code",
+              "concepts/enrichment"
+            ]
+          },
+          {
+            "group": "Shipping it",
+            "pages": [
+              "guides/breaking-changes",
+              "guides/publishing"
+            ]
+          },
+          {
+            "group": "Languages",
+            "pages": [
+              "targets/typescript",
+              "targets/python",
+              "targets/go",
+              "targets/php",
+              "targets/java",
+              "targets/dotnet",
+              "targets/writing-a-target"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/cli",
+              "reference/configuration",
+              "reference/extensions",
+              "reference/diagnostics",
+              "guides/migrating",
+              "concepts/how-it-works"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "redirects": [
+    {
+      "source": "/guides/pagination",
+      "destination": "/sdk/pagination"
+    },
+    {
+      "source": "/guides/errors",
+      "destination": "/sdk/errors"
+    },
+    {
+      "source": "/guides/validation",
+      "destination": "/sdk/validation"
+    }
+  ],
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/besdk/besdk"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/besdk/besdk"
+    }
+  }
+}

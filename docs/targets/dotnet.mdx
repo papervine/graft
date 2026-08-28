@@ -1,0 +1,169 @@
+---
+title: ".NET"
+description: "What the C# SDK looks like, and the idioms it commits to."
+---
+
+Requires **.NET 8**. Generated packages have **no package references**, build clean with nullable reference types
+and warnings as errors, and are formatted by `dotnet format`.
+
+## Idioms
+
+| IR concept | C# rendering | Why |
+|---|---|---|
+| Read model | `sealed record` with `required` init properties | Immutable and value-equal, and the compiler enforces presence |
+| Write body | object initialiser | `required` gives named assignment *and* compile-time enforcement — no builder needed |
+| Optional field | `T?` | Nullable reference types are the analogue of a strict typechecker here |
+| Enum | `enum` plus `WireValue()`/`FromWire()` | C# enums cannot carry string values, so the mapping lives in extension methods |
+| Errors | exceptions | C# has no checked exceptions, so the question does not arise |
+| Paginated list | `IAsyncEnumerable<T>` | `await foreach` is the language's own answer |
+| Timestamps | `DateTimeOffset` | `DateTime` silently discards the offset a wire timestamp carries |
+
+## No package references
+
+`System.Text.Json` and `System.Net.Http` are both in the BCL, so a generated SDK adds nothing to your dependency
+graph and cannot conflict with what your application already uses.
+
+<Note>
+  This is the same goal the Java target reaches by hand-writing a JSON parser — achieved here for free, because the
+  parser is part of the platform rather than a package. The argument that makes a bundled JSON dependency a problem
+  (version skew with the consuming application) simply does not apply to something that ships with the runtime.
+</Note>
+
+## Everything is async
+
+```csharp
+using Acme.Sdk;
+
+var client = new AcmeClient();                     // reads ACME_TOKEN
+var client = new AcmeClient(token: "pat_…");       // or pass it
+
+Widget widget = await client.Widgets.GetAsync("w_1");
+```
+
+There is no synchronous overload, deliberately. `HttpClient` has no synchronous API worth using — `.Result` on a
+`Task` deadlocks in several hosting models — so a sync wrapper would ship a deadlock with a friendly name on it.
+
+Every async method takes a `CancellationToken`, because adding one later is a breaking change to every signature.
+
+## Records in, initialisers out
+
+```csharp
+Widget widget = await client.Widgets.GetAsync("w_1");
+
+widget.Name;
+widget.CreatedAt;              // a DateTimeOffset?
+
+widget = widget with { Name = "Renamed" };   // records give you this
+```
+
+A request body is an object initialiser, and `required` means omitting a mandatory field is a **compile error**:
+
+```csharp
+var made = await client.Widgets.CreateAsync(new WidgetCreate { Name = "Sprocket" });
+```
+
+<Note>
+  This is why the .NET target has no builders anywhere, while the Java target has them everywhere. Java has neither
+  named assignment nor a way to demand a field at compile time; C# has both.
+</Note>
+
+## Pagination
+
+```csharp
+await foreach (var widget in client.Widgets.List(limit: 50))
+{
+    Console.WriteLine(widget.Id);
+}
+
+var page = await client.Widgets.List(limit: 50).FirstPageAsync();
+page.Items;
+page.Total;
+
+var all = await client.Widgets.List(limit: 50).AllAsync();
+```
+
+Lazy: no request happens until enumeration begins, so a 404 surfaces where you enumerate rather than where you built
+the paginator. A paginated method is *not* suffixed `Async` — it returns a paginator rather than a `Task`.
+
+## Errors
+
+```csharp
+using Acme.Sdk.Core;
+
+try
+{
+    await client.Widgets.GetAsync("missing");
+}
+catch (NotFoundException e)
+{
+    e.StatusCode;    // 404
+    e.RequestId;
+}
+catch (RateLimitException e)
+{
+    await Task.Delay(e.RetryAfter ?? TimeSpan.FromSeconds(1));
+}
+```
+
+Every error extends `AcmeException`. See [Errors](/sdk/errors) for the full hierarchy and the retry rules.
+
+## Testing without a network
+
+Inject a transport. Without this, testing code that uses the SDK means making real network calls:
+
+```csharp
+using Acme.Sdk.Core;
+
+internal sealed class FakeTransport : ITransport
+{
+    public Task<HttpResponseSpec> SendAsync(HttpRequestSpec request, TimeSpan timeout, CancellationToken token) =>
+        Task.FromResult(new HttpResponseSpec(
+            200,
+            """{"id":"w_1","name":"Test"}""",
+            new Dictionary<string, string> { ["content-type"] = "application/json" }));
+}
+
+var client = new AcmeClient(transport: new FakeTransport());
+```
+
+## Response validation
+
+Responses are checked against the shape the spec declared before they reach a record, so a mismatch names the field:
+
+```
+widgets.list: the response did not match the API's declared shape — [0].id should be a string but was an integer
+```
+
+Pass `validation: ValidationMode.Warn` or `.Off` to change that. With validation off, a required field of the wrong
+type still fails as a `DecodeException` naming the record and key. See
+[Response validation](/sdk/validation).
+
+## Gates
+
+| Gate | Why |
+|---|---|
+| `dotnet format` | One canonical style, which is what makes a formatter a gate rather than an argument |
+| `dotnet build -warnaserror` | Nullable-reference warnings included — which is what makes `T?` enforced rather than documented |
+
+## A naming caveat
+
+.NET cannot disambiguate a type whose name is also a namespace segment. If your spec is titled `Widget Co` and your
+package is `WidgetCo.Sdk`, the natural client name `WidgetCo` collides with the namespace, and nothing outside the
+package could reference it. besdk detects this and names the client `WidgetCoClient`, warning as it does:
+
+```
+warn: `WidgetCo` is also a segment of the namespace `WidgetCo.Sdk`, which C# cannot disambiguate,
+      so the client class is `WidgetCoClient`. Set `clientName` or `rootNamespace` to choose something else.
+```
+
+The suffix is also .NET's own convention — `HttpClient`, `BlobServiceClient` — so the fallback reads native. Set
+`clientName` or `rootNamespace` if you would rather choose.
+
+## Not supported yet
+
+**Streaming responses.** A `text/event-stream` operation is skipped, and generation warns. Skipped rather than
+emitted, because a method that JSON-decoded an SSE stream cannot work and looks like it should. Everything else in
+the spec still generates.
+
+
+**Unions** map to `object`, matching the Go and Java targets.

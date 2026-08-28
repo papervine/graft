@@ -1,0 +1,70 @@
+# besdk configuration for the kitchen-sink conformance fixture.
+#
+# Hand-maintained rather than `besdk init` output: this spec exists to exercise constructs the public
+# corpus does not, so every judgment here is deliberate.
+
+spec: corpus/kitchen-sink/spec.yaml
+name: Kitchen Sink
+
+# One spec, one config, six targets. Every judgment below — the pagination scheme, the error shapes, the
+# webhook signature — is made once and applies to all of them.
+#
+# `command` runs each target out of this checkout, so a fresh clone needs no global install. A user who
+# installed the target omits it and lets PATH find `besdk-target-<name>`, which is the documented default.
+# The paths are *relative to the repository root*, because an absolute path is one machine's and this file
+# is committed.
+targets:
+  typescript:
+    out: sdks/typescript
+    packageName: '@kitchen-sink/sdk'
+    validation: strict
+  go:
+    out: sdks/kitchen-sink-go
+    packageName: kitchensink
+    modulePath: github.com/acme/kitchensink-go
+    command:
+      - packages/target-go/bin/besdk-target-go
+  java:
+    out: sdks/kitchen-sink-java
+    packageName: com.acme:kitchen-sink
+    command:
+      - packages/target-java/bin/besdk-target-java
+  dotnet:
+    out: sdks/kitchen-sink-dotnet
+    packageName: Acme.KitchenSink
+    command:
+      - packages/target-dotnet/bin/besdk-target-dotnet
+  php:
+    out: sdks/kitchen-sink-php
+    packageName: acme/kitchen-sink
+    command:
+      - packages/target-php/bin/besdk-target-php
+  python:
+    out: sdks/kitchen-sink-python
+    packageName: kitchen_sink
+    command:
+      - packages/runtime-python/.venv/bin/python
+      - -c
+      - 'import sys, pathlib; sys.path.insert(0, str(pathlib.Path("packages/target-python/src").resolve())); from besdk_target_python.__main__ import main; sys.exit(main(sys.argv[1:]))'
+
+# Cursor pagination, which the offset and page styles do not exercise: the runtime has to read the next
+# cursor out of the response body rather than counting.
+pagination:
+  default:
+    style: cursor
+    limit: limit
+    cursor: cursor
+    items: 'body:data'
+    cursorFrom: 'body:next_cursor'
+
+# Webhooks the API sends. The signature descriptor is Stripe-shaped — a structured header signing
+# `{timestamp}.{body}` — because that is the variant with the most moving parts (SPEC.md §3.4.1.3).
+webhooks:
+  signature:
+    header: X-Signature
+    format: structured
+    signatureKey: v1
+    timestampKey: t
+    signedTemplate: '{timestamp}.{body}'
+    encoding: hex
+    toleranceSeconds: 300

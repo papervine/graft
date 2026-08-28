@@ -1,0 +1,117 @@
+---
+title: "Pagination"
+description: "How besdk decides an endpoint paginates, and what the generated iterator looks like."
+---
+
+## The generated shape
+
+A paginated method returns a paginator that is both awaitable and async-iterable:
+
+```ts
+// Every item, across pages. Requests are lazy.
+for await (const widget of client.widgets.list({ status: 'active' })) {
+  console.log(widget.id);
+}
+
+// One page, with the envelope.
+const page = await client.widgets.list({ limit: 50 });
+console.log(page.items, page.total, page.hasNextPage);
+const next = await page.nextPage();
+
+// Page objects rather than items.
+for await (const page of client.widgets.list().pages()) { … }
+
+// Everything at once. Convenient, and honestly unbounded.
+const all = await client.widgets.list().all();
+```
+
+One return value rather than a `list`/`listPaginated` pair. Nothing is requested until you await or
+iterate.
+
+## How besdk decides
+
+**Paging parameters alone are not evidence.** On a real spec, one shared parameter block was applied
+to all 33 `GET` operations, so `limit` and `offset` appeared on `reindex`, `analyze`, and
+`syncclerk` — none of which return a collection. Emitting an iterator for `assets.reindex()` would be
+confidently wrong.
+
+So an operation is paginated only when the response *also* looks like a collection:
+
+| Response shape | Verdict |
+|---|---|
+| A bare array | paginated |
+| `{ data: [...], next_cursor }` | paginated, items read from `data` |
+| A single object | **not** paginated |
+| No schema at all | **not** paginated — cannot tell |
+
+The ones besdk declines are reported as
+[`P002`](/reference/diagnostics#p002-pagination-unresolved) so you can correct any it got wrong.
+
+## Configuring it
+
+<Tabs>
+  <Tab title="Offset">
+    ```yaml
+    pagination:
+      default:
+        style: offset
+        limit: limit
+        offset: offset
+        total: "header:X-Content-Range"
+    ```
+
+    A total count is the most reliable stop signal. Without one, besdk stops on a short page — and
+    if there is no `limit` either, it cannot know a next page exists and stops after one request
+    rather than looping.
+  </Tab>
+
+  <Tab title="Cursor">
+    ```yaml
+    pagination:
+      default:
+        style: cursor
+        limit: limit
+        cursor: cursor
+        items: "body:data"
+        cursorFrom: "body:next_cursor"
+    ```
+
+    Iteration ends when the server stops sending a cursor.
+  </Tab>
+
+  <Tab title="Page number">
+    ```yaml
+    pagination:
+      default:
+        style: page
+        limit: per_page
+        page: page
+        total: "body:meta.total"
+    ```
+  </Tab>
+</Tabs>
+
+`items`, `cursorFrom`, and `total` accept `root`, `header:<Name>`, or `body:<dotted.path>`.
+
+## Per-operation overrides
+
+```yaml
+pagination:
+  operations:
+    reindexAssets: none    # accepts paging params, is not a collection
+    listAudit: { style: cursor, cursor: after, items: "body:entries" }
+```
+
+Keyed by `operationId`. Or in the spec:
+
+```yaml
+paths:
+  /assets/reindex:
+    get:
+      x-besdk-pagination: none
+```
+
+<Note>
+  Filters you pass are preserved on every page — `list({ studio: 's_1', limit: 10 })` keeps `status`
+  as it advances. Only the paging parameters change.
+</Note>

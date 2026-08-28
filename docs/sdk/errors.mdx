@@ -1,0 +1,114 @@
+---
+title: "Errors"
+description: "The generated error hierarchy, and how to narrow it."
+---
+
+## Narrowing
+
+Every non-2xx response throws a subclass of `APIError`. `instanceof` is the idiomatic TypeScript
+check, so the hierarchy is real classes — not a tagged union or an error-code enum:
+
+```ts
+import { NotFoundError, RateLimitError, APIError } from '@acme/sdk';
+
+try {
+  await client.widgets.get('missing');
+} catch (error) {
+  if (error instanceof NotFoundError) {
+    // error.status is 404, literal-typed. No cast needed.
+  } else if (error instanceof RateLimitError) {
+    await sleep((error.retryAfterSeconds ?? 1) * 1000);
+  } else if (error instanceof APIError) {
+    console.error(error.status, error.requestId, error.body);
+  } else {
+    throw error; // not from this SDK
+  }
+}
+```
+
+## The hierarchy
+
+```
+Error
+└── SDKError                    also exported as <ClientName>Error
+    ├── APIError                the server responded; always has a status
+    │   ├── BadRequestError            400
+    │   ├── AuthenticationError        401
+    │   ├── PermissionDeniedError      403
+    │   ├── NotFoundError              404
+    │   ├── ConflictError              409
+    │   ├── UnprocessableEntityError   422
+    │   ├── RateLimitError             429  · retryAfterSeconds
+    │   └── InternalServerError        5xx
+    ├── APIConnectionError      the request never completed; no status
+    │   └── APIConnectionTimeoutError
+    ├── APIUserAbortError       you aborted via AbortSignal
+    └── StreamDecodeError
+```
+
+Connection failures are errors too, but they have no status — so they sit on their own branch,
+which lets `status` stay a plain `number` on everything that *did* come back from a server.
+
+`SDKError` is also exported under your own brand, so a catch block can read in your terms:
+
+```ts
+import { AcmeError } from '@acme/sdk';
+
+if (error instanceof AcmeError) { … }
+```
+
+## What is on an `APIError`
+
+| Property | |
+|---|---|
+| `status` | HTTP status. Literal-typed on each subclass |
+| `body` | Parsed response body, when the server sent one |
+| `headers` | Response headers |
+| `requestId` | `x-request-id`, when present. Worth quoting in a support ticket |
+| `message` | The server's own words where findable, else `HTTP <status>` |
+
+An error body comes back as text rather than throwing when it is not JSON — real servers return HTML
+on error even when the spec promises JSON.
+
+## Typing the body
+
+Most specs declare error responses with no schema, so besdk reports
+[`E001`](/reference/diagnostics#e001-error-schema-missing) and asks you for the shape:
+
+```yaml
+errors:
+  default: { schema: { error: string } }
+  statuses:
+    429: { name: RateLimited, retryable: true }
+```
+
+A schema the spec *does* declare is used automatically. Explicit config wins over inference.
+
+## Retries
+
+Retryable failures are retried automatically, and a `POST` needs an idempotency key before it can
+be. See [Retries and idempotency](/sdk/retries).
+
+## OAuth2 failures
+
+A refused token request raises `OAuth2Error`, which carries the server's RFC 6749 code rather than a
+generic message:
+
+```ts
+import { OAuth2Error } from '@acme/sdk';
+
+try {
+  await client.widgets.list();
+} catch (error) {
+  if (error instanceof OAuth2Error) {
+    console.error(error.code, error.message);   // invalid_client, "Client authentication failed"
+  }
+}
+```
+
+`OAuth2Error` does **not** extend `APIError` — the failure was authenticating, not calling your API,
+and conflating the two sends a caller looking at the wrong endpoint. Token requests are never
+retried: a 400 from a token endpoint means the credentials are wrong, and retrying is both pointless
+and indistinguishable from a brute-force attempt.
+
+See [Authentication](/sdk/authentication#oauth2) for setup.

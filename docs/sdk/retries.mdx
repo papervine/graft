@@ -1,0 +1,134 @@
+---
+title: "Retries and idempotency"
+description: "What gets retried, what does not, and how to make a POST safe to replay."
+---
+
+Retried twice by default with jittered exponential backoff, honouring `retry-after`.
+
+```ts
+const client = new Acme({ maxRetries: 5, timeout: 30_000 });
+
+await client.widgets.get('w_1', { maxRetries: 0, timeout: 5_000 });
+```
+
+`timeout` is per attempt, not per call. Three attempts at 30 seconds can take 90 seconds plus
+backoff, so bound total time with an abort signal or a context deadline if you need a ceiling.
+
+## What counts as a retryable failure
+
+- a connection failure or timeout
+- `408`, `409`, `429`
+- `5xx` — except `501`, since an unimplemented method stays unimplemented
+
+A caller-initiated abort is never retried: it was a decision, not a failure. Neither is a `4xx`
+other than the three above — the request was wrong, and sending it again will not make it right.
+
+## Which requests may be replayed
+
+A retryable failure is not enough on its own. Whether the *request* may be sent twice depends on its
+method:
+
+| Method | Retried on a retryable failure |
+|---|---|
+| `GET`, `HEAD`, `OPTIONS` | Yes — no side effects |
+| `PUT`, `DELETE` | Yes — idempotent by HTTP semantics |
+| `POST`, `PATCH` | **Only with an idempotency key** |
+
+<Warning>
+  A `503` on a `POST` does not mean the server ignored the request. It may have created the resource
+  and failed while replying. Retrying blind is how one call becomes three charges — so without an
+  idempotency key the SDK raises the error instead of resending.
+</Warning>
+
+This is why `maxRetries: 5` will not, on its own, make a flaky `POST` succeed. Give it a key.
+
+## Idempotency keys
+
+Pass a key and the `POST` becomes replayable, because the server can recognise the retry as the same
+request:
+
+<CodeGroup>
+
+```ts TypeScript
+await client.charges.create(
+  { amount: 500, currency: 'usd' },
+  { idempotencyKey: crypto.randomUUID() },
+);
+```
+
+```python Python
+client.charges.create(
+    body={"amount": 500, "currency": "usd"},
+    options=RequestOptions(idempotency_key=str(uuid.uuid4())),
+)
+```
+
+```go Go
+client.Charges.Create(ctx,
+    &acme.ChargesCreateParams{Amount: 500, Currency: "usd"},
+    &acme.RequestOptions{IdempotencyKey: uuid.NewString()})
+```
+
+```php PHP
+$client->charges->create(
+    new ChargeCreate(amount: 500, currency: 'usd'),
+    new RequestOptions(idempotencyKey: $uuid),
+);
+```
+
+```java Java
+client.charges().create(
+    ChargeCreate.builder().amount(500L).currency("usd").build(),
+    RequestOptions.builder().idempotencyKey(UUID.randomUUID().toString()).build());
+```
+
+```csharp C#
+await client.Charges.CreateAsync(
+    new ChargeCreate { Amount = 500, Currency = "usd" },
+    new RequestOptions { IdempotencyKey = Guid.NewGuid().ToString() });
+```
+
+</CodeGroup>
+
+The same key is sent on every attempt, unchanged — a new key per attempt would defeat the point.
+
+### Changing the header
+
+The key goes in `Idempotency-Key`. That header is not standardised — `X-Idempotency-Key` and
+`Idempotency-Token` are both in real use — so if your API expects another name, set it once:
+
+```yaml besdk.yaml
+targets:
+  typescript:
+    out: sdks/typescript
+    idempotencyHeader: X-Idempotency-Key
+```
+
+<Note>
+  Deduplication happens on the server. The SDK sends the key and resends it unchanged; whether two
+  requests carrying the same key produce one effect is your API's contract, not the SDK's. Reuse a key
+  only for a retry of the same call — a new call needs a new key.
+</Note>
+
+## Bodies are buffered
+
+A request body is read into memory before the first attempt, so a retry sends byte-identical
+content. Without this a streamed body read once would send nothing the second time, and the retry
+would look to the server like an empty request.
+
+## Rate limits
+
+`429` is retryable and `retry-after` is honoured, so a client under a rate limit backs off on its
+own. When retries run out you get a `RateLimitError` carrying the header:
+
+```ts
+try {
+  await client.widgets.list();
+} catch (error) {
+  if (error instanceof RateLimitError) {
+    await sleep((error.retryAfterSeconds ?? 1) * 1000);
+  }
+}
+```
+
+See [Errors](/sdk/errors) for the full hierarchy.

@@ -1,0 +1,1924 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generated SDK surface > emits a stable set of files 1`] = `
+[
+  "src/client.ts",
+  "src/core/auth.ts",
+  "src/core/client.ts",
+  "src/core/coerce.ts",
+  "src/core/errors.ts",
+  "src/core/index.ts",
+  "src/core/oauth2.ts",
+  "src/core/pagination.ts",
+  "src/core/streaming.ts",
+  "src/core/validate.ts",
+  "src/core/webhooks.ts",
+  "src/errors.ts",
+  "src/index.ts",
+  "src/resources/Api20100401Account.ts",
+  "src/resources/Api20100401AddOnResult.ts",
+  "src/resources/Api20100401Address.ts",
+  "src/resources/Api20100401AllTime.ts",
+  "src/resources/Api20100401Application.ts",
+  "src/resources/Api20100401AssignedAddOn.ts",
+  "src/resources/Api20100401AssignedAddOnExtension.ts",
+  "src/resources/Api20100401AuthCallsCredentialListMapping.ts",
+  "src/resources/Api20100401AuthCallsIpAccessControlListMapping.ts",
+  "src/resources/Api20100401AuthRegistrationsCredentialListMapping.ts",
+  "src/resources/Api20100401AuthorizedConnectApp.ts",
+  "src/resources/Api20100401AvailablePhoneNumberCountry.ts",
+  "src/resources/Api20100401Balance.ts",
+  "src/resources/Api20100401Call.ts",
+  "src/resources/Api20100401CallNotification.ts",
+  "src/resources/Api20100401CallRecording.ts",
+  "src/resources/Api20100401CallTranscription.ts",
+  "src/resources/Api20100401Conference.ts",
+  "src/resources/Api20100401ConferenceRecording.ts",
+  "src/resources/Api20100401ConnectApp.ts",
+  "src/resources/Api20100401Credential.ts",
+  "src/resources/Api20100401CredentialList.ts",
+  "src/resources/Api20100401CredentialListMapping.ts",
+  "src/resources/Api20100401Daily.ts",
+  "src/resources/Api20100401Data.ts",
+  "src/resources/Api20100401DependentPhoneNumber.ts",
+  "src/resources/Api20100401Domain.ts",
+  "src/resources/Api20100401Event.ts",
+  "src/resources/Api20100401Feedback.ts",
+  "src/resources/Api20100401IncomingPhoneNumber.ts",
+  "src/resources/Api20100401IncomingPhoneNumberLocal.ts",
+  "src/resources/Api20100401IncomingPhoneNumberMobile.ts",
+  "src/resources/Api20100401IncomingPhoneNumberTollFree.ts",
+  "src/resources/Api20100401IpAccessControlList.ts",
+  "src/resources/Api20100401IpAccessControlListMapping.ts",
+  "src/resources/Api20100401Key.ts",
+  "src/resources/Api20100401LastMonth.ts",
+  "src/resources/Api20100401Local.ts",
+  "src/resources/Api20100401MachineToMachine.ts",
+  "src/resources/Api20100401Media.ts",
+  "src/resources/Api20100401MediaInstance.ts",
+  "src/resources/Api20100401Member.ts",
+  "src/resources/Api20100401Message.ts",
+  "src/resources/Api20100401Mobile.ts",
+  "src/resources/Api20100401Monthly.ts",
+  "src/resources/Api20100401National.ts",
+  "src/resources/Api20100401NewKey.ts",
+  "src/resources/Api20100401NewSigningKey.ts",
+  "src/resources/Api20100401Notification.ts",
+  "src/resources/Api20100401OutgoingCallerId.ts",
+  "src/resources/Api20100401Participant.ts",
+  "src/resources/Api20100401Payload.ts",
+  "src/resources/Api20100401Payment.ts",
+  "src/resources/Api20100401Queue.ts",
+  "src/resources/Api20100401Record.ts",
+  "src/resources/Api20100401Recording.ts",
+  "src/resources/Api20100401RecordingTranscription.ts",
+  "src/resources/Api20100401SharedCost.ts",
+  "src/resources/Api20100401ShortCode.ts",
+  "src/resources/Api20100401SigningKey.ts",
+  "src/resources/Api20100401SipIpAddress.ts",
+  "src/resources/Api20100401Siprec.ts",
+  "src/resources/Api20100401Stream.ts",
+  "src/resources/Api20100401ThisMonth.ts",
+  "src/resources/Api20100401Today.ts",
+  "src/resources/Api20100401Token.ts",
+  "src/resources/Api20100401TollFree.ts",
+  "src/resources/Api20100401Transcription.ts",
+  "src/resources/Api20100401Trigger.ts",
+  "src/resources/Api20100401UserDefinedMessage.ts",
+  "src/resources/Api20100401UserDefinedMessageSubscription.ts",
+  "src/resources/Api20100401ValidationRequest.ts",
+  "src/resources/Api20100401Voip.ts",
+  "src/resources/Api20100401Yearly.ts",
+  "src/resources/Api20100401Yesterday.ts",
+  "src/schemas.ts",
+  "src/shared.ts",
+]
+`;
+
+exports[`generated SDK surface > emits a stable set of files on disk, docs included 1`] = `
+[
+  ".prettierrc.json",
+  "README.md",
+  "api.md",
+  "examples/create.ts",
+  "examples/env.d.ts",
+  "examples/error-handling.ts",
+  "examples/fetch-one.ts",
+  "examples/operations/api20100401account-create.ts",
+  "examples/operations/api20100401account-get.ts",
+  "examples/operations/api20100401account-list.ts",
+  "examples/operations/api20100401account-update.ts",
+  "examples/operations/api20100401addonresult-delete.ts",
+  "examples/operations/api20100401addonresult-get.ts",
+  "examples/operations/api20100401addonresult-list.ts",
+  "examples/operations/api20100401address-create.ts",
+  "examples/operations/api20100401address-delete.ts",
+  "examples/operations/api20100401address-get.ts",
+  "examples/operations/api20100401address-list.ts",
+  "examples/operations/api20100401address-update.ts",
+  "examples/operations/api20100401alltime-list.ts",
+  "examples/operations/api20100401application-create.ts",
+  "examples/operations/api20100401application-delete.ts",
+  "examples/operations/api20100401application-get.ts",
+  "examples/operations/api20100401application-list.ts",
+  "examples/operations/api20100401application-update.ts",
+  "examples/operations/api20100401assignedaddon-create.ts",
+  "examples/operations/api20100401assignedaddon-delete.ts",
+  "examples/operations/api20100401assignedaddon-get.ts",
+  "examples/operations/api20100401assignedaddon-list.ts",
+  "examples/operations/api20100401assignedaddonextension-get.ts",
+  "examples/operations/api20100401assignedaddonextension-list.ts",
+  "examples/operations/api20100401authcallscredentiallistmapping-create.ts",
+  "examples/operations/api20100401authcallscredentiallistmapping-delete.ts",
+  "examples/operations/api20100401authcallscredentiallistmapping-get.ts",
+  "examples/operations/api20100401authcallscredentiallistmapping-list.ts",
+  "examples/operations/api20100401authcallsipaccesscontrollistmapping-create.ts",
+  "examples/operations/api20100401authcallsipaccesscontrollistmapping-delete.ts",
+  "examples/operations/api20100401authcallsipaccesscontrollistmapping-get.ts",
+  "examples/operations/api20100401authcallsipaccesscontrollistmapping-list.ts",
+  "examples/operations/api20100401authorizedconnectapp-get.ts",
+  "examples/operations/api20100401authorizedconnectapp-list.ts",
+  "examples/operations/api20100401authregistrationscredentiallistmapping-create.ts",
+  "examples/operations/api20100401authregistrationscredentiallistmapping-delete.ts",
+  "examples/operations/api20100401authregistrationscredentiallistmapping-get.ts",
+  "examples/operations/api20100401authregistrationscredentiallistmapping-list.ts",
+  "examples/operations/api20100401availablephonenumbercountry-get.ts",
+  "examples/operations/api20100401availablephonenumbercountry-list.ts",
+  "examples/operations/api20100401balance-list.ts",
+  "examples/operations/api20100401call-create.ts",
+  "examples/operations/api20100401call-delete.ts",
+  "examples/operations/api20100401call-get.ts",
+  "examples/operations/api20100401call-list.ts",
+  "examples/operations/api20100401call-update.ts",
+  "examples/operations/api20100401callnotification-get.ts",
+  "examples/operations/api20100401callnotification-list.ts",
+  "examples/operations/api20100401callrecording-create.ts",
+  "examples/operations/api20100401callrecording-delete.ts",
+  "examples/operations/api20100401callrecording-get.ts",
+  "examples/operations/api20100401callrecording-list.ts",
+  "examples/operations/api20100401callrecording-update.ts",
+  "examples/operations/api20100401calltranscription-create.ts",
+  "examples/operations/api20100401calltranscription-update.ts",
+  "examples/operations/api20100401conference-get.ts",
+  "examples/operations/api20100401conference-list.ts",
+  "examples/operations/api20100401conference-update.ts",
+  "examples/operations/api20100401conferencerecording-delete.ts",
+  "examples/operations/api20100401conferencerecording-get.ts",
+  "examples/operations/api20100401conferencerecording-list.ts",
+  "examples/operations/api20100401conferencerecording-update.ts",
+  "examples/operations/api20100401connectapp-delete.ts",
+  "examples/operations/api20100401connectapp-get.ts",
+  "examples/operations/api20100401connectapp-list.ts",
+  "examples/operations/api20100401connectapp-update.ts",
+  "examples/operations/api20100401credential-create.ts",
+  "examples/operations/api20100401credential-delete.ts",
+  "examples/operations/api20100401credential-get.ts",
+  "examples/operations/api20100401credential-list.ts",
+  "examples/operations/api20100401credential-update.ts",
+  "examples/operations/api20100401credentiallist-create.ts",
+  "examples/operations/api20100401credentiallist-delete.ts",
+  "examples/operations/api20100401credentiallist-get.ts",
+  "examples/operations/api20100401credentiallist-list.ts",
+  "examples/operations/api20100401credentiallist-update.ts",
+  "examples/operations/api20100401credentiallistmapping-create.ts",
+  "examples/operations/api20100401credentiallistmapping-delete.ts",
+  "examples/operations/api20100401credentiallistmapping-get.ts",
+  "examples/operations/api20100401credentiallistmapping-list.ts",
+  "examples/operations/api20100401daily-list.ts",
+  "examples/operations/api20100401data-list.ts",
+  "examples/operations/api20100401dependentphonenumber-list.ts",
+  "examples/operations/api20100401domain-create.ts",
+  "examples/operations/api20100401domain-delete.ts",
+  "examples/operations/api20100401domain-get.ts",
+  "examples/operations/api20100401domain-list.ts",
+  "examples/operations/api20100401domain-update.ts",
+  "examples/operations/api20100401event-list.ts",
+  "examples/operations/api20100401feedback-create.ts",
+  "examples/operations/api20100401incomingphonenumber-create.ts",
+  "examples/operations/api20100401incomingphonenumber-delete.ts",
+  "examples/operations/api20100401incomingphonenumber-get.ts",
+  "examples/operations/api20100401incomingphonenumber-list.ts",
+  "examples/operations/api20100401incomingphonenumber-update.ts",
+  "examples/operations/api20100401incomingphonenumberlocal-create.ts",
+  "examples/operations/api20100401incomingphonenumberlocal-list.ts",
+  "examples/operations/api20100401incomingphonenumbermobile-create.ts",
+  "examples/operations/api20100401incomingphonenumbermobile-list.ts",
+  "examples/operations/api20100401incomingphonenumbertollfree-create.ts",
+  "examples/operations/api20100401incomingphonenumbertollfree-list.ts",
+  "examples/operations/api20100401ipaccesscontrollist-create.ts",
+  "examples/operations/api20100401ipaccesscontrollist-delete.ts",
+  "examples/operations/api20100401ipaccesscontrollist-get.ts",
+  "examples/operations/api20100401ipaccesscontrollist-list.ts",
+  "examples/operations/api20100401ipaccesscontrollist-update.ts",
+  "examples/operations/api20100401ipaccesscontrollistmapping-create.ts",
+  "examples/operations/api20100401ipaccesscontrollistmapping-delete.ts",
+  "examples/operations/api20100401ipaccesscontrollistmapping-get.ts",
+  "examples/operations/api20100401ipaccesscontrollistmapping-list.ts",
+  "examples/operations/api20100401key-delete.ts",
+  "examples/operations/api20100401key-get.ts",
+  "examples/operations/api20100401key-list.ts",
+  "examples/operations/api20100401key-update.ts",
+  "examples/operations/api20100401lastmonth-list.ts",
+  "examples/operations/api20100401local-list.ts",
+  "examples/operations/api20100401machinetomachine-list.ts",
+  "examples/operations/api20100401media-list.ts",
+  "examples/operations/api20100401mediainstance-delete.ts",
+  "examples/operations/api20100401mediainstance-get.ts",
+  "examples/operations/api20100401member-get.ts",
+  "examples/operations/api20100401member-list.ts",
+  "examples/operations/api20100401member-update.ts",
+  "examples/operations/api20100401message-create.ts",
+  "examples/operations/api20100401message-delete.ts",
+  "examples/operations/api20100401message-get.ts",
+  "examples/operations/api20100401message-list.ts",
+  "examples/operations/api20100401message-update.ts",
+  "examples/operations/api20100401mobile-list.ts",
+  "examples/operations/api20100401monthly-list.ts",
+  "examples/operations/api20100401national-list.ts",
+  "examples/operations/api20100401newkey-create.ts",
+  "examples/operations/api20100401newsigningkey-create.ts",
+  "examples/operations/api20100401notification-get.ts",
+  "examples/operations/api20100401notification-list.ts",
+  "examples/operations/api20100401outgoingcallerid-delete.ts",
+  "examples/operations/api20100401outgoingcallerid-get.ts",
+  "examples/operations/api20100401outgoingcallerid-list.ts",
+  "examples/operations/api20100401outgoingcallerid-update.ts",
+  "examples/operations/api20100401participant-create.ts",
+  "examples/operations/api20100401participant-delete.ts",
+  "examples/operations/api20100401participant-get.ts",
+  "examples/operations/api20100401participant-list.ts",
+  "examples/operations/api20100401participant-update.ts",
+  "examples/operations/api20100401payload-delete.ts",
+  "examples/operations/api20100401payload-get.ts",
+  "examples/operations/api20100401payload-list.ts",
+  "examples/operations/api20100401payment-create.ts",
+  "examples/operations/api20100401payment-update.ts",
+  "examples/operations/api20100401queue-create.ts",
+  "examples/operations/api20100401queue-delete.ts",
+  "examples/operations/api20100401queue-get.ts",
+  "examples/operations/api20100401queue-list.ts",
+  "examples/operations/api20100401queue-update.ts",
+  "examples/operations/api20100401record-list.ts",
+  "examples/operations/api20100401recording-delete.ts",
+  "examples/operations/api20100401recording-get.ts",
+  "examples/operations/api20100401recording-list.ts",
+  "examples/operations/api20100401recordingtranscription-delete.ts",
+  "examples/operations/api20100401recordingtranscription-get.ts",
+  "examples/operations/api20100401recordingtranscription-list.ts",
+  "examples/operations/api20100401sharedcost-list.ts",
+  "examples/operations/api20100401shortcode-get.ts",
+  "examples/operations/api20100401shortcode-list.ts",
+  "examples/operations/api20100401shortcode-update.ts",
+  "examples/operations/api20100401signingkey-delete.ts",
+  "examples/operations/api20100401signingkey-get.ts",
+  "examples/operations/api20100401signingkey-list.ts",
+  "examples/operations/api20100401signingkey-update.ts",
+  "examples/operations/api20100401sipipaddress-create.ts",
+  "examples/operations/api20100401sipipaddress-delete.ts",
+  "examples/operations/api20100401sipipaddress-get.ts",
+  "examples/operations/api20100401sipipaddress-list.ts",
+  "examples/operations/api20100401sipipaddress-update.ts",
+  "examples/operations/api20100401siprec-create.ts",
+  "examples/operations/api20100401siprec-update.ts",
+  "examples/operations/api20100401stream-create.ts",
+  "examples/operations/api20100401stream-update.ts",
+  "examples/operations/api20100401thismonth-list.ts",
+  "examples/operations/api20100401today-list.ts",
+  "examples/operations/api20100401token-create.ts",
+  "examples/operations/api20100401tollfree-list.ts",
+  "examples/operations/api20100401transcription-delete.ts",
+  "examples/operations/api20100401transcription-get.ts",
+  "examples/operations/api20100401transcription-list.ts",
+  "examples/operations/api20100401trigger-create.ts",
+  "examples/operations/api20100401trigger-delete.ts",
+  "examples/operations/api20100401trigger-get.ts",
+  "examples/operations/api20100401trigger-list.ts",
+  "examples/operations/api20100401trigger-update.ts",
+  "examples/operations/api20100401userdefinedmessage-create.ts",
+  "examples/operations/api20100401userdefinedmessagesubscription-create.ts",
+  "examples/operations/api20100401userdefinedmessagesubscription-delete.ts",
+  "examples/operations/api20100401validationrequest-create.ts",
+  "examples/operations/api20100401voip-list.ts",
+  "examples/operations/api20100401yearly-list.ts",
+  "examples/operations/api20100401yesterday-list.ts",
+  "examples/pagination.ts",
+  "node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json",
+  "package.json",
+  "src/client.ts",
+  "src/core/auth.ts",
+  "src/core/client.ts",
+  "src/core/coerce.ts",
+  "src/core/errors.ts",
+  "src/core/index.ts",
+  "src/core/oauth2.ts",
+  "src/core/pagination.ts",
+  "src/core/streaming.ts",
+  "src/core/validate.ts",
+  "src/core/webhooks.ts",
+  "src/errors.ts",
+  "src/index.ts",
+  "src/resources/Api20100401Account.ts",
+  "src/resources/Api20100401AddOnResult.ts",
+  "src/resources/Api20100401Address.ts",
+  "src/resources/Api20100401AllTime.ts",
+  "src/resources/Api20100401Application.ts",
+  "src/resources/Api20100401AssignedAddOn.ts",
+  "src/resources/Api20100401AssignedAddOnExtension.ts",
+  "src/resources/Api20100401AuthCallsCredentialListMapping.ts",
+  "src/resources/Api20100401AuthCallsIpAccessControlListMapping.ts",
+  "src/resources/Api20100401AuthRegistrationsCredentialListMapping.ts",
+  "src/resources/Api20100401AuthorizedConnectApp.ts",
+  "src/resources/Api20100401AvailablePhoneNumberCountry.ts",
+  "src/resources/Api20100401Balance.ts",
+  "src/resources/Api20100401Call.ts",
+  "src/resources/Api20100401CallNotification.ts",
+  "src/resources/Api20100401CallRecording.ts",
+  "src/resources/Api20100401CallTranscription.ts",
+  "src/resources/Api20100401Conference.ts",
+  "src/resources/Api20100401ConferenceRecording.ts",
+  "src/resources/Api20100401ConnectApp.ts",
+  "src/resources/Api20100401Credential.ts",
+  "src/resources/Api20100401CredentialList.ts",
+  "src/resources/Api20100401CredentialListMapping.ts",
+  "src/resources/Api20100401Daily.ts",
+  "src/resources/Api20100401Data.ts",
+  "src/resources/Api20100401DependentPhoneNumber.ts",
+  "src/resources/Api20100401Domain.ts",
+  "src/resources/Api20100401Event.ts",
+  "src/resources/Api20100401Feedback.ts",
+  "src/resources/Api20100401IncomingPhoneNumber.ts",
+  "src/resources/Api20100401IncomingPhoneNumberLocal.ts",
+  "src/resources/Api20100401IncomingPhoneNumberMobile.ts",
+  "src/resources/Api20100401IncomingPhoneNumberTollFree.ts",
+  "src/resources/Api20100401IpAccessControlList.ts",
+  "src/resources/Api20100401IpAccessControlListMapping.ts",
+  "src/resources/Api20100401Key.ts",
+  "src/resources/Api20100401LastMonth.ts",
+  "src/resources/Api20100401Local.ts",
+  "src/resources/Api20100401MachineToMachine.ts",
+  "src/resources/Api20100401Media.ts",
+  "src/resources/Api20100401MediaInstance.ts",
+  "src/resources/Api20100401Member.ts",
+  "src/resources/Api20100401Message.ts",
+  "src/resources/Api20100401Mobile.ts",
+  "src/resources/Api20100401Monthly.ts",
+  "src/resources/Api20100401National.ts",
+  "src/resources/Api20100401NewKey.ts",
+  "src/resources/Api20100401NewSigningKey.ts",
+  "src/resources/Api20100401Notification.ts",
+  "src/resources/Api20100401OutgoingCallerId.ts",
+  "src/resources/Api20100401Participant.ts",
+  "src/resources/Api20100401Payload.ts",
+  "src/resources/Api20100401Payment.ts",
+  "src/resources/Api20100401Queue.ts",
+  "src/resources/Api20100401Record.ts",
+  "src/resources/Api20100401Recording.ts",
+  "src/resources/Api20100401RecordingTranscription.ts",
+  "src/resources/Api20100401SharedCost.ts",
+  "src/resources/Api20100401ShortCode.ts",
+  "src/resources/Api20100401SigningKey.ts",
+  "src/resources/Api20100401SipIpAddress.ts",
+  "src/resources/Api20100401Siprec.ts",
+  "src/resources/Api20100401Stream.ts",
+  "src/resources/Api20100401ThisMonth.ts",
+  "src/resources/Api20100401Today.ts",
+  "src/resources/Api20100401Token.ts",
+  "src/resources/Api20100401TollFree.ts",
+  "src/resources/Api20100401Transcription.ts",
+  "src/resources/Api20100401Trigger.ts",
+  "src/resources/Api20100401UserDefinedMessage.ts",
+  "src/resources/Api20100401UserDefinedMessageSubscription.ts",
+  "src/resources/Api20100401ValidationRequest.ts",
+  "src/resources/Api20100401Voip.ts",
+  "src/resources/Api20100401Yearly.ts",
+  "src/resources/Api20100401Yesterday.ts",
+  "src/schemas.ts",
+  "src/shared.ts",
+  "tests/operations/api20100401account-create.test.ts",
+  "tests/operations/api20100401account-get.test.ts",
+  "tests/operations/api20100401account-list.test.ts",
+  "tests/operations/api20100401account-update.test.ts",
+  "tests/operations/api20100401addonresult-delete.test.ts",
+  "tests/operations/api20100401addonresult-get.test.ts",
+  "tests/operations/api20100401addonresult-list.test.ts",
+  "tests/operations/api20100401address-create.test.ts",
+  "tests/operations/api20100401address-delete.test.ts",
+  "tests/operations/api20100401address-get.test.ts",
+  "tests/operations/api20100401address-list.test.ts",
+  "tests/operations/api20100401address-update.test.ts",
+  "tests/operations/api20100401alltime-list.test.ts",
+  "tests/operations/api20100401application-create.test.ts",
+  "tests/operations/api20100401application-delete.test.ts",
+  "tests/operations/api20100401application-get.test.ts",
+  "tests/operations/api20100401application-list.test.ts",
+  "tests/operations/api20100401application-update.test.ts",
+  "tests/operations/api20100401assignedaddon-create.test.ts",
+  "tests/operations/api20100401assignedaddon-delete.test.ts",
+  "tests/operations/api20100401assignedaddon-get.test.ts",
+  "tests/operations/api20100401assignedaddon-list.test.ts",
+  "tests/operations/api20100401assignedaddonextension-get.test.ts",
+  "tests/operations/api20100401assignedaddonextension-list.test.ts",
+  "tests/operations/api20100401authcallscredentiallistmapping-create.test.ts",
+  "tests/operations/api20100401authcallscredentiallistmapping-delete.test.ts",
+  "tests/operations/api20100401authcallscredentiallistmapping-get.test.ts",
+  "tests/operations/api20100401authcallscredentiallistmapping-list.test.ts",
+  "tests/operations/api20100401authcallsipaccesscontrollistmapping-create.test.ts",
+  "tests/operations/api20100401authcallsipaccesscontrollistmapping-delete.test.ts",
+  "tests/operations/api20100401authcallsipaccesscontrollistmapping-get.test.ts",
+  "tests/operations/api20100401authcallsipaccesscontrollistmapping-list.test.ts",
+  "tests/operations/api20100401authorizedconnectapp-get.test.ts",
+  "tests/operations/api20100401authorizedconnectapp-list.test.ts",
+  "tests/operations/api20100401authregistrationscredentiallistmapping-create.test.ts",
+  "tests/operations/api20100401authregistrationscredentiallistmapping-delete.test.ts",
+  "tests/operations/api20100401authregistrationscredentiallistmapping-get.test.ts",
+  "tests/operations/api20100401authregistrationscredentiallistmapping-list.test.ts",
+  "tests/operations/api20100401availablephonenumbercountry-get.test.ts",
+  "tests/operations/api20100401availablephonenumbercountry-list.test.ts",
+  "tests/operations/api20100401balance-list.test.ts",
+  "tests/operations/api20100401call-create.test.ts",
+  "tests/operations/api20100401call-delete.test.ts",
+  "tests/operations/api20100401call-get.test.ts",
+  "tests/operations/api20100401call-list.test.ts",
+  "tests/operations/api20100401call-update.test.ts",
+  "tests/operations/api20100401callnotification-get.test.ts",
+  "tests/operations/api20100401callnotification-list.test.ts",
+  "tests/operations/api20100401callrecording-create.test.ts",
+  "tests/operations/api20100401callrecording-delete.test.ts",
+  "tests/operations/api20100401callrecording-get.test.ts",
+  "tests/operations/api20100401callrecording-list.test.ts",
+  "tests/operations/api20100401callrecording-update.test.ts",
+  "tests/operations/api20100401calltranscription-create.test.ts",
+  "tests/operations/api20100401calltranscription-update.test.ts",
+  "tests/operations/api20100401conference-get.test.ts",
+  "tests/operations/api20100401conference-list.test.ts",
+  "tests/operations/api20100401conference-update.test.ts",
+  "tests/operations/api20100401conferencerecording-delete.test.ts",
+  "tests/operations/api20100401conferencerecording-get.test.ts",
+  "tests/operations/api20100401conferencerecording-list.test.ts",
+  "tests/operations/api20100401conferencerecording-update.test.ts",
+  "tests/operations/api20100401connectapp-delete.test.ts",
+  "tests/operations/api20100401connectapp-get.test.ts",
+  "tests/operations/api20100401connectapp-list.test.ts",
+  "tests/operations/api20100401connectapp-update.test.ts",
+  "tests/operations/api20100401credential-create.test.ts",
+  "tests/operations/api20100401credential-delete.test.ts",
+  "tests/operations/api20100401credential-get.test.ts",
+  "tests/operations/api20100401credential-list.test.ts",
+  "tests/operations/api20100401credential-update.test.ts",
+  "tests/operations/api20100401credentiallist-create.test.ts",
+  "tests/operations/api20100401credentiallist-delete.test.ts",
+  "tests/operations/api20100401credentiallist-get.test.ts",
+  "tests/operations/api20100401credentiallist-list.test.ts",
+  "tests/operations/api20100401credentiallist-update.test.ts",
+  "tests/operations/api20100401credentiallistmapping-create.test.ts",
+  "tests/operations/api20100401credentiallistmapping-delete.test.ts",
+  "tests/operations/api20100401credentiallistmapping-get.test.ts",
+  "tests/operations/api20100401credentiallistmapping-list.test.ts",
+  "tests/operations/api20100401daily-list.test.ts",
+  "tests/operations/api20100401data-list.test.ts",
+  "tests/operations/api20100401dependentphonenumber-list.test.ts",
+  "tests/operations/api20100401domain-create.test.ts",
+  "tests/operations/api20100401domain-delete.test.ts",
+  "tests/operations/api20100401domain-get.test.ts",
+  "tests/operations/api20100401domain-list.test.ts",
+  "tests/operations/api20100401domain-update.test.ts",
+  "tests/operations/api20100401event-list.test.ts",
+  "tests/operations/api20100401feedback-create.test.ts",
+  "tests/operations/api20100401incomingphonenumber-create.test.ts",
+  "tests/operations/api20100401incomingphonenumber-delete.test.ts",
+  "tests/operations/api20100401incomingphonenumber-get.test.ts",
+  "tests/operations/api20100401incomingphonenumber-list.test.ts",
+  "tests/operations/api20100401incomingphonenumber-update.test.ts",
+  "tests/operations/api20100401incomingphonenumberlocal-create.test.ts",
+  "tests/operations/api20100401incomingphonenumberlocal-list.test.ts",
+  "tests/operations/api20100401incomingphonenumbermobile-create.test.ts",
+  "tests/operations/api20100401incomingphonenumbermobile-list.test.ts",
+  "tests/operations/api20100401incomingphonenumbertollfree-create.test.ts",
+  "tests/operations/api20100401incomingphonenumbertollfree-list.test.ts",
+  "tests/operations/api20100401ipaccesscontrollist-create.test.ts",
+  "tests/operations/api20100401ipaccesscontrollist-delete.test.ts",
+  "tests/operations/api20100401ipaccesscontrollist-get.test.ts",
+  "tests/operations/api20100401ipaccesscontrollist-list.test.ts",
+  "tests/operations/api20100401ipaccesscontrollist-update.test.ts",
+  "tests/operations/api20100401ipaccesscontrollistmapping-create.test.ts",
+  "tests/operations/api20100401ipaccesscontrollistmapping-delete.test.ts",
+  "tests/operations/api20100401ipaccesscontrollistmapping-get.test.ts",
+  "tests/operations/api20100401ipaccesscontrollistmapping-list.test.ts",
+  "tests/operations/api20100401key-delete.test.ts",
+  "tests/operations/api20100401key-get.test.ts",
+  "tests/operations/api20100401key-list.test.ts",
+  "tests/operations/api20100401key-update.test.ts",
+  "tests/operations/api20100401lastmonth-list.test.ts",
+  "tests/operations/api20100401local-list.test.ts",
+  "tests/operations/api20100401machinetomachine-list.test.ts",
+  "tests/operations/api20100401media-list.test.ts",
+  "tests/operations/api20100401mediainstance-delete.test.ts",
+  "tests/operations/api20100401mediainstance-get.test.ts",
+  "tests/operations/api20100401member-get.test.ts",
+  "tests/operations/api20100401member-list.test.ts",
+  "tests/operations/api20100401member-update.test.ts",
+  "tests/operations/api20100401message-create.test.ts",
+  "tests/operations/api20100401message-delete.test.ts",
+  "tests/operations/api20100401message-get.test.ts",
+  "tests/operations/api20100401message-list.test.ts",
+  "tests/operations/api20100401message-update.test.ts",
+  "tests/operations/api20100401mobile-list.test.ts",
+  "tests/operations/api20100401monthly-list.test.ts",
+  "tests/operations/api20100401national-list.test.ts",
+  "tests/operations/api20100401newkey-create.test.ts",
+  "tests/operations/api20100401newsigningkey-create.test.ts",
+  "tests/operations/api20100401notification-get.test.ts",
+  "tests/operations/api20100401notification-list.test.ts",
+  "tests/operations/api20100401outgoingcallerid-delete.test.ts",
+  "tests/operations/api20100401outgoingcallerid-get.test.ts",
+  "tests/operations/api20100401outgoingcallerid-list.test.ts",
+  "tests/operations/api20100401outgoingcallerid-update.test.ts",
+  "tests/operations/api20100401participant-create.test.ts",
+  "tests/operations/api20100401participant-delete.test.ts",
+  "tests/operations/api20100401participant-get.test.ts",
+  "tests/operations/api20100401participant-list.test.ts",
+  "tests/operations/api20100401participant-update.test.ts",
+  "tests/operations/api20100401payload-delete.test.ts",
+  "tests/operations/api20100401payload-get.test.ts",
+  "tests/operations/api20100401payload-list.test.ts",
+  "tests/operations/api20100401payment-create.test.ts",
+  "tests/operations/api20100401payment-update.test.ts",
+  "tests/operations/api20100401queue-create.test.ts",
+  "tests/operations/api20100401queue-delete.test.ts",
+  "tests/operations/api20100401queue-get.test.ts",
+  "tests/operations/api20100401queue-list.test.ts",
+  "tests/operations/api20100401queue-update.test.ts",
+  "tests/operations/api20100401record-list.test.ts",
+  "tests/operations/api20100401recording-delete.test.ts",
+  "tests/operations/api20100401recording-get.test.ts",
+  "tests/operations/api20100401recording-list.test.ts",
+  "tests/operations/api20100401recordingtranscription-delete.test.ts",
+  "tests/operations/api20100401recordingtranscription-get.test.ts",
+  "tests/operations/api20100401recordingtranscription-list.test.ts",
+  "tests/operations/api20100401sharedcost-list.test.ts",
+  "tests/operations/api20100401shortcode-get.test.ts",
+  "tests/operations/api20100401shortcode-list.test.ts",
+  "tests/operations/api20100401shortcode-update.test.ts",
+  "tests/operations/api20100401signingkey-delete.test.ts",
+  "tests/operations/api20100401signingkey-get.test.ts",
+  "tests/operations/api20100401signingkey-list.test.ts",
+  "tests/operations/api20100401signingkey-update.test.ts",
+  "tests/operations/api20100401sipipaddress-create.test.ts",
+  "tests/operations/api20100401sipipaddress-delete.test.ts",
+  "tests/operations/api20100401sipipaddress-get.test.ts",
+  "tests/operations/api20100401sipipaddress-list.test.ts",
+  "tests/operations/api20100401sipipaddress-update.test.ts",
+  "tests/operations/api20100401siprec-create.test.ts",
+  "tests/operations/api20100401siprec-update.test.ts",
+  "tests/operations/api20100401stream-create.test.ts",
+  "tests/operations/api20100401stream-update.test.ts",
+  "tests/operations/api20100401thismonth-list.test.ts",
+  "tests/operations/api20100401today-list.test.ts",
+  "tests/operations/api20100401token-create.test.ts",
+  "tests/operations/api20100401tollfree-list.test.ts",
+  "tests/operations/api20100401transcription-delete.test.ts",
+  "tests/operations/api20100401transcription-get.test.ts",
+  "tests/operations/api20100401transcription-list.test.ts",
+  "tests/operations/api20100401trigger-create.test.ts",
+  "tests/operations/api20100401trigger-delete.test.ts",
+  "tests/operations/api20100401trigger-get.test.ts",
+  "tests/operations/api20100401trigger-list.test.ts",
+  "tests/operations/api20100401trigger-update.test.ts",
+  "tests/operations/api20100401userdefinedmessage-create.test.ts",
+  "tests/operations/api20100401userdefinedmessagesubscription-create.test.ts",
+  "tests/operations/api20100401userdefinedmessagesubscription-delete.test.ts",
+  "tests/operations/api20100401validationrequest-create.test.ts",
+  "tests/operations/api20100401voip-list.test.ts",
+  "tests/operations/api20100401yearly-list.test.ts",
+  "tests/operations/api20100401yesterday-list.test.ts",
+  "tsconfig.examples.json",
+  "tsconfig.json",
+  "tsconfig.tests.json",
+]
+`;
+
+exports[`generated SDK surface > emits examples that are inside the typecheck gate 1`] = `
+[
+  "create.ts",
+  "env.d.ts",
+  "error-handling.ts",
+  "fetch-one.ts",
+  "operations",
+  "pagination.ts",
+]
+`;
+
+exports[`generated SDK surface > exposes a stable client surface 1`] = `
+{
+  "className": "Twilio",
+  "optionsMembers": [
+    "username?: string",
+    "password?: string",
+  ],
+  "resources": [
+    "api20100401Account: Api20100401Account",
+    "api20100401AddOnResult: Api20100401AddOnResult",
+    "api20100401Address: Api20100401Address",
+    "api20100401AllTime: Api20100401AllTime",
+    "api20100401Application: Api20100401Application",
+    "api20100401AssignedAddOn: Api20100401AssignedAddOn",
+    "api20100401AssignedAddOnExtension: Api20100401AssignedAddOnExtension",
+    "api20100401AuthCallsCredentialListMapping: Api20100401AuthCallsCredentialListMapping",
+    "api20100401AuthCallsIpAccessControlListMapping: Api20100401AuthCallsIpAccessControlListMapping",
+    "api20100401AuthRegistrationsCredentialListMapping: Api20100401AuthRegistrationsCredentialListMapping",
+    "api20100401AuthorizedConnectApp: Api20100401AuthorizedConnectApp",
+    "api20100401AvailablePhoneNumberCountry: Api20100401AvailablePhoneNumberCountry",
+    "api20100401Balance: Api20100401Balance",
+    "api20100401Call: Api20100401Call",
+    "api20100401CallNotification: Api20100401CallNotification",
+    "api20100401CallRecording: Api20100401CallRecording",
+    "api20100401CallTranscription: Api20100401CallTranscription",
+    "api20100401Conference: Api20100401Conference",
+    "api20100401ConferenceRecording: Api20100401ConferenceRecording",
+    "api20100401ConnectApp: Api20100401ConnectApp",
+    "api20100401Credential: Api20100401Credential",
+    "api20100401CredentialList: Api20100401CredentialList",
+    "api20100401CredentialListMapping: Api20100401CredentialListMapping",
+    "api20100401Daily: Api20100401Daily",
+    "api20100401Data: Api20100401Data",
+    "api20100401DependentPhoneNumber: Api20100401DependentPhoneNumber",
+    "api20100401Domain: Api20100401Domain",
+    "api20100401Event: Api20100401Event",
+    "api20100401Feedback: Api20100401Feedback",
+    "api20100401IncomingPhoneNumber: Api20100401IncomingPhoneNumber",
+    "api20100401IncomingPhoneNumberLocal: Api20100401IncomingPhoneNumberLocal",
+    "api20100401IncomingPhoneNumberMobile: Api20100401IncomingPhoneNumberMobile",
+    "api20100401IncomingPhoneNumberTollFree: Api20100401IncomingPhoneNumberTollFree",
+    "api20100401IpAccessControlList: Api20100401IpAccessControlList",
+    "api20100401IpAccessControlListMapping: Api20100401IpAccessControlListMapping",
+    "api20100401Key: Api20100401Key",
+    "api20100401LastMonth: Api20100401LastMonth",
+    "api20100401Local: Api20100401Local",
+    "api20100401MachineToMachine: Api20100401MachineToMachine",
+    "api20100401Media: Api20100401Media",
+    "api20100401MediaInstance: Api20100401MediaInstance",
+    "api20100401Member: Api20100401Member",
+    "api20100401Message: Api20100401Message",
+    "api20100401Mobile: Api20100401Mobile",
+    "api20100401Monthly: Api20100401Monthly",
+    "api20100401National: Api20100401National",
+    "api20100401NewKey: Api20100401NewKey",
+    "api20100401NewSigningKey: Api20100401NewSigningKey",
+    "api20100401Notification: Api20100401Notification",
+    "api20100401OutgoingCallerId: Api20100401OutgoingCallerId",
+    "api20100401Participant: Api20100401Participant",
+    "api20100401Payload: Api20100401Payload",
+    "api20100401Payment: Api20100401Payment",
+    "api20100401Queue: Api20100401Queue",
+    "api20100401Record: Api20100401Record",
+    "api20100401Recording: Api20100401Recording",
+    "api20100401RecordingTranscription: Api20100401RecordingTranscription",
+    "api20100401SharedCost: Api20100401SharedCost",
+    "api20100401ShortCode: Api20100401ShortCode",
+    "api20100401SigningKey: Api20100401SigningKey",
+    "api20100401SipIpAddress: Api20100401SipIpAddress",
+    "api20100401Siprec: Api20100401Siprec",
+    "api20100401Stream: Api20100401Stream",
+    "api20100401ThisMonth: Api20100401ThisMonth",
+    "api20100401Today: Api20100401Today",
+    "api20100401Token: Api20100401Token",
+    "api20100401TollFree: Api20100401TollFree",
+    "api20100401Transcription: Api20100401Transcription",
+    "api20100401Trigger: Api20100401Trigger",
+    "api20100401UserDefinedMessage: Api20100401UserDefinedMessage",
+    "api20100401UserDefinedMessageSubscription: Api20100401UserDefinedMessageSubscription",
+    "api20100401ValidationRequest: Api20100401ValidationRequest",
+    "api20100401Voip: Api20100401Voip",
+    "api20100401Yearly: Api20100401Yearly",
+    "api20100401Yesterday: Api20100401Yesterday",
+  ],
+}
+`;
+
+exports[`generated SDK surface > exposes a stable list of exported type names 1`] = `
+[
+  "AccessControlMappingListResponse",
+  "AccountEnumStatus",
+  "AccountEnumType",
+  "AccountNotificationRequestMethod",
+  "AccountType",
+  "AddressCreateRequest",
+  "AddressListResponse",
+  "AddressRequirement",
+  "AddressRetention",
+  "AddressStatus",
+  "AddressUpdateRequest",
+  "AmdStatusCallbackMethod",
+  "AnnounceMethod",
+  "Api20100401AccountListParams",
+  "Api20100401AddOnResultListParams",
+  "Api20100401AddressListParams",
+  "Api20100401AllTimeListParams",
+  "Api20100401ApplicationListParams",
+  "Api20100401AssignedAddOnExtensionListParams",
+  "Api20100401AssignedAddOnListParams",
+  "Api20100401AuthCallsCredentialListMappingListParams",
+  "Api20100401AuthCallsIpAccessControlListMappingListParams",
+  "Api20100401AuthRegistrationsCredentialListMappingListParams",
+  "Api20100401AuthorizedConnectAppListParams",
+  "Api20100401AvailablePhoneNumberCountryListParams",
+  "Api20100401CallListParams",
+  "Api20100401CallNotificationListParams",
+  "Api20100401CallRecordingListParams",
+  "Api20100401ConferenceListParams",
+  "Api20100401ConferenceRecordingListParams",
+  "Api20100401ConnectAppListParams",
+  "Api20100401CredentialListListParams",
+  "Api20100401CredentialListMappingCreateRequest",
+  "Api20100401CredentialListMappingListParams",
+  "Api20100401CredentialListParams",
+  "Api20100401CredentialListResponse",
+  "Api20100401CredentialMappingListResponse",
+  "Api20100401DailyListParams",
+  "Api20100401DependentPhoneNumberListParams",
+  "Api20100401DomainListParams",
+  "Api20100401EventListParams",
+  "Api20100401IncomingPhoneNumberListParams",
+  "Api20100401IncomingPhoneNumberLocalListParams",
+  "Api20100401IncomingPhoneNumberMobileListParams",
+  "Api20100401IncomingPhoneNumberTollFreeListParams",
+  "Api20100401IpAccessControlListListParams",
+  "Api20100401IpAccessControlListMappingListParams",
+  "Api20100401KeyListParams",
+  "Api20100401LastMonthListParams",
+  "Api20100401LocalListParams",
+  "Api20100401LocalListResponse",
+  "Api20100401MachineToMachineListParams",
+  "Api20100401MediaListParams",
+  "Api20100401MemberListParams",
+  "Api20100401MessageListParams",
+  "Api20100401MobileListParams",
+  "Api20100401MobileListResponse",
+  "Api20100401MonthlyListParams",
+  "Api20100401NationalListParams",
+  "Api20100401NotificationListParams",
+  "Api20100401NotificationListResponse",
+  "Api20100401OutgoingCallerIdListParams",
+  "Api20100401ParticipantListParams",
+  "Api20100401PayloadListParams",
+  "Api20100401QueueListParams",
+  "Api20100401RecordListParams",
+  "Api20100401RecordingGetParams",
+  "Api20100401RecordingListParams",
+  "Api20100401RecordingListResponse",
+  "Api20100401RecordingTranscriptionListParams",
+  "Api20100401SharedCostListParams",
+  "Api20100401ShortCodeListParams",
+  "Api20100401SigningKeyListParams",
+  "Api20100401SipIpAddressListParams",
+  "Api20100401ThisMonthListParams",
+  "Api20100401TodayListParams",
+  "Api20100401TollFreeListParams",
+  "Api20100401TranscriptionListParams",
+  "Api20100401TranscriptionListResponse",
+  "Api20100401TriggerListParams",
+  "Api20100401VoipListParams",
+  "Api20100401YearlyListParams",
+  "Api20100401YesterdayListParams",
+  "ApiV2010Account",
+  "ApiV2010AccountAddress",
+  "ApiV2010AccountAddressDependentPhoneNumber",
+  "ApiV2010AccountApplication",
+  "ApiV2010AccountAuthorizedConnectApp",
+  "ApiV2010AccountAvailablePhoneNumberCountry",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberLocal",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberMachineToMachine",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberMobile",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberNational",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberSharedCost",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberTollFree",
+  "ApiV2010AccountAvailablePhoneNumberCountryAvailablePhoneNumberVoip",
+  "ApiV2010AccountBalance",
+  "ApiV2010AccountCall",
+  "ApiV2010AccountCallCallEvent",
+  "ApiV2010AccountCallCallNotification",
+  "ApiV2010AccountCallCallNotificationInstance",
+  "ApiV2010AccountCallCallRecording",
+  "ApiV2010AccountCallPayment",
+  "ApiV2010AccountCallRealtimeTranscription",
+  "ApiV2010AccountCallSiprec",
+  "ApiV2010AccountCallStream",
+  "ApiV2010AccountCallUserDefinedMessage",
+  "ApiV2010AccountCallUserDefinedMessageSubscription",
+  "ApiV2010AccountConference",
+  "ApiV2010AccountConferenceConferenceRecording",
+  "ApiV2010AccountConferenceParticipant",
+  "ApiV2010AccountConnectApp",
+  "ApiV2010AccountIncomingPhoneNumber",
+  "ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberAssignedAddOn",
+  "ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberAssignedAddOnIncomingPhoneNumberAssignedAddOnExtension",
+  "ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberLocal",
+  "ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberMobile",
+  "ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberTollFree",
+  "ApiV2010AccountKey",
+  "ApiV2010AccountMessage",
+  "ApiV2010AccountMessageMedia",
+  "ApiV2010AccountMessageMessageFeedback",
+  "ApiV2010AccountNewKey",
+  "ApiV2010AccountNewSigningKey",
+  "ApiV2010AccountNotification",
+  "ApiV2010AccountNotificationInstance",
+  "ApiV2010AccountOutgoingCallerId",
+  "ApiV2010AccountQueue",
+  "ApiV2010AccountQueueMember",
+  "ApiV2010AccountRecording",
+  "ApiV2010AccountRecordingRecordingAddOnResult",
+  "ApiV2010AccountRecordingRecordingAddOnResultRecordingAddOnResult",
+  "ApiV2010AccountRecordingRecordingTranscription",
+  "ApiV2010AccountShortCode",
+  "ApiV2010AccountSigningKey",
+  "ApiV2010AccountSipSipCredentialList",
+  "ApiV2010AccountSipSipCredentialListSipCredential",
+  "ApiV2010AccountSipSipDomain",
+  "ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsCredentialListMapping",
+  "ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsIpAccessControlListMapping",
+  "ApiV2010AccountSipSipDomainSipAuthSipAuthRegistrationsSipAuthRegistrationsCredentialListMapping",
+  "ApiV2010AccountSipSipDomainSipCredentialListMapping",
+  "ApiV2010AccountSipSipDomainSipIpAccessControlListMapping",
+  "ApiV2010AccountSipSipIpAccessControlList",
+  "ApiV2010AccountSipSipIpAccessControlListSipIpAddress",
+  "ApiV2010AccountToken",
+  "ApiV2010AccountTranscription",
+  "ApiV2010AccountUsageUsageRecord",
+  "ApiV2010AccountUsageUsageRecordUsageRecordAllTime",
+  "ApiV2010AccountUsageUsageRecordUsageRecordDaily",
+  "ApiV2010AccountUsageUsageRecordUsageRecordLastMonth",
+  "ApiV2010AccountUsageUsageRecordUsageRecordMonthly",
+  "ApiV2010AccountUsageUsageRecordUsageRecordThisMonth",
+  "ApiV2010AccountUsageUsageRecordUsageRecordToday",
+  "ApiV2010AccountUsageUsageRecordUsageRecordYearly",
+  "ApiV2010AccountUsageUsageRecordUsageRecordYesterday",
+  "ApiV2010AccountUsageUsageTrigger",
+  "ApiV2010AccountValidationRequest",
+  "AppEnumPermission",
+  "AppListResponse",
+  "AppUpdateRequest",
+  "ApplicationCreateRequest",
+  "ApplicationListResponse",
+  "ApplicationSmsFallbackMethod",
+  "ApplicationSmsMethod",
+  "ApplicationUpdateRequest",
+  "AuthorizedConnectAppEnumPermission",
+  "CallCreateRequest",
+  "CallEnumStatus",
+  "CallEnumStatusModel",
+  "CallEnumUpdateStatus",
+  "CallListResponse",
+  "CallRecordingEnumSource",
+  "CallRecordingEnumStatus",
+  "CallUpdateRequest",
+  "CallbackMethod",
+  "Capabilities",
+  "Capture",
+  "Check",
+  "CodeListResponse",
+  "CodeSmsFallbackMethod",
+  "CodeSmsMethod",
+  "CodeUpdateRequest",
+  "CodeUpdateRequestSmsFallbackMethod",
+  "CodeUpdateRequestSmsMethod",
+  "ConferenceEnumReasonConferenceEnded",
+  "ConferenceEnumStatus",
+  "ConferenceEnumStatusModel",
+  "ConferenceEnumUpdateStatus",
+  "ConferenceEnumUpdateStatusModel",
+  "ConferenceListResponse",
+  "ConferenceRecordingEnumSource",
+  "ConferenceRecordingEnumStatus",
+  "ConferenceRecordingEnumStatusModel",
+  "ConferenceRecordingListResponse",
+  "ConferenceRecordingStatusCallbackMethod",
+  "ConferenceRecordingUpdateRequest",
+  "ConferenceStatusCallbackMethod",
+  "ConferenceUpdateRequest",
+  "Confirmation",
+  "ConnectAppEnumPermission",
+  "ConnectAppListResponse",
+  "ControlListCreateRequest",
+  "ControlListMappingCreateRequest",
+  "ControlListResponse",
+  "ControlListUpdateRequest",
+  "ControlMappingListResponse",
+  "CostListResponse",
+  "CountryListResponse",
+  "CreateRequest",
+  "CreateRequestCallbackMethod",
+  "CreateRequestMethod",
+  "CreateRequestRecordingStatusCallbackMethod",
+  "CreateRequestSmsFallbackMethod",
+  "CreateRequestSmsMethod",
+  "CreateRequestStatusCallbackMethod",
+  "CreateRequestVoiceFallbackMethod",
+  "CreateRequestVoiceMethod",
+  "CredentialCreateRequest",
+  "CredentialListMappingCreateRequest",
+  "CredentialListResponse",
+  "CredentialMappingListResponse",
+  "CredentialUpdateRequest",
+  "DailyListResponse",
+  "DeauthorizeCallbackMethod",
+  "DefinedMessageCreateRequest",
+  "DependentPhoneNumberEnumAddressRequirement",
+  "DependentPhoneNumberEnumEmergencyStatus",
+  "Direction",
+  "DomainCreateRequest",
+  "DomainListResponse",
+  "DomainUpdateRequest",
+  "DomainVoiceFallbackMethod",
+  "DomainVoiceMethod",
+  "EmergencyAddressStatus",
+  "EmergencyStatus",
+  "Ended",
+  "EnumAddressRequirement",
+  "EnumEmergencyAddressStatus",
+  "EnumEmergencyStatus",
+  "EnumPermission",
+  "EnumSource",
+  "EnumStatus",
+  "EnumTrack",
+  "EnumType",
+  "EnumUpdateStatus",
+  "EnumVoiceReceiveMode",
+  "Error408Body",
+  "EventListResponse",
+  "ExtensionListResponse",
+  "FallbackMethod",
+  "FeedbackCreateRequest",
+  "Field",
+  "FreeCreateRequest",
+  "FreeCreateRequestSmsFallbackMethod",
+  "FreeCreateRequestSmsMethod",
+  "FreeCreateRequestStatusCallbackMethod",
+  "FreeCreateRequestVoiceFallbackMethod",
+  "FreeCreateRequestVoiceMethod",
+  "FreeEnumAddressRequirement",
+  "FreeEnumEmergencyAddressStatus",
+  "FreeEnumEmergencyStatus",
+  "FreeListResponse",
+  "FreeSmsFallbackMethod",
+  "FreeSmsMethod",
+  "FreeStatusCallbackMethod",
+  "FreeVoiceFallbackMethod",
+  "FreeVoiceMethod",
+  "HoldMethod",
+  "IdListResponse",
+  "IdUpdateRequest",
+  "IncomingPhoneNumberEnumAddressRequirement",
+  "IncomingPhoneNumberEnumEmergencyAddressStatus",
+  "IncomingPhoneNumberEnumEmergencyStatus",
+  "IncomingPhoneNumberEnumVoiceReceiveMode",
+  "IncomingPhoneNumberLocalEnumAddressRequirement",
+  "IncomingPhoneNumberLocalEnumEmergencyAddressStatus",
+  "IncomingPhoneNumberLocalEnumEmergencyStatus",
+  "IncomingPhoneNumberLocalEnumVoiceReceiveMode",
+  "IncomingPhoneNumberMobileEnumAddressRequirement",
+  "IncomingPhoneNumberMobileEnumEmergencyAddressStatus",
+  "IncomingPhoneNumberMobileEnumEmergencyStatus",
+  "IncomingPhoneNumberMobileEnumVoiceReceiveMode",
+  "IncomingPhoneNumberTollFreeEnumAddressRequirement",
+  "IncomingPhoneNumberTollFreeEnumEmergencyAddressStatus",
+  "IncomingPhoneNumberTollFreeEnumEmergencyStatus",
+  "IncomingPhoneNumberTollFreeEnumVoiceReceiveMode",
+  "InstanceRequestMethod",
+  "IpAddressCreateRequest",
+  "IpAddressListResponse",
+  "IpAddressUpdateRequest",
+  "KeyCreateRequest",
+  "KeyListResponse",
+  "KeyUpdateRequest",
+  "ListCreateRequest",
+  "ListMappingCreateRequest",
+  "ListResponse",
+  "ListUpdateRequest",
+  "LocalCapabilities",
+  "LocalCreateRequest",
+  "LocalCreateRequestSmsFallbackMethod",
+  "LocalCreateRequestSmsMethod",
+  "LocalCreateRequestStatusCallbackMethod",
+  "LocalCreateRequestVoiceFallbackMethod",
+  "LocalCreateRequestVoiceMethod",
+  "LocalEnumEmergencyStatus",
+  "LocalListResponse",
+  "LocalSmsFallbackMethod",
+  "LocalSmsMethod",
+  "LocalStatusCallbackMethod",
+  "LocalVoiceFallbackMethod",
+  "LocalVoiceMethod",
+  "MachineListResponse",
+  "MappingCreateRequest",
+  "MappingListResponse",
+  "MediaListResponse",
+  "MemberListResponse",
+  "MemberUpdateRequest",
+  "MemberUpdateRequestMethod",
+  "MessageCreateRequest",
+  "MessageEnumAddressRetention",
+  "MessageEnumContentRetention",
+  "MessageEnumDirection",
+  "MessageEnumRiskCheck",
+  "MessageEnumScheduleType",
+  "MessageEnumStatus",
+  "MessageEnumStatusModel",
+  "MessageEnumTrafficType",
+  "MessageEnumUpdateStatus",
+  "MessageEnumUpdateStatusModel",
+  "MessageFeedbackEnumOutcome",
+  "MessageListResponse",
+  "MessageUpdateRequest",
+  "Method",
+  "MobileCreateRequest",
+  "MobileCreateRequestSmsFallbackMethod",
+  "MobileCreateRequestSmsMethod",
+  "MobileCreateRequestStatusCallbackMethod",
+  "MobileCreateRequestVoiceFallbackMethod",
+  "MobileCreateRequestVoiceMethod",
+  "MobileEnumAddressRequirement",
+  "MobileEnumEmergencyStatus",
+  "MobileListResponse",
+  "MobileSmsFallbackMethod",
+  "MobileSmsMethod",
+  "MobileStatusCallbackMethod",
+  "MobileVoiceFallbackMethod",
+  "MobileVoiceMethod",
+  "Mode",
+  "MonthListResponse",
+  "MonthlyListResponse",
+  "NationalListResponse",
+  "NotificationInstanceRequestMethod",
+  "NotificationListResponse",
+  "NotificationRequestMethod",
+  "NumberCreateRequest",
+  "NumberCreateRequestStatusCallbackMethod",
+  "NumberCreateRequestVoiceFallbackMethod",
+  "NumberCreateRequestVoiceMethod",
+  "NumberListResponse",
+  "NumberSmsFallbackMethod",
+  "NumberSmsMethod",
+  "NumberStatusCallbackMethod",
+  "NumberUpdateRequest",
+  "NumberUpdateRequestStatusCallbackMethod",
+  "NumberUpdateRequestVoiceFallbackMethod",
+  "NumberUpdateRequestVoiceMethod",
+  "NumberVoiceFallbackMethod",
+  "NumberVoiceMethod",
+  "OnCreateRequest",
+  "OnListResponse",
+  "Outcome",
+  "ParticipantCreateRequest",
+  "ParticipantCreateRequestStatusCallbackMethod",
+  "ParticipantEnumStatus",
+  "ParticipantEnumStatusModel",
+  "ParticipantListResponse",
+  "ParticipantUpdateRequest",
+  "PayloadListResponse",
+  "PaymentCreateRequest",
+  "PaymentEnumStatus",
+  "PaymentMethod",
+  "PaymentUpdateRequest",
+  "PaymentsEnumBankAccountType",
+  "PaymentsEnumCapture",
+  "PaymentsEnumPaymentMethod",
+  "PaymentsEnumStatus",
+  "PaymentsEnumTokenType",
+  "PhoneNumberListResponse",
+  "PhoneNumberSmsFallbackMethod",
+  "PhoneNumberSmsMethod",
+  "PhoneNumberStatusCallbackMethod",
+  "PhoneNumberVoiceFallbackMethod",
+  "PhoneNumberVoiceMethod",
+  "QueueCreateRequest",
+  "QueueListResponse",
+  "QueueUpdateRequest",
+  "RealtimeTranscriptionEnumStatus",
+  "RealtimeTranscriptionEnumTrack",
+  "RealtimeTranscriptionEnumUpdateStatus",
+  "ReceiveMode",
+  "RecordListResponse",
+  "RecordingAddOnResultEnumStatus",
+  "RecordingCreateRequest",
+  "RecordingEnumSource",
+  "RecordingEnumSource2",
+  "RecordingEnumSourceModel",
+  "RecordingEnumStatus",
+  "RecordingEnumStatus2",
+  "RecordingEnumStatusModel",
+  "RecordingListResponse",
+  "RecordingStatusCallbackMethod",
+  "RecordingTranscriptionEnumStatus",
+  "RecordingTranscriptionEnumStatusModel",
+  "RecordingUpdateRequest",
+  "Recurring",
+  "RequestAmdStatusCallbackMethod",
+  "RequestAnnounceMethod",
+  "RequestCallbackMethod",
+  "RequestDeauthorizeCallbackMethod",
+  "RequestFallbackMethod",
+  "RequestMethod",
+  "RequestRecordingStatusCallbackMethod",
+  "RequestSmsFallbackMethod",
+  "RequestSmsMethod",
+  "RequestStatusCallbackMethod",
+  "RequestVoiceFallbackMethod",
+  "RequestVoiceMethod",
+  "RequestVoiceStatusCallbackMethod",
+  "RequestWaitMethod",
+  "Requirement",
+  "ResultEnumStatus",
+  "ResultListResponse",
+  "Retention",
+  "ScheduleType",
+  "Server",
+  "SigningKeyCreateRequest",
+  "SigningKeyListResponse",
+  "SigningKeyUpdateRequest",
+  "SiprecCreateRequest",
+  "SiprecCreateRequestStatusCallbackMethod",
+  "SiprecEnumStatus",
+  "SiprecEnumStatusModel",
+  "SiprecEnumTrack",
+  "SiprecEnumUpdateStatus",
+  "SiprecEnumUpdateStatusModel",
+  "SiprecUpdateRequest",
+  "SmsFallbackMethod",
+  "SmsMethod",
+  "StatusCallbackMethod",
+  "StreamCreateRequest",
+  "StreamCreateRequestStatusCallbackMethod",
+  "StreamEnumStatus",
+  "StreamEnumStatusModel",
+  "StreamEnumTrack",
+  "StreamEnumTrackModel",
+  "StreamEnumUpdateStatus",
+  "StreamEnumUpdateStatusModel",
+  "StreamUpdateRequest",
+  "SubscriptionCreateRequest",
+  "ThisMonthListResponse",
+  "TimeListResponse",
+  "TodayListResponse",
+  "TokenCreateRequest",
+  "TokenType",
+  "TollFreeListResponse",
+  "Track",
+  "TrafficType",
+  "TranscriptionCreateRequest",
+  "TranscriptionCreateRequestStatusCallbackMethod",
+  "TranscriptionEnumStatus",
+  "TranscriptionEnumStatus2",
+  "TranscriptionEnumStatusModel",
+  "TranscriptionListResponse",
+  "TranscriptionUpdateRequest",
+  "TriggerCallbackMethod",
+  "TriggerCreateRequest",
+  "TriggerListResponse",
+  "TriggerUpdateRequest",
+  "TwilioOptions",
+  "UpdateRequest",
+  "UpdateRequestFallbackMethod",
+  "UpdateRequestMethod",
+  "UpdateRequestSmsFallbackMethod",
+  "UpdateRequestSmsMethod",
+  "UpdateRequestStatusCallbackMethod",
+  "UpdateRequestVoiceFallbackMethod",
+  "UpdateRequestVoiceMethod",
+  "UpdateRequestVoiceStatusCallbackMethod",
+  "UpdateStatus",
+  "UsageTriggerEnumRecurring",
+  "UsageTriggerEnumTriggerField",
+  "ValidationCreateRequest",
+  "ValidationCreateRequestStatusCallbackMethod",
+  "VoiceFallbackMethod",
+  "VoiceMethod",
+  "VoiceReceiveMode",
+  "VoiceStatusCallbackMethod",
+  "VoipListResponse",
+  "WaitMethod",
+  "YearlyListResponse",
+  "YesterdayListResponse",
+]
+`;
+
+exports[`generated SDK surface > exposes stable method signatures on every resource 1`] = `
+{
+  "Api20100401Account": [
+    "create(body?: CreateRequest, options?: RequestOptions): Promise<ApiV2010Account>",
+    "list(params?: Api20100401AccountListParams, options?: RequestOptions): Paginator<ApiV2010Account>",
+    "get(sid: string, options?: RequestOptions): Promise<ApiV2010Account>",
+    "update(sid: string, body?: UpdateRequest, options?: RequestOptions): Promise<ApiV2010Account>",
+  ],
+  "Api20100401AddOnResult": [
+    "get(accountSid: string, referenceSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountRecordingRecordingAddOnResult>",
+    "delete(accountSid: string, referenceSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, referenceSid: string, params?: Api20100401AddOnResultListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Address": [
+    "create(accountSid: string, body?: AddressCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountAddress>",
+    "list(accountSid: string, params?: Api20100401AddressListParams, options?: RequestOptions): Paginator<unknown>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountAddress>",
+    "update(accountSid: string, sid: string, body?: AddressUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountAddress>",
+  ],
+  "Api20100401AllTime": [
+    "list(accountSid: string, params?: Api20100401AllTimeListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Application": [
+    "create(accountSid: string, body?: ApplicationCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountApplication>",
+    "list(accountSid: string, params?: Api20100401ApplicationListParams, options?: RequestOptions): Paginator<unknown>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountApplication>",
+    "update(accountSid: string, sid: string, body?: ApplicationUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountApplication>",
+  ],
+  "Api20100401AssignedAddOn": [
+    "get(accountSid: string, resourceSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberAssignedAddOn>",
+    "delete(accountSid: string, resourceSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, resourceSid: string, params?: Api20100401AssignedAddOnListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, resourceSid: string, body?: OnCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberAssignedAddOn>",
+  ],
+  "Api20100401AssignedAddOnExtension": [
+    "get(accountSid: string, resourceSid: string, assignedAddOnSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberAssignedAddOnIncomingPhoneNumberAssignedAddOnExtension>",
+    "list(accountSid: string, resourceSid: string, assignedAddOnSid: string, params?: Api20100401AssignedAddOnExtensionListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401AuthCallsCredentialListMapping": [
+    "create(accountSid: string, domainSid: string, body?: MappingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsCredentialListMapping>",
+    "list(accountSid: string, domainSid: string, params?: Api20100401AuthCallsCredentialListMappingListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsCredentialListMapping>",
+    "delete(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401AuthCallsIpAccessControlListMapping": [
+    "create(accountSid: string, domainSid: string, body?: ListMappingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsIpAccessControlListMapping>",
+    "list(accountSid: string, domainSid: string, params?: Api20100401AuthCallsIpAccessControlListMappingListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthCallsSipAuthCallsIpAccessControlListMapping>",
+    "delete(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401AuthRegistrationsCredentialListMapping": [
+    "create(accountSid: string, domainSid: string, body?: CredentialListMappingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthRegistrationsSipAuthRegistrationsCredentialListMapping>",
+    "list(accountSid: string, domainSid: string, params?: Api20100401AuthRegistrationsCredentialListMappingListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipAuthSipAuthRegistrationsSipAuthRegistrationsCredentialListMapping>",
+    "delete(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401AuthorizedConnectApp": [
+    "get(accountSid: string, connectAppSid: string, options?: RequestOptions): Promise<ApiV2010AccountAuthorizedConnectApp>",
+    "list(accountSid: string, params?: Api20100401AuthorizedConnectAppListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401AvailablePhoneNumberCountry": [
+    "list(accountSid: string, params?: Api20100401AvailablePhoneNumberCountryListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, countryCode: string, options?: RequestOptions): Promise<ApiV2010AccountAvailablePhoneNumberCountry>",
+  ],
+  "Api20100401Balance": [
+    "list(accountSid: string, options?: RequestOptions): Promise<ApiV2010AccountBalance>",
+  ],
+  "Api20100401Call": [
+    "create(accountSid: string, body?: CallCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCall>",
+    "list(accountSid: string, params?: Api20100401CallListParams, options?: RequestOptions): Paginator<unknown>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountCall>",
+    "update(accountSid: string, sid: string, body?: CallUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCall>",
+  ],
+  "Api20100401CallNotification": [
+    "get(accountSid: string, callSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountCallCallNotificationInstance>",
+    "list(accountSid: string, callSid: string, params?: Api20100401CallNotificationListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401CallRecording": [
+    "create(accountSid: string, callSid: string, body?: RecordingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallCallRecording>",
+    "list(accountSid: string, callSid: string, params?: Api20100401CallRecordingListParams, options?: RequestOptions): Paginator<unknown>",
+    "update(accountSid: string, callSid: string, sid: string, body?: RecordingUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallCallRecording>",
+    "get(accountSid: string, callSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountCallCallRecording>",
+    "delete(accountSid: string, callSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401CallTranscription": [
+    "create(accountSid: string, callSid: string, body?: TranscriptionCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallRealtimeTranscription>",
+    "update(accountSid: string, callSid: string, sid: string, body?: TranscriptionUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallRealtimeTranscription>",
+  ],
+  "Api20100401Conference": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountConference>",
+    "update(accountSid: string, sid: string, body?: ConferenceUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountConference>",
+    "list(accountSid: string, params?: Api20100401ConferenceListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401ConferenceRecording": [
+    "list(accountSid: string, conferenceSid: string, params?: Api20100401ConferenceRecordingListParams, options?: RequestOptions): Paginator<unknown>",
+    "update(accountSid: string, conferenceSid: string, sid: string, body?: ConferenceRecordingUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountConferenceConferenceRecording>",
+    "get(accountSid: string, conferenceSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountConferenceConferenceRecording>",
+    "delete(accountSid: string, conferenceSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401ConnectApp": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountConnectApp>",
+    "update(accountSid: string, sid: string, body?: AppUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountConnectApp>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401ConnectAppListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Credential": [
+    "list(accountSid: string, credentialListSid: string, params?: Api20100401CredentialListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, credentialListSid: string, body?: CredentialCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialListSipCredential>",
+    "get(accountSid: string, credentialListSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialListSipCredential>",
+    "update(accountSid: string, credentialListSid: string, sid: string, body?: CredentialUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialListSipCredential>",
+    "delete(accountSid: string, credentialListSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401CredentialList": [
+    "list(accountSid: string, params?: Api20100401CredentialListListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: ListCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialList>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialList>",
+    "update(accountSid: string, sid: string, body?: ListUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipCredentialList>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401CredentialListMapping": [
+    "create(accountSid: string, domainSid: string, body?: Api20100401CredentialListMappingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipCredentialListMapping>",
+    "list(accountSid: string, domainSid: string, params?: Api20100401CredentialListMappingListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipCredentialListMapping>",
+    "delete(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401Daily": [
+    "list(accountSid: string, params?: Api20100401DailyListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Data": [
+    "list(accountSid: string, referenceSid: string, addOnResultSid: string, payloadSid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401DependentPhoneNumber": [
+    "list(accountSid: string, addressSid: string, params?: Api20100401DependentPhoneNumberListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Domain": [
+    "list(accountSid: string, params?: Api20100401DomainListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: DomainCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomain>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomain>",
+    "update(accountSid: string, sid: string, body?: DomainUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomain>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401Event": [
+    "list(accountSid: string, callSid: string, params?: Api20100401EventListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Feedback": [
+    "create(accountSid: string, messageSid: string, body?: FeedbackCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountMessageMessageFeedback>",
+  ],
+  "Api20100401IncomingPhoneNumber": [
+    "update(accountSid: string, sid: string, body?: NumberUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumber>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumber>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401IncomingPhoneNumberListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: NumberCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumber>",
+  ],
+  "Api20100401IncomingPhoneNumberLocal": [
+    "list(accountSid: string, params?: Api20100401IncomingPhoneNumberLocalListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: LocalCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberLocal>",
+  ],
+  "Api20100401IncomingPhoneNumberMobile": [
+    "list(accountSid: string, params?: Api20100401IncomingPhoneNumberMobileListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: MobileCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberMobile>",
+  ],
+  "Api20100401IncomingPhoneNumberTollFree": [
+    "list(accountSid: string, params?: Api20100401IncomingPhoneNumberTollFreeListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: FreeCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountIncomingPhoneNumberIncomingPhoneNumberTollFree>",
+  ],
+  "Api20100401IpAccessControlList": [
+    "list(accountSid: string, params?: Api20100401IpAccessControlListListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: ControlListCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlList>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlList>",
+    "update(accountSid: string, sid: string, body?: ControlListUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlList>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401IpAccessControlListMapping": [
+    "get(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipIpAccessControlListMapping>",
+    "delete(accountSid: string, domainSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "create(accountSid: string, domainSid: string, body?: ControlListMappingCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipDomainSipIpAccessControlListMapping>",
+    "list(accountSid: string, domainSid: string, params?: Api20100401IpAccessControlListMappingListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Key": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountKey>",
+    "update(accountSid: string, sid: string, body?: KeyUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountKey>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401KeyListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401LastMonth": [
+    "list(accountSid: string, params?: Api20100401LastMonthListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Local": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401LocalListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401MachineToMachine": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401MachineToMachineListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Media": [
+    "list(accountSid: string, messageSid: string, params?: Api20100401MediaListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401MediaInstance": [
+    "delete(accountSid: string, messageSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "get(accountSid: string, messageSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountMessageMedia>",
+  ],
+  "Api20100401Member": [
+    "get(accountSid: string, queueSid: string, callSid: string, options?: RequestOptions): Promise<ApiV2010AccountQueueMember>",
+    "update(accountSid: string, queueSid: string, callSid: string, body?: MemberUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountQueueMember>",
+    "list(accountSid: string, queueSid: string, params?: Api20100401MemberListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Message": [
+    "create(accountSid: string, body?: MessageCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountMessage>",
+    "list(accountSid: string, params?: Api20100401MessageListParams, options?: RequestOptions): Paginator<unknown>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountMessage>",
+    "update(accountSid: string, sid: string, body?: MessageUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountMessage>",
+  ],
+  "Api20100401Mobile": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401MobileListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Monthly": [
+    "list(accountSid: string, params?: Api20100401MonthlyListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401National": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401NationalListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401NewKey": [
+    "create(accountSid: string, body?: KeyCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountNewKey>",
+  ],
+  "Api20100401NewSigningKey": [
+    "create(accountSid: string, body?: SigningKeyCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountNewSigningKey>",
+  ],
+  "Api20100401Notification": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountNotificationInstance>",
+    "list(accountSid: string, params?: Api20100401NotificationListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401OutgoingCallerId": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountOutgoingCallerId>",
+    "update(accountSid: string, sid: string, body?: IdUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountOutgoingCallerId>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401OutgoingCallerIdListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Participant": [
+    "get(accountSid: string, conferenceSid: string, callSid: string, options?: RequestOptions): Promise<ApiV2010AccountConferenceParticipant>",
+    "update(accountSid: string, conferenceSid: string, callSid: string, body?: ParticipantUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountConferenceParticipant>",
+    "delete(accountSid: string, conferenceSid: string, callSid: string, options?: RequestOptions): Promise<void>",
+    "create(accountSid: string, conferenceSid: string, body?: ParticipantCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountConferenceParticipant>",
+    "list(accountSid: string, conferenceSid: string, params?: Api20100401ParticipantListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Payload": [
+    "get(accountSid: string, referenceSid: string, addOnResultSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountRecordingRecordingAddOnResultRecordingAddOnResult>",
+    "delete(accountSid: string, referenceSid: string, addOnResultSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, referenceSid: string, addOnResultSid: string, params?: Api20100401PayloadListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Payment": [
+    "create(accountSid: string, callSid: string, body?: PaymentCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallPayment>",
+    "update(accountSid: string, callSid: string, sid: string, body?: PaymentUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallPayment>",
+  ],
+  "Api20100401Queue": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountQueue>",
+    "update(accountSid: string, sid: string, body?: QueueUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountQueue>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401QueueListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, body?: QueueCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountQueue>",
+  ],
+  "Api20100401Record": [
+    "list(accountSid: string, params?: Api20100401RecordListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Recording": [
+    "get(accountSid: string, sid: string, params?: Api20100401RecordingGetParams, options?: RequestOptions): Promise<ApiV2010AccountRecording>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401RecordingListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401RecordingTranscription": [
+    "get(accountSid: string, recordingSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountRecordingRecordingTranscription>",
+    "delete(accountSid: string, recordingSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, recordingSid: string, params?: Api20100401RecordingTranscriptionListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401SharedCost": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401SharedCostListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401ShortCode": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountShortCode>",
+    "update(accountSid: string, sid: string, body?: CodeUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountShortCode>",
+    "list(accountSid: string, params?: Api20100401ShortCodeListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401SigningKey": [
+    "list(accountSid: string, params?: Api20100401SigningKeyListParams, options?: RequestOptions): Paginator<unknown>",
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSigningKey>",
+    "update(accountSid: string, sid: string, body?: SigningKeyUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSigningKey>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401SipIpAddress": [
+    "list(accountSid: string, ipAccessControlListSid: string, params?: Api20100401SipIpAddressListParams, options?: RequestOptions): Paginator<unknown>",
+    "create(accountSid: string, ipAccessControlListSid: string, body?: IpAddressCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlListSipIpAddress>",
+    "get(accountSid: string, ipAccessControlListSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlListSipIpAddress>",
+    "update(accountSid: string, ipAccessControlListSid: string, sid: string, body?: IpAddressUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountSipSipIpAccessControlListSipIpAddress>",
+    "delete(accountSid: string, ipAccessControlListSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401Siprec": [
+    "create(accountSid: string, callSid: string, body?: SiprecCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallSiprec>",
+    "update(accountSid: string, callSid: string, sid: string, body?: SiprecUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallSiprec>",
+  ],
+  "Api20100401Stream": [
+    "create(accountSid: string, callSid: string, body?: StreamCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallStream>",
+    "update(accountSid: string, callSid: string, sid: string, body?: StreamUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallStream>",
+  ],
+  "Api20100401ThisMonth": [
+    "list(accountSid: string, params?: Api20100401ThisMonthListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Today": [
+    "list(accountSid: string, params?: Api20100401TodayListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Token": [
+    "create(accountSid: string, body?: TokenCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountToken>",
+  ],
+  "Api20100401TollFree": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401TollFreeListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Transcription": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountTranscription>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "list(accountSid: string, params?: Api20100401TranscriptionListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Trigger": [
+    "get(accountSid: string, sid: string, options?: RequestOptions): Promise<ApiV2010AccountUsageUsageTrigger>",
+    "update(accountSid: string, sid: string, body?: TriggerUpdateRequest, options?: RequestOptions): Promise<ApiV2010AccountUsageUsageTrigger>",
+    "delete(accountSid: string, sid: string, options?: RequestOptions): Promise<void>",
+    "create(accountSid: string, body?: TriggerCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountUsageUsageTrigger>",
+    "list(accountSid: string, params?: Api20100401TriggerListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401UserDefinedMessage": [
+    "create(accountSid: string, callSid: string, body?: DefinedMessageCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallUserDefinedMessage>",
+  ],
+  "Api20100401UserDefinedMessageSubscription": [
+    "create(accountSid: string, callSid: string, body?: SubscriptionCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountCallUserDefinedMessageSubscription>",
+    "delete(accountSid: string, callSid: string, sid: string, options?: RequestOptions): Promise<void>",
+  ],
+  "Api20100401ValidationRequest": [
+    "create(accountSid: string, body?: ValidationCreateRequest, options?: RequestOptions): Promise<ApiV2010AccountValidationRequest>",
+  ],
+  "Api20100401Voip": [
+    "list(accountSid: string, countryCode: string, params?: Api20100401VoipListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Yearly": [
+    "list(accountSid: string, params?: Api20100401YearlyListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+  "Api20100401Yesterday": [
+    "list(accountSid: string, params?: Api20100401YesterdayListParams, options?: RequestOptions): Paginator<unknown>",
+  ],
+}
+`;
+
+exports[`generated SDK surface > keeps write models free of server-owned fields 1`] = `
+{
+  "create": 24,
+  "read": 27,
+  "update": 24,
+}
+`;
+
+exports[`generated SDK surface > matches one resource verbatim, to catch formatting regressions 1`] = `
+"import {
+  Paginator,
+  enforceItem,
+  pageParams,
+  type BaseClient,
+  type RequestOptions,
+} from '../core/index.js';
+import { schemas } from '../schemas.js';
+
+export interface CreateRequest {
+  /**
+   * A human readable description of the account to create, defaults to \`SubAccount Created at {YYYY-MM-DD HH:MM meridian}\`
+   */
+  FriendlyName?: string;
+}
+
+/**
+ * The status of this account. Usually \`active\`, but can be \`suspended\` or \`closed\`.
+ *
+ * The server may add values; unknown values are preserved.
+ */
+export type EnumStatus = 'active' | 'suspended' | 'closed' | (string & {});
+/**
+ * The status of this account. Usually \`active\`, but can be \`suspended\` or \`closed\`.
+ */
+export type AccountEnumStatus = EnumStatus;
+/**
+ * The type of this account. Either \`Trial\` or \`Full\` if it's been upgraded
+ *
+ * The server may add values; unknown values are preserved.
+ */
+export type EnumType = 'Trial' | 'Full' | (string & {});
+/**
+ * The type of this account. Either \`Trial\` or \`Full\` if it's been upgraded
+ */
+export type AccountEnumType = EnumType;
+
+export interface ApiV2010Account {
+  /**
+   * The authorization token for this account. This token should be kept a secret, so no sharing.
+   */
+  auth_token: string | null;
+  /**
+   * The date that this account was created, in GMT in RFC 2822 format
+   */
+  date_created?: string | null;
+  /**
+   * The date that this account was last updated, in GMT in RFC 2822 format.
+   */
+  date_updated?: string | null;
+  /**
+   * A human readable description of this account, up to 64 characters long. By default the FriendlyName is your email address.
+   */
+  friendly_name?: string | null;
+  /**
+   * The unique 34 character id that represents the parent of this account. The OwnerAccountSid of a parent account is it's own sid.
+   */
+  owner_account_sid?: string | null;
+  /**
+   * A 34 character string that uniquely identifies this resource.
+   */
+  sid?: string | null;
+  status?: AccountEnumStatus;
+  /**
+   * A Map of various subresources available for the given Account Instance
+   */
+  subresource_uris?: Record<string, unknown> | null;
+  type?: AccountEnumType;
+  /**
+   * The URI for this resource, relative to \`https://api.twilio.com\`
+   */
+  uri?: string | null;
+}
+
+export interface ListResponse {
+  end?: number;
+  first_page_uri?: string;
+  next_page_uri?: string | null;
+  page?: number;
+  page_size?: number;
+  previous_page_uri?: string | null;
+  start?: number;
+  uri?: string;
+  accounts?: ApiV2010Account[];
+}
+
+export interface UpdateRequest {
+  /**
+   * Update the human-readable description of this Account
+   */
+  FriendlyName?: string;
+  Status?: AccountEnumStatus;
+}
+
+export class Api20100401Account {
+  constructor(protected readonly client: BaseClient) {}
+
+  /**
+   * Create a new Twilio Subaccount from the account making the request
+   */
+  create(body?: CreateRequest, options?: RequestOptions): Promise<ApiV2010Account> {
+    return this.client.requestValidated<ApiV2010Account>(
+      {
+        method: 'post',
+        path: '/2010-04-01/Accounts.json',
+        body,
+        bodyKind: 'form' as const,
+        options,
+      },
+      { k: 'ref', n: 'ApiV2010Account' },
+      schemas,
+      'api20100401Account.create',
+    );
+  }
+
+  /**
+   * Retrieves a collection of Accounts belonging to the account used to make the request
+   *
+   * Returns a paginator: \`await\` it for the first page, or \`for await\` to walk every item.
+   */
+  list(
+    params?: Api20100401AccountListParams,
+    options?: RequestOptions,
+  ): Paginator<ApiV2010Account> {
+    return new Paginator<ApiV2010Account>(
+      {
+        style: 'cursor',
+        itemsSource: { kind: 'body', path: ['accounts'] },
+        limitParam: 'PageSize',
+        cursorParam: 'PageToken',
+      },
+      (page) =>
+        this.client.requestRaw({
+          method: 'get',
+          path: '/2010-04-01/Accounts.json',
+          query: {
+            FriendlyName: params?.friendlyName,
+            Status: params?.status,
+            Page: params?.page,
+            ...page,
+          },
+          options,
+        }),
+      pageParams({ PageSize: params?.pageSize, PageToken: params?.pageToken }),
+      (items) =>
+        items.map((item) =>
+          enforceItem<ApiV2010Account>(
+            item,
+            { k: 'ref', n: 'ApiV2010Account' },
+            schemas,
+            'api20100401Account.list',
+            this.client.validationMode,
+          ),
+        ),
+    );
+  }
+
+  /**
+   * Fetch the account specified by the provided Account Sid
+   */
+  get(sid: string, options?: RequestOptions): Promise<ApiV2010Account> {
+    return this.client.requestValidated<ApiV2010Account>(
+      {
+        method: 'get',
+        path: \`/2010-04-01/Accounts/\${encodeURIComponent(String(sid))}.json\`,
+        options,
+      },
+      { k: 'ref', n: 'ApiV2010Account' },
+      schemas,
+      'api20100401Account.get',
+    );
+  }
+
+  /**
+   * Modify the properties of a given Account
+   */
+  update(sid: string, body?: UpdateRequest, options?: RequestOptions): Promise<ApiV2010Account> {
+    return this.client.requestValidated<ApiV2010Account>(
+      {
+        method: 'post',
+        path: \`/2010-04-01/Accounts/\${encodeURIComponent(String(sid))}.json\`,
+        body,
+        bodyKind: 'form' as const,
+        options,
+      },
+      { k: 'ref', n: 'ApiV2010Account' },
+      schemas,
+      'api20100401Account.update',
+    );
+  }
+
+  // Custom methods added between these markers are preserved across regeneration.
+  // Set \`preserve.regions: false\` in besdk.yaml to opt out.
+  // #region Api20100401Account
+  // #endregion Api20100401Account
+}
+
+/**
+ * Parameters for \`list\`.
+ */
+export interface Api20100401AccountListParams {
+  /**
+   * Only return the Account resources with friendly names that exactly match this name.
+   */
+  friendlyName?: string;
+  /**
+   * Only return Account resources with the given status. Can be \`closed\`, \`suspended\` or \`active\`.
+   */
+  status?: AccountEnumStatus;
+  /**
+   * How many resources to return in each list page. The default is 50, and the maximum is 1000.
+   */
+  pageSize?: number;
+  /**
+   * The page index. This value is simply for client state.
+   */
+  page?: number;
+  /**
+   * The page token. This is provided by the API.
+   */
+  pageToken?: string;
+}
+"
+`;
+
+exports[`generated SDK surface > matches src/index.ts verbatim 1`] = `
+"/**
+ * Twilio SDK.
+ */
+
+export { Twilio, type TwilioOptions } from './client.js';
+export * from './shared.js';
+export * from './errors.js';
+export {
+  SDKError,
+  APIError,
+  APIConnectionError,
+  APIConnectionTimeoutError,
+  APIUserAbortError,
+  BadRequestError,
+  AuthenticationError,
+  PermissionDeniedError,
+  NotFoundError,
+  ConflictError,
+  UnprocessableEntityError,
+  RateLimitError,
+  InternalServerError,
+  isAPIError,
+  isSDKError,
+  Page,
+  Paginator,
+  StreamDecodeError,
+  ResponseValidationError,
+  OAuth2Error,
+  TokenSource,
+} from './core/index.js';
+export { SDKError as TwilioError } from './core/index.js';
+export {
+  type RequestOptions,
+  type ClientOptions,
+  type ValidationMode,
+  type ValidationProblem,
+} from './core/index.js';
+export * from './resources/Api20100401Account.js';
+export * from './resources/Api20100401AddOnResult.js';
+export * from './resources/Api20100401Address.js';
+export * from './resources/Api20100401AllTime.js';
+export * from './resources/Api20100401Application.js';
+export * from './resources/Api20100401AssignedAddOn.js';
+export * from './resources/Api20100401AssignedAddOnExtension.js';
+export * from './resources/Api20100401AuthCallsCredentialListMapping.js';
+export * from './resources/Api20100401AuthCallsIpAccessControlListMapping.js';
+export * from './resources/Api20100401AuthorizedConnectApp.js';
+export * from './resources/Api20100401AuthRegistrationsCredentialListMapping.js';
+export * from './resources/Api20100401AvailablePhoneNumberCountry.js';
+export * from './resources/Api20100401Balance.js';
+export * from './resources/Api20100401Call.js';
+export * from './resources/Api20100401CallNotification.js';
+export * from './resources/Api20100401CallRecording.js';
+export * from './resources/Api20100401CallTranscription.js';
+export * from './resources/Api20100401Conference.js';
+export * from './resources/Api20100401ConferenceRecording.js';
+export * from './resources/Api20100401ConnectApp.js';
+export * from './resources/Api20100401Credential.js';
+export * from './resources/Api20100401CredentialList.js';
+export * from './resources/Api20100401CredentialListMapping.js';
+export * from './resources/Api20100401Daily.js';
+export * from './resources/Api20100401Data.js';
+export * from './resources/Api20100401DependentPhoneNumber.js';
+export * from './resources/Api20100401Domain.js';
+export * from './resources/Api20100401Event.js';
+export * from './resources/Api20100401Feedback.js';
+export * from './resources/Api20100401IncomingPhoneNumber.js';
+export * from './resources/Api20100401IncomingPhoneNumberLocal.js';
+export * from './resources/Api20100401IncomingPhoneNumberMobile.js';
+export * from './resources/Api20100401IncomingPhoneNumberTollFree.js';
+export * from './resources/Api20100401IpAccessControlList.js';
+export * from './resources/Api20100401IpAccessControlListMapping.js';
+export * from './resources/Api20100401Key.js';
+export * from './resources/Api20100401LastMonth.js';
+export * from './resources/Api20100401Local.js';
+export * from './resources/Api20100401MachineToMachine.js';
+export * from './resources/Api20100401Media.js';
+export * from './resources/Api20100401MediaInstance.js';
+export * from './resources/Api20100401Member.js';
+export * from './resources/Api20100401Message.js';
+export * from './resources/Api20100401Mobile.js';
+export * from './resources/Api20100401Monthly.js';
+export * from './resources/Api20100401National.js';
+export * from './resources/Api20100401NewKey.js';
+export * from './resources/Api20100401NewSigningKey.js';
+export * from './resources/Api20100401Notification.js';
+export * from './resources/Api20100401OutgoingCallerId.js';
+export * from './resources/Api20100401Participant.js';
+export * from './resources/Api20100401Payload.js';
+export * from './resources/Api20100401Payment.js';
+export * from './resources/Api20100401Queue.js';
+export * from './resources/Api20100401Record.js';
+export * from './resources/Api20100401Recording.js';
+export * from './resources/Api20100401RecordingTranscription.js';
+export * from './resources/Api20100401SharedCost.js';
+export * from './resources/Api20100401ShortCode.js';
+export * from './resources/Api20100401SigningKey.js';
+export * from './resources/Api20100401SipIpAddress.js';
+export * from './resources/Api20100401Siprec.js';
+export * from './resources/Api20100401Stream.js';
+export * from './resources/Api20100401ThisMonth.js';
+export * from './resources/Api20100401Today.js';
+export * from './resources/Api20100401Token.js';
+export * from './resources/Api20100401TollFree.js';
+export * from './resources/Api20100401Transcription.js';
+export * from './resources/Api20100401Trigger.js';
+export * from './resources/Api20100401UserDefinedMessage.js';
+export * from './resources/Api20100401UserDefinedMessageSubscription.js';
+export * from './resources/Api20100401ValidationRequest.js';
+export * from './resources/Api20100401Voip.js';
+export * from './resources/Api20100401Yearly.js';
+export * from './resources/Api20100401Yesterday.js';
+
+// Re-export your own modules between these markers; preserved across regeneration.
+// #region exports
+// #endregion exports
+"
+`;
+
+exports[`generated SDK surface > vendors the runtime without test files 1`] = `
+[
+  "auth.ts",
+  "client.ts",
+  "coerce.ts",
+  "errors.ts",
+  "index.ts",
+  "oauth2.ts",
+  "pagination.ts",
+  "streaming.ts",
+  "validate.ts",
+  "webhooks.ts",
+]
+`;

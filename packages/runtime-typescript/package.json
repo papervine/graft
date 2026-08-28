@@ -1,0 +1,33 @@
+{
+  "name": "@besdk/runtime-typescript",
+  "version": "0.0.0",
+  "description": "Hand-written TypeScript SDK runtime: transport, retries, auth, pagination, errors. Vendored into generated output.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json",
+    "./sources": {
+      "default": "./src/*"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^3.0.5"
+  }
+}

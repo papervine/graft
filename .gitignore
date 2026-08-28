@@ -1,0 +1,59 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Generated SDK output. Snapshot fixtures under tests/snapshot/ are committed on purpose —
+# reviewing those diffs is the point (SPEC.md §3.4).
+/sdks/
+
+# --- Corpus -----------------------------------------------------------------
+# Third-party specs too large to commit. `pnpm corpus:fetch` downloads them, pinned to a commit.
+/corpus/vendor/
+
+# Your own specs. Nothing here is part of this repository — a proprietary or unreleased API
+# description must not be redistributed, and `UNLICENSED` specs legally cannot be.
+# `pnpm corpus:private` runs besdk over whatever is here.
+/corpus/private/
+/sdks/private/
+/tests/private/
+# …and their IR baselines. `.besdk/` is otherwise committed on purpose, but a private spec's
+# baseline contains its schema and method names, which must not leak into a public repository.
+/.besdk/corpus-private-*
+# Records of what was last written to each output directory (SPEC.md §3.9.1). Local build state
+# describing gitignored output, so committing it would be churn nobody reviews.
+/.besdk/*.written.json
+
+.DS_Store
+*.log
+.vitest/
+coverage/
+
+# The IR baseline is committed on purpose: `besdk diff` compares against it so CI can
+# gate on breaking changes to SDK consumers (SPEC.md §9). Not ignored.
+
+# Python target: local venv and generated Python SDKs
+/packages/*/.venv/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Go target: built binary and generated Go SDKs
+/packages/target-go/bin/
+/packages/target-go/besdk-target-go
+/tests/conformance/drivers/godriver/godriver
+
+# Built output inside generated SDKs (rebuilt by the conformance suite)
+/sdks/*/dist/
+
+# PHP
+/packages/*/vendor/
+.php-cs-fixer.cache
+.phpunit.result.cache
+
+# Java: Maven build output
+/packages/*/target/
+
+# .NET
+/packages/*/*/bin/
+/packages/*/*/obj/

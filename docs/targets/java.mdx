@@ -1,0 +1,171 @@
+---
+title: "Java"
+description: "What the Java SDK looks like, and the idioms it commits to."
+---
+
+Requires **Java 21**. Generated packages have **no dependencies**, compile clean under
+`javac -Xlint:all -Werror`, and are formatted by google-java-format.
+
+## Idioms
+
+| IR concept | Java rendering | Why |
+|---|---|---|
+| Read model | `record` | A decoded response is a value: immutable, equal by content, useful `toString` for free |
+| Write body | **builder** | Java has neither keyword arguments nor default parameter values |
+| Optional field | boxed `T`, null when absent | A primitive cannot be null, and there is no other way to say "absent" |
+| Enum | native `enum` with `fromWire` | `fromWire` returns null for an unknown member — a server adding a value must not crash the client |
+| Errors | **unchecked** exceptions | See below |
+| Paginated list | `Iterable<T>` plus `stream()` | `for (var w : client.widgets().list())` is what a Java developer expects |
+| Timestamps | `java.time.Instant` | |
+
+## No dependencies
+
+Not Jackson, not Gson, not an HTTP library. `java.net.http` has been in the JDK since 11, and the JSON layer
+is hand-written and vendored under `<your.package>.core`.
+
+<Note>
+  This is a deliberate trade. A generated SDK is a **library**, and a library that pins Jackson creates
+  version skew with whatever your application already has — one of the most-reported problems in Java
+  dependency management, and why Stripe's Java SDK shades its JSON library rather than depending on one. The
+  cost is a hand-written parser; the benefit is that this SDK cannot conflict with anything.
+</Note>
+
+## Quick start
+
+```java
+import com.acme.sdk.Acme;
+
+var client = Acme.builder().build();          // reads ACME_TOKEN
+var client = Acme.builder().token("pat_…").build();
+```
+
+The builder takes only the credentials your spec declares — `token()` for HTTP Bearer, `apiKey()` for an API
+key, `username()`/`password()` for Basic.
+
+## Records in, builders out
+
+A response is a record, so it reads directly and cannot be mutated:
+
+```java
+Widget widget = client.widgets().get("w_1");
+
+widget.name();
+widget.createdAt();       // an Instant
+```
+
+A request body is a builder, because Java has no named arguments:
+
+```java
+Widget made = client.widgets().create(
+    WidgetCreate.builder()
+        .name("Sprocket")
+        .tags(List.of("new"))
+        .build());
+```
+
+Every method also has an overload without `RequestOptions`, so the common call is short:
+
+```java
+client.widgets().list(50L, null);                                   // no options
+client.widgets().list(50L, null, RequestOptions.builder().timeout(Duration.ofSeconds(5)).build());
+```
+
+## Pagination
+
+```java
+for (Widget widget : client.widgets().list(50L, null)) {
+    System.out.println(widget.id());
+}
+
+client.widgets().list(50L, null).stream().map(Widget::id).forEach(System.out::println);
+
+Page<Widget> page = client.widgets().list(50L, null).firstPage();
+page.items();
+page.total();
+
+List<Widget> all = client.widgets().list(50L, null).all();
+```
+
+Lazy: no request happens until iteration begins, so a 404 surfaces where you iterate rather than where you
+built the paginator.
+
+## Errors are unchecked
+
+```java
+import com.acme.sdk.core.NotFoundException;
+import com.acme.sdk.core.RateLimitException;
+
+try {
+    client.widgets().get("missing");
+} catch (NotFoundException e) {
+    e.statusCode();        // 404
+    e.requestId();
+} catch (RateLimitException e) {
+    Thread.sleep(e.retryAfter() == null ? 1000 : e.retryAfter().toMillis());
+}
+```
+
+Every error extends `AcmeException`, and **all of them are unchecked**. Checked exceptions would force every
+caller of every method to `try`/`catch` or declare `throws`, which is how Java code acquires
+`catch (Exception e) {}`. They model recoverable, local conditions; a 500 from someone else's server is
+neither — which is why Spring, the AWS SDK, Stripe, and `java.net.http` all agree.
+
+See [Errors](/sdk/errors) for the full hierarchy and the retry rules.
+
+## Testing without a network
+
+Inject a transport. Without this, testing code that uses the SDK means making real network calls:
+
+```java
+import com.acme.sdk.core.HttpRequestSpec;
+import com.acme.sdk.core.HttpResponseSpec;
+import com.acme.sdk.core.Transport;
+
+Transport fake = (request, timeout) ->
+    new HttpResponseSpec(200, "{\"id\":\"w_1\"}", Map.of("content-type", "application/json"));
+
+var client = Acme.builder().transport(fake).build();
+```
+
+## Response validation
+
+Responses are checked against the shape the spec declared before they reach a record, so a mismatch names the
+field:
+
+```
+widgets.list: the response did not match the API's declared shape — [0].id should be a string but was an integer
+```
+
+Pass `.validation(ValidationMode.WARN)` or `.OFF` to change that. With validation off, a required field of the
+wrong type still fails as a `DecodeException` naming the record and key. See
+[Response validation](/sdk/validation).
+
+## Gates
+
+| Gate | Why |
+|---|---|
+| google-java-format | The closest thing Java has to `gofmt`: one canonical style, no configuration |
+| `javac -Xlint:all -Werror` | A warning in generated code is a defect you cannot fix by editing |
+
+`-Werror` is not decoration. It caught two real bugs in generated code during this target's development — a
+`mixed`-typed value passed where a `String` was declared, and a paginator claiming an element type it did not
+actually produce.
+
+## Not supported yet
+
+**Streaming responses.** A `text/event-stream` operation is skipped, and generation warns:
+
+```
+warn: The Java target does not support streaming responses, so `events.stream` was not generated.
+```
+
+Skipped rather than emitted, because a method that JSON-decoded an SSE stream cannot work and looks like it
+should. Everything else in the spec still generates.
+
+**OAuth2.** The runtime supports the client-credentials and refresh flows, but this target does not yet emit the constructor arguments that reach them. Pass an access token you obtained yourself as `token`. See [Authentication](/sdk/authentication#oauth2).
+
+
+
+**Unions** map to `Object`. Java could express these better than any other target — sealed interfaces plus
+pattern matching give exhaustive `switch` at compile time — and that is the intended next step; today it
+matches what the Go target does with the same input.

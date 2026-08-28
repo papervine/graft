@@ -1,0 +1,162 @@
+---
+title: "Streaming"
+description: "Server-sent events and streamed responses, and how far each language takes them."
+---
+
+An operation whose response is `text/event-stream` becomes a streaming method rather than one that
+waits for a body that never ends.
+
+```ts
+for await (const event of client.events.stream()) {
+  console.log(event.type, event.payload);
+}
+```
+
+You configure nothing. The content type in your spec is the whole trigger.
+
+## Support is uneven, and it matters which language
+
+Three targets emit a streaming method, and they do not give you the same thing. This is a real gap,
+not a documentation nicety — pick with it in mind:
+
+| Language | What `stream()` returns | Events decoded? | Typed? |
+|---|---|---|---|
+| TypeScript | `AsyncGenerator<Event>` | Yes | Yes |
+| Python | `Iterator[str]` | No — raw lines | No |
+| Go | `io.ReadCloser` | No — raw bytes | No |
+| PHP, Java, .NET | *not generated* | — | — |
+
+Only TypeScript parses the SSE framing and yields your declared event type. Python hands you lines
+and Go hands you a reader, so in both you do the `data:` parsing and the JSON decoding yourself.
+
+<Warning>
+  On PHP, Java, and .NET a `text/event-stream` operation is **skipped**, and generation warns:
+
+  ```
+  warn: The Java target does not support streaming responses, so `events.stream` was not generated.
+  ```
+
+  Skipped rather than emitted, because a method that JSON-decoded an SSE stream cannot work and looks
+  like it should. Everything else in the spec still generates — one streaming operation does not cost
+  you the SDK.
+</Warning>
+
+## TypeScript
+
+```ts
+for await (const event of client.events.stream()) {
+  if (event.type === 'widget.created') {
+    console.log(event.payload.id);        // typed
+  }
+}
+```
+
+The generator yields your declared event type, decoded from each SSE `data:` frame. Breaking out of
+the loop closes the underlying response, so an early `break` does not leak a socket.
+
+Comment lines and SSE keep-alives are skipped rather than surfaced as empty events, and a `data:`
+payload split across several lines is reassembled before decoding — both are in the framing spec and
+both are what a hand-rolled reader usually gets wrong.
+
+## Python
+
+```python
+for line in client.events.stream():
+    if line.startswith("data: "):
+        event = json.loads(line[6:])
+```
+
+Lines, not events. The async client is an `AsyncIterator[str]`:
+
+```python
+async for line in client.events.stream():
+    ...
+```
+
+## Go
+
+```go
+body, err := client.Events.Stream(ctx, nil)
+if err != nil {
+    return err
+}
+defer body.Close()
+
+scanner := bufio.NewScanner(body)
+for scanner.Scan() {
+    line := scanner.Text()
+    // parse `data: …` yourself
+}
+```
+
+`defer body.Close()` is not optional — the response body holds the connection until you close it.
+
+## Event metadata and resuming
+
+`stream()` yields decoded payloads, so `event.type` works. When you need the framing — an event id to
+resume from, or the server's reconnect hint — use the sibling:
+
+```ts
+for await (const event of client.events.streamEvents()) {
+  event.data;      // the same payload `stream()` yields, typed the same
+  event.id;        // pass to `lastEventId` to resume
+  event.event;     // the SSE `event:` name, when the server sends one
+  event.retry;     // the server's reconnect hint, in milliseconds
+}
+```
+
+Two methods rather than an option, because the return type differs — an option that changed what the
+generator yields could not be typed without a union you would have to narrow at every call.
+
+### Resuming
+
+Pass the last id you processed:
+
+```ts
+let lastEventId: string | undefined;
+
+for await (const event of client.events.streamEvents({ lastEventId })) {
+  lastEventId = event.id;
+  handle(event.data);
+}
+```
+
+`lastEventId` is sent as the `Last-Event-ID` header, which is fixed by the SSE specification and therefore
+not configurable.
+
+<Warning>
+  **besdk does not reconnect for you**, and that is deliberate rather than missing.
+
+  Nothing in OpenAPI says whether replaying from an id yields the events you missed or restarts the stream
+  from the beginning. Reconnecting on that assumption silently duplicates or drops events. It would also
+  change the loop's contract: a stream that reconnects never *ends* on a dropped connection, so you lose
+  the ability to notice one — and the failure mode is a process that looks healthy while receiving nothing.
+
+  Everything resumption needs is here: the id on each event, and the option to send it. The loop, the
+  backoff, and whether to honour `retry` are yours, because they depend on what you are doing with the
+  events.
+</Warning>
+
+## Binary responses
+
+Different from streaming, and supported everywhere. A response declared as `application/pdf`,
+`application/octet-stream`, or similar returns bytes rather than a decoded object, and is not
+validated — there is no shape to check:
+
+<CodeGroup>
+```ts TypeScript
+const pdf = await client.invoices.downloadPdf('i_1');   // ArrayBuffer
+```
+
+```python Python
+pdf = client.invoices.download_pdf("i_1")               # bytes
+```
+
+```go Go
+pdf, err := client.Invoices.DownloadPdf(ctx, "i_1")     // []byte
+```
+</CodeGroup>
+
+A `text/csv` or `text/plain` response returns a string instead. The distinction comes from the spec,
+not from sniffing what the server sent — so the return type does not change based on a response
+header.

@@ -1,0 +1,32 @@
+{
+  "name": "besdk",
+  "version": "0.0.0",
+  "description": "OpenAPI to idiomatic SDK generator",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "besdk": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@besdk/core": "workspace:*",
+    "@besdk/protocol": "workspace:*",
+    "picocolors": "^1.1.1",
+    "@besdk/target-typescript": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.8.3",
+    "vitest": "^3.0.5"
+  }
+}

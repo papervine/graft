@@ -1,0 +1,195 @@
+---
+title: "Quickstart"
+description: "From an OpenAPI document to a publishable SDK in three commands."
+---
+
+<Steps>
+  <Step title="See what your spec does and does not say">
+    ```sh
+    besdk check openapi.yaml
+    ```
+
+    ```
+    openapi.yaml → 121 operations, 23 resources
+
+      ⚠ 20 schemas serve as both request and response
+          WidgetsResponse: list item, get response, create body, update body
+          → models.WidgetsResponse.split: { read: Widget, create: WidgetCreate }
+      ⚠ 186 error responses declare no schema
+          → errors.default: { error: string }
+      ⚠ 27/27 fields on WidgetsResponse are optional
+          → users will null-check every field; promote with models.WidgetsResponse.required
+      ℹ Accept header on 121/121 operations → hoisting to client defaults
+    ```
+
+    Most specs are under-specified rather than merely irregular: pagination, error shapes, and which
+    fields are always present usually live in prose descriptions, if anywhere. Each finding comes with
+    the config line that resolves it.
+
+    Nothing is written. Run it first because it tells you what the next step would otherwise guess at.
+  </Step>
+
+  <Step title="Scaffold a config">
+    ```sh
+    besdk init openapi.yaml
+    ```
+
+    Writes `besdk.yaml` with every inference spelled out rather than left implicit, so you can see and
+    override each judgment. Lines marked `REVIEW` are the ones besdk cannot infer:
+
+    ```yaml
+    spec: openapi.yaml
+    name: Acme
+    targets:
+      typescript: { out: sdks/typescript, packageName: "@acme/sdk" }
+    models:
+      WidgetsResponse:
+        rename: Widget
+        split: { read: Widget, create: WidgetCreate, update: WidgetUpdate }
+        serverOwned: [id, createdAt]
+        # REVIEW: 27 fields, none required in the spec.
+        required: [id, name]
+    ```
+
+    `serverOwned` is inferred from naming conventions and is usually right. `required` is a placeholder:
+    if your spec declares nothing required, every field is optional and your users null-check
+    everything. **Filling that list in is the single biggest quality win available.**
+  </Step>
+
+  <Step title="Generate">
+    ```sh
+    besdk generate openapi.yaml
+    ```
+
+    Picks up `./besdk.yaml` automatically, formats with the language's canonical formatter, and
+    **fails** if the output does not pass its strict typechecker.
+  </Step>
+</Steps>
+
+## Add more languages
+
+One spec, one config, any number of targets. Every judgment above is made once and applies to all of
+them:
+
+```yaml besdk.yaml
+targets:
+  typescript: { out: sdks/typescript, packageName: "@acme/sdk" }
+  python:     { out: sdks/python,     packageName: acme }
+  go:         { out: sdks/go,         modulePath: github.com/acme/acme-go }
+  php:        { out: sdks/php,        packageName: acme/sdk }
+  java:       { out: sdks/java,       packageName: "com.acme:acme-sdk" }
+  dotnet:     { out: sdks/dotnet,     packageName: Acme.Sdk }
+```
+
+```sh
+besdk generate openapi.yaml --target python
+besdk generate openapi.yaml               # all of them
+```
+
+Check [Language support](/sdk/capabilities) before committing to one — streaming and file uploads are
+not yet available everywhere, and besdk skips those operations with a warning rather than emitting
+something that does not work.
+
+## Use it
+
+<CodeGroup>
+```ts TypeScript
+import { Acme, NotFoundError } from '@acme/sdk';
+
+const client = new Acme();                       // reads ACME_TOKEN
+
+for await (const widget of client.widgets.list({ status: 'active' })) {
+  console.log(widget.id);
+}
+
+try {
+  await client.widgets.get('missing');
+} catch (error) {
+  if (error instanceof NotFoundError) {
+    console.log(error.status, error.requestId);
+  }
+}
+```
+
+```python Python
+from acme import Acme, NotFoundError
+
+client = Acme()                                  # reads ACME_TOKEN
+
+for widget in client.widgets.list(status="active"):
+    print(widget.id)
+
+try:
+    client.widgets.get("missing")
+except NotFoundError as error:
+    print(error.status, error.request_id)
+```
+
+```go Go
+client := acme.New()                             // reads ACME_TOKEN
+
+it := client.Widgets.List(ctx, &acme.WidgetsListParams{Status: acme.String("active")})
+for it.Next(ctx) {
+    fmt.Println(it.Current().ID)
+}
+if err := it.Err(); err != nil {
+    var apiErr *acme.NotFoundError
+    if errors.As(err, &apiErr) {
+        fmt.Println(apiErr.StatusCode, apiErr.RequestID)
+    }
+}
+```
+
+```java Java
+var client = Acme.builder().build();             // reads ACME_TOKEN
+
+for (Widget widget : client.widgets().list("active")) {
+    System.out.println(widget.id());
+}
+```
+
+```csharp C#
+var client = new AcmeClient();                   // reads ACME_TOKEN
+
+await foreach (var widget in client.Widgets.List(status: "active"))
+{
+    Console.WriteLine(widget.Id);
+}
+```
+</CodeGroup>
+
+Credentials come from the environment by default; pass them explicitly and the argument wins. See
+[Authentication](/sdk/authentication).
+
+## Keep it honest in CI
+
+```sh
+besdk check openapi.yaml --strict   # fail if the spec is vague
+besdk diff  openapi.yaml --strict   # fail if regenerating would break consumers
+```
+
+`diff` compares the API contract against a committed baseline, so a renamed method or a field that
+became optional cannot ship unnoticed. See [Breaking changes](/guides/breaking-changes).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="What gets generated" icon="folder-tree" href="/project-structure">
+    The files, and which ones besdk will not overwrite.
+  </Card>
+  <Card title="Read and write models" icon="scissors" href="/guides/read-write-models">
+    The `split` config, and why it matters more than it looks.
+  </Card>
+  <Card title="Custom code" icon="pen" href="/guides/custom-code">
+    Adding methods that survive regeneration.
+  </Card>
+  <Card title="Publishing" icon="box-open" href="/guides/publishing">
+    Versioning, changelogs, and each registry.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Name the client whatever you like. `info.title: "Acme Platform"` yields `AcmePlatform` by default;
+  `name: Acme` in `besdk.yaml` gives you `import { Acme }`, and the package name, environment
+  variables, README, and examples all follow. See [Naming](/guides/naming).
+</Tip>

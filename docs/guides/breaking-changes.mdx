@@ -1,0 +1,99 @@
+---
+title: "Breaking changes"
+description: "Make sure regenerating cannot silently break the people using your SDK."
+---
+
+Regenerating an SDK is not like rebuilding an app. Your users depend on the surface, so a renamed
+method or a field that quietly became optional is *their* problem, at a time you chose by accident.
+
+```sh
+besdk diff openapi.yaml --strict
+```
+
+```
+✗ Widget.thumbnail: field removed
+✗ assets.list: return type changed
+    Widget[] → WidgetPage
++ assets.archive: method added
+
+2 breaking, 1 additive, 0 other — implies a major version bump.
+```
+
+## It compares the contract, not the text
+
+A file diff cannot answer this question: reformatting registers as a change, and a renamed method
+looks like one removal plus one addition. `besdk diff` compares the **intermediate
+representation** — the API contract — so every finding is expressed in terms of what breaks.
+
+It also means the analysis is language-neutral. One diff covers every target.
+
+## Setting it up
+
+<Steps>
+  <Step title="Generate once to create a baseline">
+    ```sh
+    besdk generate openapi.yaml
+    ```
+
+    Writes `.besdk/<spec>.ir.json`. **Commit it** — it is the comparison point.
+  </Step>
+
+  <Step title="Gate CI on it">
+    ```sh
+    besdk diff openapi.yaml --strict
+    ```
+
+    Exits `1` on any breaking change.
+  </Step>
+
+  <Step title="Accept changes deliberately">
+    ```sh
+    besdk diff openapi.yaml --accept
+    ```
+
+    Updates the baseline. `generate` will never overwrite it — the baseline is written only when it
+    does not exist, so the comparison point cannot vanish under you.
+  </Step>
+</Steps>
+
+## Classification is direction-sensitive
+
+The subtle part, and the easy thing to get backwards:
+
+| Change | On a read model | On a write model |
+|---|---|---|
+| required → optional | **breaking** — code that assumed presence must now handle absence | additive |
+| optional → required | additive — the value is now guaranteed | **breaking** — callers must supply it |
+| field added, required | additive | **breaking** |
+| field removed | **breaking** | **breaking** |
+
+A `shared` model — one not split into read and write — flows both ways, so either direction breaks
+one side.
+
+## Breaking without being a compile error
+
+Two cases worth calling out, because a typechecker will not catch them:
+
+**Gaining or losing pagination.** The return type changes from a promise to an iterator.
+
+**A changed default server.** Nothing fails to compile; every existing client just starts calling a
+different host.
+
+**A renamed client class** is also breaking — it renames the export, so every `import { … }` breaks.
+
+## Machine-readable
+
+```sh
+besdk diff openapi.yaml --json
+```
+
+```json
+{ "breaking": 2, "additive": 1, "patch": 0, "bump": "major", "changes": [ … ] }
+```
+
+`bump` is the semver bump the change set implies — `major`, `minor`, `patch`, or `none`.
+
+<Note>
+  besdk reports the implied bump but does not apply it to your `package.json`. Deciding your own
+  version is not something a generator should do for you.
+</Note>

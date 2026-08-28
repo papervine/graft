@@ -1,0 +1,116 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * The target protocol entry point (SPEC.md §3.5).
+ *
+ *   besdk-target-php --sdk-target-protocol   → handshake on stdout
+ *   besdk-target-php                         → IR JSON on stdin, manifest on stdout
+ *
+ * Nothing here imports anything from besdk's core: the contract is the JSON, which is what makes a target
+ * in *any* language possible.
+ */
+
+use Besdk\Target\Php\Emitter;
+use Besdk\Target\Php\Handshake;
+
+foreach ([__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../vendor/autoload.php'] as $autoload) {
+    if (file_exists($autoload)) {
+        require $autoload;
+        break;
+    }
+}
+
+if (!class_exists(Emitter::class)) {
+    fwrite(\STDERR, "besdk-target-php: run `composer install` in packages/target-php first\n");
+    exit(2);
+}
+
+if (in_array(Handshake::FLAG, array_slice($argv, 1), true)) {
+    echo json_encode(Handshake::describe(), \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR), "\n";
+    exit(0);
+}
+
+$stdin = stream_get_contents(\STDIN);
+if ($stdin === false || trim($stdin) === '') {
+    fwrite(\STDERR, "besdk-target-php: expected IR JSON on stdin\n");
+    exit(2);
+}
+
+try {
+    /** @var mixed $payload */
+    $payload = json_decode($stdin, true, 512, \JSON_THROW_ON_ERROR);
+} catch (JsonException $error) {
+    fwrite(\STDERR, 'besdk-target-php: stdin was not valid JSON: ' . $error->getMessage() . "\n");
+    exit(2);
+}
+
+if (!is_array($payload) || !is_array($payload['ir'] ?? null)) {
+    fwrite(\STDERR, "besdk-target-php: payload had no `ir` object\n");
+    exit(2);
+}
+
+$brand = is_array($payload['brand'] ?? null) ? $payload['brand'] : [];
+if (!is_string($brand['generatedNotice'] ?? null)) {
+    // Required rather than defaulted: a hardcoded fallback would put this project's name in files a
+    // consumer commits, which is the one place it must never appear (SPEC.md §1.2).
+    fwrite(\STDERR, "besdk-target-php: payload had no `brand.generatedNotice`\n");
+    exit(2);
+}
+
+$emitter = new Emitter(
+    $payload['ir'],
+    is_array($payload['options'] ?? null) ? $payload['options'] : [],
+    $brand,
+);
+
+try {
+    $files = $emitter->emit(loadRuntime());
+} catch (Throwable $error) {
+    fwrite(\STDERR, 'besdk-target-php: ' . $error->getMessage() . "\n");
+    exit(70);
+}
+
+echo json_encode(['files' => $files, 'warnings' => $emitter->warnings()], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR), "\n";
+exit(0);
+
+/**
+ * The hand-written runtime's sources, for vendoring into the output.
+ *
+ * Read from disk rather than inlined as string constants, so the runtime stays a normal reviewable library
+ * that its own test suite exercises (SPEC.md §3.3).
+ *
+ * @return array<string,string>
+ */
+function loadRuntime(): array
+{
+    $candidates = [
+        getenv('SDK_PHP_RUNTIME') ?: null,
+        __DIR__ . '/../../runtime-php/src',
+        __DIR__ . '/../vendor/besdk/runtime-php/src',
+    ];
+    foreach ($candidates as $dir) {
+        if ($dir === null || !is_dir($dir)) {
+            continue;
+        }
+        $files = [];
+        foreach (scandir($dir) ?: [] as $name) {
+            if (!str_ends_with($name, '.php')) {
+                continue;
+            }
+            $contents = file_get_contents($dir . '/' . $name);
+            if ($contents !== false) {
+                $files[$name] = $contents;
+            }
+        }
+        if ($files !== []) {
+            ksort($files);
+
+            return $files;
+        }
+    }
+
+    throw new RuntimeException('no runtime sources found; set SDK_PHP_RUNTIME to the runtime-php src directory');
+}

@@ -1,0 +1,1587 @@
+{
+  "irVersion": "1.4.0",
+  "service": {
+    "name": {
+      "tokens": [
+        "kitchen",
+        "sink"
+      ]
+    },
+    "displayName": "Kitchen Sink",
+    "version": "1.0",
+    "docs": {
+      "description": "A deliberately pathological spec covering the constructs `corpus/pixwel` never exercises (SPEC.md §7): anyOf, discriminated unions, allOf composition, cursor pagination, nested resource groups, both nullability dialects, non-JSON content, binary and streaming responses, and non-trivial path parameters.\nHand-authored rather than harvested, so it is a *conformance fixture*, not a substitute for a real gnarly public spec. Its job is to make each documented gap fail loudly."
+    },
+    "servers": [
+      {
+        "id": "Production",
+        "url": "https://api.kitchen.test/v1",
+        "description": "Production",
+        "default": true
+      }
+    ],
+    "auth": [
+      {
+        "kind": "apiKey",
+        "id": "ApiKeyAuth",
+        "location": "header",
+        "wireName": "X-Api-Key",
+        "docs": {
+          "description": "API key issued in the dashboard."
+        }
+      },
+      {
+        "kind": "oauth2",
+        "id": "OAuth2",
+        "flow": "clientCredentials",
+        "tokenUrl": "https://auth.kitchen.test/oauth/token",
+        "scopes": [
+          {
+            "name": "read:members",
+            "description": "Read organisation members"
+          },
+          {
+            "name": "write:members",
+            "description": "Invite and remove members"
+          }
+        ],
+        "docs": {
+          "description": "Machine-to-machine access."
+        }
+      },
+      {
+        "kind": "oauth2",
+        "id": "OAuth2AuthCode",
+        "flow": "refreshToken",
+        "tokenUrl": "https://auth.kitchen.test/oauth/token",
+        "scopes": [
+          {
+            "name": "read:members",
+            "description": "Read organisation members"
+          }
+        ],
+        "docs": {
+          "description": "Interactive access."
+        }
+      }
+    ],
+    "constantHeaders": {}
+  },
+  "types": [
+    {
+      "kind": "object",
+      "id": "Category",
+      "name": {
+        "tokens": [
+          "category"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "slug"
+            ]
+          },
+          "wireName": "slug",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "name"
+            ]
+          },
+          "wireName": "name",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "parent"
+            ]
+          },
+          "wireName": "parent",
+          "type": {
+            "kind": "named",
+            "id": "Category"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "children"
+            ]
+          },
+          "wireName": "children",
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "named",
+              "id": "Category"
+            }
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": true,
+      "sourcePointer": "#/components/schemas/Category"
+    },
+    {
+      "kind": "enum",
+      "id": "Role",
+      "name": {
+        "tokens": [
+          "role"
+        ]
+      },
+      "docs": {},
+      "members": [
+        {
+          "name": {
+            "tokens": [
+              "owner"
+            ]
+          },
+          "wireValue": "owner",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "admin"
+            ]
+          },
+          "wireValue": "admin",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "member"
+            ]
+          },
+          "wireValue": "member",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "viewer"
+            ]
+          },
+          "wireValue": "viewer",
+          "docs": {}
+        }
+      ],
+      "open": true
+    },
+    {
+      "kind": "object",
+      "id": "Member",
+      "name": {
+        "tokens": [
+          "member"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "id"
+            ]
+          },
+          "wireName": "id",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "uuid"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "created",
+              "at"
+            ]
+          },
+          "wireName": "created_at",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "date-time"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "email"
+            ]
+          },
+          "wireName": "email",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "email"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "role"
+            ]
+          },
+          "wireName": "role",
+          "type": {
+            "kind": "named",
+            "id": "Role"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "display",
+              "name"
+            ]
+          },
+          "wireName": "display_name",
+          "type": {
+            "kind": "nullable",
+            "inner": {
+              "kind": "primitive",
+              "type": "string"
+            }
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "seat",
+              "count"
+            ]
+          },
+          "wireName": "seat_count",
+          "type": {
+            "kind": "primitive",
+            "type": "integer",
+            "format": "int64"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/Member"
+    },
+    {
+      "kind": "object",
+      "id": "MemberInvitedEvent",
+      "name": {
+        "tokens": [
+          "member",
+          "invited",
+          "event"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "type"
+            ]
+          },
+          "wireName": "type",
+          "type": {
+            "kind": "literal",
+            "value": "member.invited"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "member"
+            ]
+          },
+          "wireName": "member",
+          "type": {
+            "kind": "named",
+            "id": "Member"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "invited",
+              "by"
+            ]
+          },
+          "wireName": "invited_by",
+          "type": {
+            "kind": "named",
+            "id": "Member"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/MemberInvitedEvent"
+    },
+    {
+      "kind": "enum",
+      "id": "Currency",
+      "name": {
+        "tokens": [
+          "currency"
+        ]
+      },
+      "docs": {},
+      "members": [
+        {
+          "name": {
+            "tokens": [
+              "usd"
+            ]
+          },
+          "wireValue": "usd",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "eur"
+            ]
+          },
+          "wireValue": "eur",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "gbp"
+            ]
+          },
+          "wireValue": "gbp",
+          "docs": {}
+        }
+      ],
+      "open": true
+    },
+    {
+      "kind": "object",
+      "id": "Invoice",
+      "name": {
+        "tokens": [
+          "invoice"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "id"
+            ]
+          },
+          "wireName": "id",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "uuid"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "created",
+              "at"
+            ]
+          },
+          "wireName": "created_at",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "date-time"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "amount",
+              "cents"
+            ]
+          },
+          "wireName": "amount_cents",
+          "type": {
+            "kind": "primitive",
+            "type": "integer"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "currency"
+            ]
+          },
+          "wireName": "currency",
+          "type": {
+            "kind": "named",
+            "id": "Currency"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "paid"
+            ]
+          },
+          "wireName": "paid",
+          "type": {
+            "kind": "primitive",
+            "type": "boolean"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "voided",
+              "at"
+            ]
+          },
+          "wireName": "voided_at",
+          "type": {
+            "kind": "nullable",
+            "inner": {
+              "kind": "primitive",
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/Invoice"
+    },
+    {
+      "kind": "object",
+      "id": "InvoicePaidEvent",
+      "name": {
+        "tokens": [
+          "invoice",
+          "paid",
+          "event"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "type"
+            ]
+          },
+          "wireName": "type",
+          "type": {
+            "kind": "literal",
+            "value": "invoice.paid"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "invoice"
+            ]
+          },
+          "wireName": "invoice",
+          "type": {
+            "kind": "named",
+            "id": "Invoice"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/InvoicePaidEvent"
+    },
+    {
+      "kind": "alias",
+      "id": "Event",
+      "name": {
+        "tokens": [
+          "event"
+        ]
+      },
+      "docs": {},
+      "target": {
+        "kind": "union",
+        "variants": [
+          {
+            "kind": "named",
+            "id": "MemberInvitedEvent"
+          },
+          {
+            "kind": "named",
+            "id": "InvoicePaidEvent"
+          }
+        ],
+        "combinator": "oneOf",
+        "discriminator": {
+          "wireName": "type",
+          "mapping": {
+            "member.invited": "MemberInvitedEvent",
+            "invoice.paid": "InvoicePaidEvent"
+          }
+        }
+      },
+      "sourcePointer": "#/components/schemas/Event"
+    },
+    {
+      "kind": "object",
+      "id": "EventReceipt",
+      "name": {
+        "tokens": [
+          "event",
+          "receipt"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "accepted"
+            ]
+          },
+          "wireName": "accepted",
+          "type": {
+            "kind": "primitive",
+            "type": "boolean"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "event",
+              "id"
+            ]
+          },
+          "wireName": "event_id",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/EventReceipt"
+    },
+    {
+      "kind": "object",
+      "id": "MemberResponse",
+      "name": {
+        "tokens": [
+          "member",
+          "response"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "data"
+            ]
+          },
+          "wireName": "data",
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "named",
+              "id": "Member"
+            }
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "next",
+              "cursor"
+            ]
+          },
+          "wireName": "next_cursor",
+          "type": {
+            "kind": "nullable",
+            "inner": {
+              "kind": "primitive",
+              "type": "string"
+            }
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "has",
+              "more"
+            ]
+          },
+          "wireName": "has_more",
+          "type": {
+            "kind": "primitive",
+            "type": "boolean"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false
+    },
+    {
+      "kind": "enum",
+      "id": "QueryKind",
+      "name": {
+        "tokens": [
+          "query",
+          "kind"
+        ]
+      },
+      "docs": {},
+      "members": [
+        {
+          "name": {
+            "tokens": [
+              "member"
+            ]
+          },
+          "wireValue": "member",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "event"
+            ]
+          },
+          "wireValue": "event",
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "invoice"
+            ]
+          },
+          "wireValue": "invoice",
+          "docs": {}
+        }
+      ],
+      "open": true
+    },
+    {
+      "kind": "object",
+      "id": "CreateRequest",
+      "name": {
+        "tokens": [
+          "create",
+          "request"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "file"
+            ]
+          },
+          "wireName": "file",
+          "type": {
+            "kind": "binary"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "file",
+              "name"
+            ]
+          },
+          "wireName": "filename",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false
+    },
+    {
+      "kind": "object",
+      "id": "Upload",
+      "name": {
+        "tokens": [
+          "upload"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "id"
+            ]
+          },
+          "wireName": "id",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "uuid"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "created",
+              "at"
+            ]
+          },
+          "wireName": "created_at",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "date-time"
+          },
+          "required": false,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "url"
+            ]
+          },
+          "wireName": "url",
+          "type": {
+            "kind": "primitive",
+            "type": "string",
+            "format": "uri"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "bytes"
+            ]
+          },
+          "wireName": "bytes",
+          "type": {
+            "kind": "primitive",
+            "type": "integer"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/Upload"
+    },
+    {
+      "kind": "object",
+      "id": "ErrorEntry",
+      "name": {
+        "tokens": [
+          "error",
+          "entry"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "field"
+            ]
+          },
+          "wireName": "field",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "code"
+            ]
+          },
+          "wireName": "code",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false
+    },
+    {
+      "kind": "object",
+      "id": "ValidationError",
+      "name": {
+        "tokens": [
+          "validation",
+          "error"
+        ]
+      },
+      "docs": {},
+      "fields": [
+        {
+          "name": {
+            "tokens": [
+              "message"
+            ]
+          },
+          "wireName": "message",
+          "type": {
+            "kind": "primitive",
+            "type": "string"
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        },
+        {
+          "name": {
+            "tokens": [
+              "errors"
+            ]
+          },
+          "wireName": "errors",
+          "type": {
+            "kind": "array",
+            "items": {
+              "kind": "named",
+              "id": "ErrorEntry"
+            }
+          },
+          "required": true,
+          "serverOwned": false,
+          "readOnly": false,
+          "writeOnly": false,
+          "deprecated": false,
+          "docs": {}
+        }
+      ],
+      "role": "shared",
+      "cyclic": false,
+      "sourcePointer": "#/components/schemas/ValidationError"
+    }
+  ],
+  "resources": [
+    {
+      "id": "categories",
+      "name": {
+        "tokens": [
+          "categories"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "list"
+            ]
+          },
+          "operationId": "listCategories",
+          "docs": {
+            "summary": "List category tree"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "get",
+            "path": "/categories",
+            "params": []
+          },
+          "response": {
+            "kind": "json",
+            "statusCode": 200,
+            "type": {
+              "kind": "array",
+              "items": {
+                "kind": "named",
+                "id": "Category"
+              }
+            }
+          }
+        }
+      ],
+      "subresources": []
+    },
+    {
+      "id": "events",
+      "name": {
+        "tokens": [
+          "events"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "publish"
+            ]
+          },
+          "operationId": "publishEvent",
+          "docs": {
+            "summary": "Publish an event"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "post",
+            "path": "/events",
+            "params": []
+          },
+          "body": {
+            "type": {
+              "kind": "named",
+              "id": "Event"
+            },
+            "contentType": "application/json",
+            "required": true
+          },
+          "response": {
+            "kind": "json",
+            "statusCode": 202,
+            "type": {
+              "kind": "named",
+              "id": "EventReceipt"
+            }
+          }
+        },
+        {
+          "name": {
+            "tokens": [
+              "stream"
+            ]
+          },
+          "operationId": "streamEvents",
+          "docs": {
+            "summary": "Stream events as they occur"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "get",
+            "path": "/events/stream",
+            "params": []
+          },
+          "response": {
+            "kind": "stream",
+            "statusCode": 200,
+            "encoding": "sse",
+            "event": {
+              "kind": "named",
+              "id": "Event"
+            }
+          }
+        }
+      ],
+      "subresources": []
+    },
+    {
+      "id": "orgs",
+      "name": {
+        "tokens": [
+          "orgs"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "list",
+              "members"
+            ]
+          },
+          "operationId": "listOrgMembers",
+          "docs": {
+            "summary": "List members of an organization"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "get",
+            "path": "/orgs/{orgId}/members",
+            "params": [
+              {
+                "name": {
+                  "tokens": [
+                    "org",
+                    "id"
+                  ]
+                },
+                "wireName": "orgId",
+                "location": "path",
+                "type": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "required": true,
+                "deprecated": false,
+                "docs": {}
+              },
+              {
+                "name": {
+                  "tokens": [
+                    "cursor"
+                  ]
+                },
+                "wireName": "cursor",
+                "location": "query",
+                "type": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "required": false,
+                "deprecated": false,
+                "docs": {
+                  "description": "Opaque cursor from `next_cursor`."
+                }
+              },
+              {
+                "name": {
+                  "tokens": [
+                    "limit"
+                  ]
+                },
+                "wireName": "limit",
+                "location": "query",
+                "type": {
+                  "kind": "primitive",
+                  "type": "integer"
+                },
+                "required": false,
+                "deprecated": false,
+                "docs": {}
+              }
+            ]
+          },
+          "response": {
+            "kind": "json",
+            "statusCode": 200,
+            "type": {
+              "kind": "named",
+              "id": "MemberResponse"
+            }
+          },
+          "paginationId": "cursor"
+        }
+      ],
+      "subresources": [
+        {
+          "id": "orgs.invoices",
+          "name": {
+            "tokens": [
+              "invoices"
+            ]
+          },
+          "docs": {},
+          "methods": [
+            {
+              "name": {
+                "tokens": [
+                  "download",
+                  "pdf"
+                ]
+              },
+              "operationId": "downloadInvoicePdf",
+              "docs": {
+                "summary": "Download an invoice as a PDF"
+              },
+              "deprecated": false,
+              "http": {
+                "verb": "get",
+                "path": "/orgs/{orgId}/invoices/{invoiceId}/pdf",
+                "params": [
+                  {
+                    "name": {
+                      "tokens": [
+                        "org",
+                        "id"
+                      ]
+                    },
+                    "wireName": "orgId",
+                    "location": "path",
+                    "type": {
+                      "kind": "primitive",
+                      "type": "string"
+                    },
+                    "required": true,
+                    "deprecated": false,
+                    "docs": {}
+                  },
+                  {
+                    "name": {
+                      "tokens": [
+                        "invoice",
+                        "id"
+                      ]
+                    },
+                    "wireName": "invoiceId",
+                    "location": "path",
+                    "type": {
+                      "kind": "primitive",
+                      "type": "string"
+                    },
+                    "required": true,
+                    "deprecated": false,
+                    "docs": {}
+                  }
+                ]
+              },
+              "response": {
+                "kind": "binary",
+                "statusCode": 200,
+                "contentType": "application/pdf"
+              }
+            }
+          ],
+          "subresources": []
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "name": {
+        "tokens": [
+          "reports"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "export",
+              "usage"
+            ]
+          },
+          "operationId": "exportUsage",
+          "docs": {
+            "summary": "Export usage as CSV"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "get",
+            "path": "/reports/usage",
+            "params": []
+          },
+          "response": {
+            "kind": "text",
+            "statusCode": 200,
+            "contentType": "text/csv"
+          }
+        }
+      ],
+      "subresources": []
+    },
+    {
+      "id": "search",
+      "name": {
+        "tokens": [
+          "search"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "query"
+            ]
+          },
+          "operationId": "search",
+          "docs": {
+            "summary": "Search across resources"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "get",
+            "path": "/search",
+            "params": [
+              {
+                "name": {
+                  "tokens": [
+                    "q"
+                  ]
+                },
+                "wireName": "q",
+                "location": "query",
+                "type": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "required": true,
+                "deprecated": false,
+                "docs": {}
+              },
+              {
+                "name": {
+                  "tokens": [
+                    "kind"
+                  ]
+                },
+                "wireName": "kind",
+                "location": "query",
+                "type": {
+                  "kind": "named",
+                  "id": "QueryKind"
+                },
+                "required": false,
+                "deprecated": false,
+                "docs": {}
+              },
+              {
+                "name": {
+                  "tokens": [
+                    "since"
+                  ]
+                },
+                "wireName": "since",
+                "location": "query",
+                "type": {
+                  "kind": "primitive",
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "required": false,
+                "deprecated": false,
+                "docs": {}
+              }
+            ]
+          },
+          "response": {
+            "kind": "json",
+            "statusCode": 200,
+            "type": {
+              "kind": "array",
+              "items": {
+                "kind": "union",
+                "variants": [
+                  {
+                    "kind": "named",
+                    "id": "Member"
+                  },
+                  {
+                    "kind": "named",
+                    "id": "Invoice"
+                  }
+                ],
+                "combinator": "anyOf"
+              }
+            }
+          }
+        }
+      ],
+      "subresources": []
+    },
+    {
+      "id": "uploads",
+      "name": {
+        "tokens": [
+          "uploads"
+        ]
+      },
+      "docs": {},
+      "methods": [
+        {
+          "name": {
+            "tokens": [
+              "create"
+            ]
+          },
+          "operationId": "createUpload",
+          "docs": {
+            "summary": "Upload a file"
+          },
+          "deprecated": false,
+          "http": {
+            "verb": "post",
+            "path": "/uploads",
+            "params": []
+          },
+          "body": {
+            "type": {
+              "kind": "named",
+              "id": "CreateRequest"
+            },
+            "contentType": "multipart/form-data",
+            "required": true
+          },
+          "response": {
+            "kind": "json",
+            "statusCode": 201,
+            "type": {
+              "kind": "named",
+              "id": "Upload"
+            }
+          }
+        }
+      ],
+      "subresources": []
+    }
+  ],
+  "errors": {
+    "byStatus": [
+      {
+        "statusCode": 422,
+        "name": {
+          "tokens": [
+            "unprocessable",
+            "entity",
+            "error"
+          ]
+        },
+        "type": {
+          "kind": "named",
+          "id": "ValidationError"
+        },
+        "retryable": false,
+        "docs": {}
+      }
+    ]
+  },
+  "pagination": [
+    {
+      "id": "cursor",
+      "style": "cursor",
+      "limitParam": "limit",
+      "cursorParam": "cursor",
+      "cursorSource": {
+        "kind": "body",
+        "path": [
+          "next_cursor"
+        ]
+      },
+      "itemsSource": {
+        "kind": "body",
+        "path": [
+          "data"
+        ]
+      }
+    }
+  ]
+}

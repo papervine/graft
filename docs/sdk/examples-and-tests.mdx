@@ -1,0 +1,197 @@
+---
+title: "Examples and tests"
+description: "Every operation gets a runnable example and a test, generated from your spec."
+---
+
+Alongside the client, besdk emits one example and one test per operation:
+
+```
+sdks/typescript/
+├── examples/
+│   ├── create.ts                        thematic — one per usage pattern
+│   ├── pagination.ts
+│   └── operations/
+│       ├── widgets-create.ts            one per operation
+│       └── widgets-list.ts
+└── tests/
+    └── operations/
+        ├── widgets-create.test.ts
+        └── widgets-list.test.ts
+```
+
+Both are regenerated every run and both are verified before generation succeeds — examples by being
+compiled, tests by being run — so neither can drift out of date with your API. Renaming an operation
+removes its old example and test rather than leaving them behind.
+
+## Examples
+
+```ts
+/**
+ * Create a widget
+ *
+ * `POST /widgets`
+ *
+ * Values are synthesized from the spec, so ids and placeholders are not real. Compiled as part
+ * of this package, so this cannot drift out of date with the API.
+ */
+
+import { Acme } from '../../src/index.js';
+
+const client = new Acme();
+
+const result = await client.widgets.create({
+  name: '...',
+  tags: ['...'],
+});
+console.log(result);
+```
+
+The values come from your spec: a field's own `example` when it has one, the first member of an enum, a
+real-looking value for a recognised `format`. Required fields are shown in preference to optional ones,
+so the example is a minimal valid call rather than every field the schema allows.
+
+Placeholders are deliberately unmistakable. `'...'` cannot be confused for a real id the way
+`507f1f77bcf86cd799439011` can, so a reader who copies one and runs it gets an obvious failure rather
+than a subtle one.
+
+<Note>
+  Examples are **compiled** by the package's own typecheck gate, not merely emitted next to it. A
+  docstring example is not compiled and therefore rots; that is why these are files.
+</Note>
+
+## Tests
+
+```ts
+describe('widgets.create', () => {
+  it('builds the documented request and decodes the response', async () => {
+    let seen: Request | undefined;
+    const client = new Acme({
+      baseURL: 'https://api.test',
+      fetch: async (input, init) => {
+        seen = new Request(input as RequestInfo, init);
+        return new Response(JSON.stringify({ id: '...', name: '...' }), {
+          status: 201,
+          headers: { 'content-type': 'application/json' },
+        });
+      },
+    });
+
+    await client.widgets.create({ name: '...' });
+
+    expect(seen!.method).toBe('POST');
+    expect(new URL(seen!.url).pathname).toBe('/widgets');
+
+    // Declared as `application/json` in the spec.
+    const contentType = seen!.headers.get('content-type') ?? '';
+    expect(contentType).toContain('application/json');
+    expect(await seen!.clone().json()).toEqual({ name: '...' });
+  });
+});
+```
+
+### What they assert
+
+Four things — the four that generated code is actually responsible for:
+
+1. the **path** after parameter interpolation, including escaping
+2. the **request body** and its content type
+3. the **query string** — in particular that an omitted optional parameter does not reach the wire
+4. that a declared **response decodes** into the declared type
+
+### What they do not do
+
+**They never touch the network.** Each test injects a transport, so it asserts what the SDK *sends*, not
+whether your API is up. A generated test that called your real API would fail in CI for reasons having
+nothing to do with the SDK, and the first thing you would do is delete it.
+
+They are also shallow by design. One assertion per operation, across every operation, catches a different
+class of bug than a deep test of one endpoint — and it is the class that actually ships.
+
+<Note>
+  This is not a hypothetical. On its first run against a real spec, this suite found that besdk was sending
+  JSON to all 62 of Twilio's `application/x-www-form-urlencoded` endpoints — a Twilio SDK that could not
+  perform a single write. It had passed `tsc --noEmit`, prettier, and the cross-language conformance suite.
+  A content type is invisible to a typechecker.
+</Note>
+
+## Typechecking versus running
+
+Generated **examples** are checked by each language's typechecker as part of generation — `tsc`, `mypy
+--strict`, `go build`, PHPStan level 9, `javac`, `dotnet build`. An example outside the gate is an example
+that rots.
+
+Generated **tests** are verified by being *run*, which is the stronger check. Where a test needs a runner
+installed in the output directory, that gate is **optional**: it reports and continues when the runner is
+absent, because a first generation into an empty directory has installed nothing, and failing over a
+missing dev dependency would make the feature a liability.
+
+Go's test gate is not optional — its runner is the toolchain, so if `go build` ran then `go test` can.
+PHP's tests also run with nothing installed: a generated `tests/bootstrap.php` falls back to a minimal PSR-4
+autoloader when `vendor/` is absent.
+
+```sh
+cd sdks/typescript && npm install && npm run typecheck   # src, examples, and tests
+```
+
+## Running them
+
+```sh
+cd sdks/typescript && npm install && npm test
+```
+
+Generation runs them too, when a test runner is installed in the output directory:
+
+```
+✓ prettier
+✓ tsc
+✓ tsc (examples)
+✓ generated tests
+```
+
+That gate is **optional**, unlike the typechecker: if no test runner can be found at all, generation says
+so and continues rather than failing. When one is found — which does not require `npm install` in the
+output directory, since vitest resolves its own imports — a broken request fails the build.
+
+## Editing them
+
+Don't — they are overwritten on every run and carry no
+[preservation regions](/guides/custom-code). A generated test you have edited is a test that no longer
+follows the spec, and it would silently stop tracking a renamed operation.
+
+For tests of your own, claim a path besdk will never write:
+
+```yaml besdk.yaml
+preserve:
+  files:
+    - tests/integration/**
+```
+
+If a generated test asserts something wrong for your API, the spec is the thing to fix — the assertion is
+derived from it.
+
+## Language support
+
+**All six languages.** The example *values* are synthesized in besdk's core and carried in the IR, so every
+language shows the same data for the same operation. Each target renders them in its own idiom and puts
+them where that language expects:
+
+| Language | Examples | Tests | Runner |
+|---|---|---|---|
+| TypeScript | `examples/operations/*.ts` | `tests/operations/*.test.ts` | vitest |
+| Python | `examples/operations/*.py` | `tests/operations/test_*.py` | pytest |
+| Go | `Example…` in `example_test.go` | `operation_*_test.go` | `go test` |
+| PHP | `examples/operations/*.php` | `tests/operations/*Test.php` | PHPUnit |
+| Java | `…Example.java` under `src/test/java` | `…Test.java` under `src/test/java` | JUnit via `mvn test` |
+| .NET | `…Example.cs` in `tests/` | `…Test.cs` in `tests/` | xUnit via `dotnet test` |
+
+Go's live *in the package*, because that is where `go test` looks and where `go doc` shows an example
+beside the method it calls. Java's are under `src/test/java`, which is the only place surefire looks.
+.NET's are a separate project, so neither the tests nor xUnit reach the published package. Imposing one
+layout on every language would produce output that reads as generated.
+
+<Note>
+  The test runners are dev dependencies where the language has them — `vitest`, `pytest`, PHPUnit, JUnit,
+  xUnit — so nobody installing your SDK receives them. Go needs none: its test runner is the toolchain.
+</Note>
+
+See [Language support](/sdk/capabilities).

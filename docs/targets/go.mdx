@@ -1,0 +1,177 @@
+---
+title: "Go"
+description: "Generating a Go SDK: context-first methods, typed errors via errors.As, and iterators."
+---
+
+```sh
+besdk generate openapi.yaml --target go --out sdks/go
+```
+
+```go
+client := acme.New()
+
+widget, err := client.Widgets.Create(ctx, &acme.WidgetsCreateParams{
+    Body: acme.WidgetCreate{Name: "Sprocket"},
+}, nil)
+if err != nil {
+    return err
+}
+fmt.Println(widget.ID)
+```
+
+`widget.ID`, not `widget.Id` — Go capitalises initialisms wholly, and besdk follows.
+
+<Warning>
+  Go has no unscoped package name, so set `modulePath`. Without it the generator emits a placeholder
+  and warns: a wrong module path breaks `go get` for everyone who depends on your SDK.
+</Warning>
+
+```yaml
+targets:
+  go:
+    out: sdks/go
+    modulePath: github.com/acme/acme-go   # required for a publishable module
+    packageName: acme
+```
+
+## Every method takes a context and returns an error
+
+```go
+func (r *Widgets) Get(ctx context.Context, id string, opts *core.RequestOptions) (*Widget, error)
+```
+
+`context.Context` first and `error` last are not stylistic in Go — an SDK without them cannot be used
+in a service that needs cancellation or deadlines. A cancelled context is never retried.
+
+## Optional fields take pointers
+
+Go has no literal syntax for the address of a constant — `&50` does not compile — so every Go SDK
+ships pointer helpers, and besdk generates them:
+
+```go
+params := &acme.WidgetsListParams{
+    Limit:  acme.Int64(50),
+    Status: acme.String("active"),
+}
+```
+
+Read them back with `Deref`, which returns the zero value for `nil`:
+
+```go
+name := acme.Deref(widget.Name)
+```
+
+<Note>
+  A required field is a plain value; only optional ones are pointers. The exception is a field that
+  would make its struct infinitely sized — a struct containing itself by value does not compile in Go,
+  so besdk pointer-ises exactly the field that closes the cycle and leaves the rest alone.
+</Note>
+
+## Pagination is an iterator
+
+```go
+it := client.Widgets.List(ctx, nil)
+for it.Next(ctx) {
+    widget := it.Current()
+    fmt.Println(widget.ID)
+}
+if err := it.Err(); err != nil {
+    return err
+}
+```
+
+`Err()` after the loop rather than an error from `Next` — a `for` condition cannot take two values,
+and it is the convention `bufio.Scanner` and `sql.Rows` both use. Nothing is requested until the first
+`Next`, and `it.Page()` gives the envelope when you want `Total`.
+
+`it.All(ctx)` drains into a slice, deliberately not the default: an API with a hundred thousand
+records should not encourage loading them all.
+
+## Errors narrow with errors.As
+
+```go
+var notFound *acme.NotFoundError
+if errors.As(err, &notFound) {
+    log.Println(notFound.StatusCode, notFound.RequestID)
+}
+
+var rateLimit *acme.RateLimitError
+if errors.As(err, &rateLimit) {
+    time.Sleep(time.Duration(rateLimit.RetryAfter) * time.Second)
+}
+```
+
+Each typed error embeds `*APIError`, so `errors.As` matches either the specific type or the general
+one. Every error satisfies `acme.AcmeError`.
+
+A response that arrives but does not decode is a `*DecodeError`, not an `*APIError` — the request
+succeeded and the *contract* was violated, which is a different problem.
+
+## Unions become `any`
+
+Go has no sum type. The alternatives — an interface with unexported marker methods, or a struct with
+one field per variant — are respectively unusable and unsound, so a union renders as `any` with the
+variants named in the doc comment:
+
+```go
+// Source: One of: BankAccount, Card.
+Source any `json:"source"`
+```
+
+This is the one place Go output carries less type information than TypeScript, and it is a property of
+the language rather than of the generator. Stripe's own Go SDK does the same.
+
+## Responses are validated
+
+Go needs this more than the other targets, not less: `encoding/json` silently ignores a field whose
+type does not match, so an unvalidated SDK turns `"slug": 123` into an empty string your code cannot
+distinguish from a real one.
+
+```go
+_, err := client.Categories.List(ctx, nil)
+// Categories.List: the response did not match the API's declared shape —
+// [0].name is required but was absent
+```
+
+`strict` by default; `acme.WithValidation(core.ValidationWarn)` or `core.ValidationOff` to change it.
+See [Response validation](/sdk/validation).
+
+## Testing your code against the SDK
+
+```go
+server := httptest.NewServer(handler)
+client := acme.New(acme.WithBaseURL(server.URL))
+```
+
+Or supply a transport with `acme.WithHTTPClient`.
+
+## Gates
+
+Generation fails if the output does not pass Go's own tools, in this order:
+
+| | |
+|---|---|
+| `go fmt` | layout, byte-identical to gofmt |
+| `go mod tidy` | so the emitted `go.mod` matches the imports actually used |
+| `go build` | types — **not** skippable. In Go, building *is* typechecking |
+| `go vet` | correctness heuristics |
+
+## Not supported yet
+
+**Streaming is a raw reader, not decoded events.** `Stream` returns an `io.ReadCloser`, so the SSE
+framing and JSON decoding are yours — and `defer body.Close()` is not optional. See
+[Streaming](/sdk/streaming).
+
+## What you get
+
+```
+sdks/go/
+├── go.mod
+├── README.md
+├── client.go        Acme, New, and the With… options
+├── models.go        every struct, enum, and alias
+├── widgets.go       one file per resource
+└── internal/core/   the hand-written runtime, vendored
+```
+
+`internal/core/` is vendored, so the published module depends only on the standard library.

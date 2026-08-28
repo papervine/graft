@@ -1,0 +1,207 @@
+---
+title: "Webhooks"
+description: "Typed webhook events, and verifying that a payload really came from your API."
+---
+
+If your spec declares webhooks, the SDK gets a typed union of every event and — once you configure a
+signature scheme — a verifier:
+
+```ts
+import { verifyWebhook, WebhookVerificationError } from '@acme/sdk';
+
+app.post('/webhooks', async (request, response) => {
+  try {
+    const event = await verifyWebhook(await request.text(), request.headers, process.env.ACME_WEBHOOK_SECRET);
+
+    if (event.type === 'invoice.paid') {
+      console.log(event.data.invoice.id);   // typed
+    }
+  } catch (error) {
+    if (error instanceof WebhookVerificationError) {
+      return response.status(400).send(error.reason);
+    }
+    throw error;
+  }
+});
+```
+
+## Where the events come from
+
+Whichever dialect your spec uses. besdk reads all three:
+
+| Source | Where |
+|---|---|
+| OpenAPI 3.1 `webhooks` | top level |
+| `x-webhooks` | top level — what Fern, Speakeasy, and Redocly read |
+| `x-besdk-webhooks` | top level |
+
+A spec already annotated for another generator works with no changes. Each entry names an event and
+carries a request body schema, which is all besdk needs.
+
+<Note>
+  OpenAPI 3.0's per-operation `callbacks` is deliberately **not** read. It means something different —
+  "this operation may call you back at a URL you supplied" — where a webhook is "the API sends this to
+  your endpoint". Treating them as the same thing would put request-scoped callbacks on a client-level
+  accessor, which is a claim your spec did not make.
+</Note>
+
+## Configuring the signature scheme
+
+OpenAPI has no field describing how a provider signs requests, so this is the one part besdk cannot
+infer. Until you configure it, no verifier is emitted and `check` says so:
+
+```
+⚠ This API sends 2 webhooks, but no signature scheme is configured — so the SDK cannot verify
+  that a payload came from it. Typed events are still generated. [W001]
+  → webhooks.signature
+```
+
+<Warning>
+  A `verify()` that returned `true` because it checked something meaningless would be **worse than its
+  absence**. The false confidence is exactly what stops anyone from thinking about the problem, and the
+  failure is silent and total — nothing in your system tells you that forged requests are being
+  processed. So besdk emits nothing rather than something reassuring.
+</Warning>
+
+The scheme is a descriptor, not a preset:
+
+```yaml besdk.yaml
+webhooks:
+  signature:
+    header: Stripe-Signature
+    format: structured        # bare | prefixed | structured
+    signatureKey: v1
+    timestampKey: t
+    signedTemplate: '{timestamp}.{body}'
+    encoding: hex             # hex | base64
+    toleranceSeconds: 300
+```
+
+Every real provider fits these fields:
+
+<Tabs>
+  <Tab title="Stripe">
+    ```yaml
+    webhooks:
+      signature:
+        header: Stripe-Signature
+        format: structured
+        signatureKey: v1
+        timestampKey: t
+        signedTemplate: '{timestamp}.{body}'
+        encoding: hex
+    ```
+  </Tab>
+
+  <Tab title="GitHub">
+    ```yaml
+    webhooks:
+      signature:
+        header: X-Hub-Signature-256
+        format: prefixed
+        prefix: 'sha256='
+        signedTemplate: '{body}'
+        encoding: hex
+        toleranceSeconds: 0     # GitHub signs no timestamp
+    ```
+  </Tab>
+
+  <Tab title="Slack">
+    ```yaml
+    webhooks:
+      signature:
+        header: X-Slack-Signature
+        format: prefixed
+        prefix: 'v0='
+        timestampHeader: X-Slack-Request-Timestamp
+        signedTemplate: 'v0:{timestamp}:{body}'
+        encoding: hex
+    ```
+  </Tab>
+
+  <Tab title="Shopify">
+    ```yaml
+    webhooks:
+      signature:
+        header: X-Shopify-Hmac-Sha256
+        format: bare
+        signedTemplate: '{body}'
+        encoding: base64
+        toleranceSeconds: 0
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  There are deliberately no provider presets (`signature: stripe`). A preset that drifts from a
+  provider's actual scheme fails in the direction of **accepting forged requests**, and besdk would have
+  no way to notice. The descriptor is barely longer than the preset name and says what it does.
+</Note>
+
+## Pass the raw body
+
+This is the mistake worth avoiding above all others:
+
+```ts
+// ✗ WRONG — the HMAC covers the bytes the sender signed, not your re-serialization
+await verifyWebhook(JSON.stringify(request.body), request.headers, secret);
+
+// ✓ the bytes as received
+await verifyWebhook(await request.text(), request.headers, secret);
+```
+
+Re-serializing passes in testing and breaks the moment the sender's key order, whitespace, or unicode
+escaping differs from your serializer's. In Express, that means reading the body **before** any JSON
+middleware touches it:
+
+```ts
+app.post('/webhooks', express.raw({ type: 'application/json' }), handler);
+```
+
+The signature only accepts `string` or `Uint8Array`, so passing a parsed object will not compile.
+
+## What verification checks
+
+Three things, and the second and third are the ones hand-rolled verifiers usually miss:
+
+1. **The HMAC over the raw bytes**, with the payload assembled per your `signedTemplate`.
+2. **A constant-time comparison.** A byte-by-byte early return leaks the expected signature to anyone
+   who can time your responses.
+3. **The timestamp, against your tolerance.** Without this a captured request stays valid forever, which
+   makes the signature a bearer token rather than a proof of freshness. A request from the *future* is
+   refused too, since a clock ahead of yours is as suspicious as one behind.
+
+Parsing happens only after all three pass, so untrusted bytes are never decoded on trust.
+
+## Distinguishing failures
+
+`error.reason` tells you which, because the operational response differs:
+
+| Reason | What it usually means |
+|---|---|
+| `missing-header` | Something other than your API is posting to this endpoint |
+| `malformed-header` | The same, or a proxy rewriting headers |
+| `signature-mismatch` | The wrong secret, or a forged request |
+| `timestamp-outside-tolerance` | Your own queue is backed up, or a replay attempt |
+
+The error message never contains the expected signature or your secret — an error that helpfully prints
+what the signature *should* have been is an oracle.
+
+## No framework adapters
+
+Verification takes raw bytes and headers and returns a parsed event, so it composes with Express,
+FastAPI, `net/http`, or a Lambda handler without besdk knowing about any of them. Shipping an adapter
+per framework per language is a surface that ages badly, and the three lines it saves are the part you
+should be able to read.
+
+## Language support
+
+<Warning>
+  **TypeScript only, today.** The other five targets emit no webhook surface yet.
+
+  The IR carries the events and the signature descriptor for every language, so what each target still
+  needs is the union and a thin call into its runtime's verifier — plus the verifier itself, which is
+  hand-written per language because an HMAC comparison is exactly the code that should not be generated.
+</Warning>
+
+See [Language support](/sdk/capabilities).

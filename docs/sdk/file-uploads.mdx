@@ -1,0 +1,80 @@
+---
+title: "File uploads"
+description: "Multipart request bodies, in every language."
+---
+
+An operation whose request body is `multipart/form-data` takes the file directly:
+
+<CodeGroup>
+```ts TypeScript
+const upload = await client.uploads.create({
+  file: new Blob([bytes], { type: 'image/png' }),
+  filename: 'diagram.png',
+});
+```
+
+```python Python
+upload = client.uploads.create(
+    body=CreateRequest(file=data, filename="diagram.png")
+)
+```
+
+```go Go
+upload, err := client.Uploads.Create(ctx, &acme.UploadsCreateParams{
+    Body: acme.CreateRequest{File: data, Filename: acme.String("diagram.png")},
+}, nil)
+```
+
+```php PHP
+$upload = $client->uploads->create(new CreateRequest(
+    file: $data,
+    filename: 'diagram.png',
+));
+```
+
+```java Java
+Upload upload = client.uploads().create(
+    CreateRequest.builder().file(data).filename("diagram.png").build());
+```
+
+```csharp C#
+var upload = await client.Uploads.CreateAsync(
+    new CreateRequest { File = data, Filename = "diagram.png" });
+```
+</CodeGroup>
+
+The boundary, the part headers, and the encoding are the runtime's job. You configure nothing — the content
+type in your spec is the whole trigger.
+
+## Which field becomes a file
+
+Whatever your spec declares as `format: binary`. In TypeScript that is a `Blob`, in Python `bytes`, in Go
+`[]byte` — so the runtime can tell a file from a text field by its type alone.
+
+PHP, Java, and C# have no distinct binary type, so a binary field is a `string` there. besdk passes the
+binary field names from the spec instead, which is why an upload works identically in all six even though
+three of them cannot see the difference:
+
+```php
+[$encoded, $contentType] = Multipart::encode($body, ['file']);
+```
+
+## Everything else is a form field
+
+A scalar becomes an ordinary part. A list becomes a repeated key — `key[]=` is a PHP convention that
+servers outside PHP do not read, and `key=a,b` is a third. A nested object is JSON-encoded, because
+multipart has no canonical nesting and inventing one would send something no server asked for.
+
+Absent and null fields are omitted rather than sent as empty parts, which a server reads as real values.
+
+## The part's filename
+
+The field name, unless you supply one. The spec carries no filename, and a server matching on `filename=`
+sees nothing without one — so a name is always sent.
+
+In Python you can pass a `(filename, content)` tuple to name it explicitly. In TypeScript, use a `File`
+rather than a `Blob`.
+
+## Binary and streamed responses
+
+Downloading is separate, and works everywhere. See [Binary responses](/sdk/streaming#binary-responses).

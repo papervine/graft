@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="besdk">
+  <title>besdk</title>
+  <!--
+    A document (the spec) with a brace to its right (the generated code). Deliberately abstract:
+    the project name is a working title, so the mark carries no letterform to redraw on a rename.
+  -->
+  <rect width="32" height="32" rx="7" fill="#0F766E" />
+  <g fill="none" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- the spec: three lines of a document -->
+    <path d="M8 10h7M8 16h7M8 22h5" />
+    <!-- the SDK: a brace, opening toward the reader -->
+    <path d="M21 9c2 0 2 5 3 7-1 2-1 7-3 7" />
+  </g>
+</svg>

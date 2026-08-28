@@ -1,0 +1,153 @@
+---
+title: "PHP"
+description: "What the PHP SDK looks like, and the idioms it commits to."
+---
+
+Requires **PHP 8.4**. Generated packages are PSR-4 autoloaded, formatted to PER-CS 2.0, and clean under
+PHPStan at level 9.
+
+## Idioms
+
+| IR concept | PHP rendering | Why |
+|---|---|---|
+| Read model | `final readonly class`, promoted properties | A response is not something the code that received it should mutate |
+| Write body | named arguments | PHP has had them since 8.0, so a builder object would solve a problem the language doesn't have |
+| Optional field | `?T $x = null` | The language's own idiom |
+| Enum | native `enum X: string` | Real since 8.1; `tryFrom()` is exactly the open-enum behaviour |
+| Scalar union | `int\|string` | PHP expresses this natively — better than Go, which must widen to `any` |
+| Typed collection | `array` + `@return list<Widget>` | **The one gap.** PHP has no generics, so PHPStan carries the element type |
+| Errors | exception hierarchy | The language's own mechanism |
+| Paginated list | `IteratorAggregate` | `foreach ($client->widgets->list() as $w)` is what a PHP developer expects |
+
+## Quick start
+
+The constructor takes only the credentials your spec declares — `token:` for HTTP Bearer, `apiKey:` for an
+API key, `username:`/`password:` for Basic. Named arguments, so the call reads as documentation.
+
+```php
+<?php
+
+require 'vendor/autoload.php';
+
+use Acme\Sdk\Acme;
+
+$client = new Acme();                      // reads ACME_TOKEN
+$client = new Acme(token: 'pat_…');        // or pass it explicitly
+```
+
+## Models are immutable
+
+```php
+$widget = $client->widgets->get('w_1');
+
+echo $widget->name;
+echo $widget->createdAt?->format('Y-m-d');  // a real DateTimeImmutable
+
+$widget->name = 'nope';                      // Error: cannot modify readonly property
+```
+
+## Pagination
+
+```php
+foreach ($client->widgets->list(limit: 50) as $widget) {
+    echo $widget->id;
+}
+
+$page = $client->widgets->list()->firstPage();
+echo count($page->items), $page->total;
+
+$all = $client->widgets->list()->all();
+```
+
+Items come back as model objects, not arrays — the paginator decodes each one.
+
+## Errors
+
+```php
+use Acme\Sdk\Core\NotFoundError;
+use Acme\Sdk\Core\RateLimitError;
+
+try {
+    $client->widgets->get('missing');
+} catch (NotFoundError $e) {
+    echo $e->status;        // 404
+    echo $e->requestId;
+} catch (RateLimitError $e) {
+    sleep((int) ($e->retryAfterSeconds ?? 1));
+}
+```
+
+Every error extends `AcmeError`, aliased from the runtime's role-named base so a `catch` reads in your
+terms. See [Errors](/sdk/errors) for the full hierarchy and the retry rules.
+
+## Testing without a network
+
+Inject a transport. Without this, testing code that uses the SDK means making real network calls:
+
+```php
+use Acme\Sdk\Core\HttpRequest;
+use Acme\Sdk\Core\HttpResponse;
+use Acme\Sdk\Core\Transport;
+
+final class FakeTransport implements Transport
+{
+    public function send(HttpRequest $request, float $timeout): HttpResponse
+    {
+        return new HttpResponse(200, '{"id":"w_1","name":"Test"}', ['content-type' => 'application/json']);
+    }
+}
+
+$client = new Acme(transport: new FakeTransport());
+```
+
+## Response validation
+
+Responses are checked against the shape the spec declared before they reach a model, so a mismatch names
+the field rather than surfacing as a `TypeError` from inside a constructor:
+
+```
+widgets.list: the response did not match the API's declared shape — [0].id should be a string but was an integer
+```
+
+Pass `validation: ValidationMode::Warn` or `::Off` to change that. With validation off, a required field
+of the wrong type still fails as a `DecodeError` naming the class and key — that backstop is always there.
+See [Response validation](/sdk/validation).
+
+## Gates
+
+Generation runs three checks over the output and fails on any of them:
+
+| Gate | Why |
+|---|---|
+| `php -l` | A syntax error means the generator is broken; nothing later is worth reading |
+| `php-cs-fixer` | PER-CS 2.0, so the package matches community style byte-for-byte |
+| PHPStan level 9 | Level 9 is where `mixed` stops being accepted — which is what makes the phpdoc element types load-bearing rather than comments |
+
+<Note>
+  PHPStan and php-cs-fixer are dev dependencies of the generated package, so you can run the same checks
+  yourself: `composer install && vendor/bin/phpstan analyse`. The emitted `phpstan.neon` and
+  `.php-cs-fixer.php` are the same configs besdk used.
+</Note>
+
+## Not supported yet
+
+**Streaming responses.** A `text/event-stream` operation is skipped, and generation warns:
+
+```
+warn: The PHP target does not support streaming responses, so `events.stream` was not generated.
+```
+
+Skipped rather than emitted, because a method that JSON-decodes an SSE stream cannot work and looks like it
+should. Everything else in the spec still generates.
+
+
+**Deprecation markers.** A `deprecated: true` operation or field generates normally but carries no
+`@deprecated` docblock tag, so an IDE will not strike it through. Every other target emits one — this is
+an oversight rather than a decision, and it is the only place PHP output is behind the others.
+
+## Transport
+
+cURL by default, so a generated SDK needs no Composer dependency beyond `ext-curl` and `ext-json`. PSR-18
+is deliberately not the default: it would make Composer dependencies mandatory for a hello-world SDK and
+push a client-discovery problem onto you. Supply your own `Transport` when you want Guzzle or a PSR-18
+client.

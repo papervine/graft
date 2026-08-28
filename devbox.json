@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.5/.schema/devbox.schema.json",
+  "packages": [
+    "nodejs@22",
+    "pnpm@latest",
+    "python@3.12",
+    "uv@latest",
+    "go@1.22",
+    "php@8.4",
+    "php84Packages.composer",
+    "jdk@21",
+    "maven@latest",
+    "google-java-format@latest",
+    "dotnet-sdk_8"
+  ],
+  "shell": {
+    "scripts": {
+      "verify": [
+        "pnpm verify"
+      ]
+    }
+  }
+}

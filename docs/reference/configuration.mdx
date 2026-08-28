@@ -1,0 +1,273 @@
+---
+title: "Configuration"
+description: "Every besdk.yaml key, and why the file matters more than you would expect."
+---
+
+`besdk.yaml` is not a patch kit for edge cases. On a real spec, most of what makes the output good
+is expressed here — because most specs are under-specified, and the generator's job includes
+[enriching](/concepts/enrichment) them.
+
+`besdk init` writes a starting config with every inference spelled out. Edit that rather than
+starting from scratch.
+
+<Note>
+  Unknown keys are an **error**, not ignored. A typo that silently does nothing is worse than a
+  failed run, because you believe you fixed something. The same applies to values: a field name in
+  `serverOwned` that does not exist on the schema is reported.
+</Note>
+
+## Top level
+
+```yaml
+spec: openapi.yaml          # path to the OpenAPI document
+name: Acme                # client class name; see below
+targets:
+  typescript:
+    out: sdks/typescript
+    packageName: "@acme/sdk"
+  python:
+    out: sdks/python
+    packageName: acme
+  go:
+    out: sdks/go
+    packageName: acme
+    modulePath: github.com/acme/acme-go
+  php:
+    out: sdks/php
+    packageName: acme/sdk
+  java:
+    out: sdks/java
+    packageName: "com.acme:sdk"
+  dotnet:
+    out: sdks/dotnet
+    packageName: "Acme.Sdk"
+```
+
+One spec, one config, any number of targets. Every judgment below — the read/write split, the
+pagination scheme, the hoisted header — is made once and applies to all of them.
+
+### `name`
+
+Sets the generated client class, and everything derived from it — the options interface, the
+environment variable in docs, the default package name.
+
+Defaults to `info.title`, PascalCased, with trailing document-descriptive words removed:
+
+| `info.title` | Client class |
+|---|---|
+| `Stripe API` | `Stripe` |
+| `Acme Platform` | `AcmePlatform` |
+| `OpenAI` | `OpenAI` |
+| `IBM Cloud` | `IBMCloud` |
+
+No `Client` suffix, deliberately: `new Acme()` already says "construct a client". `API`,
+`REST API`, `OpenAPI`, `Specification`, and `Service` are stripped; `Platform` and `Cloud` are not,
+because they are plausibly part of a brand.
+
+### `targets`
+
+Keyed by target name. `out` is required. `packageName` is target-specific; any other keys are passed
+through to the target untouched, so besdk never needs to know about them.
+
+Generate one target with `--target <name>`, or omit the flag to use the first.
+
+#### `validation`
+
+`strict` (default), `warn`, or `off` — how strictly generated SDKs enforce that responses match the
+declared shape. `off` also omits the descriptor table from the package, so it buys bundle size and not
+only behaviour. See [Response validation](/sdk/validation).
+
+#### `idempotencyHeader`
+
+The header an idempotency key is sent in. Defaults to `Idempotency-Key`.
+
+```yaml
+targets:
+  typescript:
+    out: sdks/typescript
+    idempotencyHeader: X-Idempotency-Key
+```
+
+Configurable because it is not standardised — `Idempotency-Key`, `X-Idempotency-Key`, and
+`Idempotency-Token` are all in real use. Supplying a key is what makes a `POST` or `PATCH` retryable
+at all; see [Retries](/sdk/errors#which-requests-may-be-retried).
+
+#### `rootNamespace`
+
+.NET only. The root namespace. Defaults to the `packageName` — `Acme.Sdk` for a NuGet package of that name. Set it
+when your package id and namespace differ, or to resolve the
+[naming collision](/targets/dotnet#a-naming-caveat) between a client class and a namespace segment.
+
+#### `javaPackage`
+
+Java only. The root package. Defaults to the `packageName` coordinates flattened — `com.acme:acme-sdk` becomes
+`com.acme.acmesdk`, since a Java package segment must be a valid identifier. Set it when your Maven
+coordinates and package legitimately differ.
+
+<Note>
+  For Java, `packageName` is Maven coordinates — `groupId:artifactId` — because that is what a consumer puts in
+  their `pom.xml`. The generated `pom.xml` splits it accordingly.
+</Note>
+
+#### `namespace`
+
+PHP only. The PSR-4 root namespace. Defaults to the `packageName` PascalCased — `acme/widget-sdk` becomes
+`Acme\WidgetSdk`, which is the mapping Composer's own convention implies. Set it when your package name
+and namespace legitimately differ.
+
+#### `modulePath`
+
+Go only. The module path written into `go.mod`, and the prefix generated code uses to import its own
+vendored runtime. Required for a publishable module — Go has no equivalent of an unscoped package
+name, so without it besdk emits a placeholder and warns rather than guessing at your VCS host.
+
+#### `command`
+
+How to run the target, when it is not `besdk-target-<name>` on your `PATH`.
+
+```yaml
+targets:
+  python:
+    out: sdks/python
+    command: ["uv", "run", "besdk-target-python"]
+```
+
+An argv array, so no shell is involved and a path containing a space needs no quoting. Use it for a
+target that lives in a virtualenv, a monorepo checkout, or behind a launcher. Resolution order is
+this key, then an installed `@besdk/target-<name>` package, then `PATH`.
+
+## `models`
+
+Where the read/write split lives. See [Read and write models](/guides/read-write-models).
+
+```yaml
+models:
+  WidgetsResponse:
+    rename: Widget
+    split: { read: Widget, create: WidgetCreate, update: WidgetUpdate }
+    serverOwned: [_id, createdAt]
+    required: [_id, studio]
+    exclude: [internalDebugField]
+```
+
+| Key | Effect |
+|---|---|
+| `rename` | Name the generated type something better than the schema key |
+| `split` | Emit separate read, create, and update models |
+| `serverOwned` | Fields the server assigns; omitted from write models |
+| `required` | Treat as always present, overriding an absent `required` in the spec |
+| `exclude` | Drop from generated output entirely |
+
+`required` is the highest-leverage key in the file. If your spec declares nothing required, every
+field becomes optional and your users null-check everything.
+
+## `errors`
+
+```yaml
+errors:
+  default: { schema: { error: string } }
+  statuses:
+    429: { name: RateLimited, retryable: true }
+```
+
+Most specs declare error responses with no schema at all, so the shape has to come from here.
+Shorthand: `fieldName: type`, with a trailing `?` for optional. Types are `string`, `integer`,
+`number`, `boolean`, `unknown`.
+
+## `pagination`
+
+```yaml
+pagination:
+  default:
+    style: offset            # offset | cursor | page
+    limit: limit
+    offset: offset
+    total: "header:X-Content-Range"
+  operations:
+    reindexAssets: none      # accepts paging params but is not a collection
+```
+
+`items`, `cursorFrom`, and `total` accept `root`, `header:<Name>`, or `body:<dotted.path>`.
+
+Per-operation overrides are keyed by `operationId`. `none` disables pagination.
+See [Pagination](/sdk/pagination).
+
+## `normalize`
+
+```yaml
+normalize:
+  phpEmptyMap: true       # collapse `object | array maxItems:0` into a map
+  scalarUnion: widen      # widen | coerce | keep
+  constHeaderHoist: true  # move constant headers into client defaults
+```
+
+## `headers`
+
+```yaml
+headers:
+  constant:
+    Accept: application/json
+```
+
+Sent on every request and **absent from every method signature**. A spec that puts an `Accept`
+parameter on all 121 operations would otherwise pollute all 121 signatures.
+
+## `preserve`
+
+Keeps hand-written code across regeneration. See [Custom code](/guides/custom-code).
+
+```yaml
+preserve:
+  regions: false           # opt out of carrying `#region` blocks; on by default
+  files:                   # files besdk must never write (gitignore syntax)
+    - src/custom/**
+    - README.md
+```
+
+`regions` **defaults to `true`** — targets emit the markers whether or not you configure anything, so
+code between them is kept unless you explicitly turn it off.
+
+`.besdkignore` in the output directory is read as well. `package.json` additions are kept without
+configuration, so adding a dependency needs no config and no plan tier.
+
+## `webhooks`
+
+```yaml
+webhooks:
+  signature:
+    header: Stripe-Signature
+    format: structured        # bare | prefixed | structured
+    prefix: 'sha256='         # for `prefixed`
+    signatureKey: v1          # for `structured`
+    timestampKey: t           # for `structured`
+    timestampHeader: X-Slack-Request-Timestamp
+    algorithm: sha256         # sha256 | sha1 | sha512
+    encoding: hex             # hex | base64
+    signedTemplate: '{timestamp}.{body}'
+    toleranceSeconds: 300
+```
+
+Typed webhook events come from your spec and need no configuration. `signature` is what enables the
+verifier — OpenAPI has no field describing a signature scheme, so besdk cannot infer one, and it emits no
+verifier rather than one that checks something meaningless. Reported as
+[`W001`](/reference/diagnostics) until you set it.
+
+See [Webhooks](/sdk/webhooks) for the four provider shapes and why there are no presets.
+
+## `resources`
+
+```yaml
+resources:
+  assettypes: assetTypes   # rename a resource group
+```
+
+## `naming`
+
+```yaml
+naming:
+  words: [clerk, widget]   # extra vocabulary for splitting lowercase compounds
+```
+
+besdk splits `assettypes` into `AssetTypes` using a built-in word list. Add domain words here
+rather than patching besdk. A wrong split is worse than none, so the splitter is conservative:
+it never splits a token that is itself a known word, and every segment must be recognised.

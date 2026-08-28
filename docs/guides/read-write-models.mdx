@@ -1,0 +1,168 @@
+---
+title: "Read and write models"
+description: "Splitting a schema that serves as both a request and a response body."
+---
+
+Most specs reference one schema from both request and response positions — on the first spec besdk
+was built against, `WidgetsResponse` was the target for six roles: list item, get response, create
+request, create response, update request, and update response.
+
+Translated faithfully that produces a method inviting you to supply a field you do not control:
+
+```ts
+await client.widgets.create({ id: '???', createdAt: 1699999999, name: 'Sprocket' });
+```
+
+And because such schemas usually declare nothing `required`, every field is optional — so **this
+compiles**. A typechecker cannot tell you the method is nonsense, which is why the fix has to happen
+at generation time.
+
+## Split it
+
+`besdk check` reports the reuse as [`M001`](/reference/diagnostics#m001-read-write-conflation) and
+hands you the config:
+
+```yaml
+models:
+  WidgetsResponse:
+    rename: Widget
+    split: { read: Widget, create: WidgetCreate, update: WidgetUpdate }
+    serverOwned: [id, createdAt]
+```
+
+Detection is automatic; the split is **opt-in**, because only you know which fields the server owns.
+Nothing changes until you paste that in — so you can add it at your next major version rather than
+immediately.
+
+You get:
+
+<CodeGroup>
+```ts Widget (read)
+export interface Widget {
+  /** Assigned by the server. */
+  id: string;
+  name?: string;
+  tags?: string[];
+}
+```
+
+```ts WidgetCreate (write)
+export interface WidgetCreate {
+  name?: string;
+  tags?: string[];
+  // no id or createdAt
+}
+```
+
+```ts WidgetUpdate (partial)
+export interface WidgetUpdate {
+  name?: string;
+  tags?: string[];
+  // every field optional: PUT/PATCH send a subset
+}
+```
+</CodeGroup>
+
+```ts
+await client.widgets.create({ name: 'Sprocket' });   // ✓
+await client.widgets.create({ id: 'w_1' });          // ✗ does not compile
+```
+
+## Declaring it in the spec instead
+
+If you own the document, mark it at the field:
+
+```yaml
+components:
+  schemas:
+    WidgetsResponse:
+      properties:
+        id:
+          type: string
+          x-besdk-server-owned: true
+```
+
+Better than a config list for one reason: it lives next to the field, so it cannot drift out of sync
+when the field is renamed.
+
+## Why `required` matters here too
+
+An update model makes every field optional by convention — `PUT`/`PATCH` let callers send a subset.
+A *read* model should do the opposite: mark what is always present, or your users write `widget.id!`
+everywhere.
+
+```yaml
+models:
+  WidgetsResponse:
+    required: [id, name]
+```
+
+<Warning>
+  Changing `required` is a breaking change, and the direction matters. On a read model,
+  required → optional breaks consumers who assumed presence. On a write model it is the reverse.
+  `besdk diff` classifies both correctly — see [Breaking changes](/guides/breaking-changes).
+</Warning>
+
+## Discriminated unions
+
+When your spec supplies a `discriminator`, besdk narrows each branch on the discriminating property.
+That one step is what makes the union usable:
+
+```yaml
+Event:
+  oneOf:
+    - $ref: "#/components/schemas/MemberInvitedEvent"
+    - $ref: "#/components/schemas/InvoicePaidEvent"
+  discriminator:
+    propertyName: type
+    mapping:
+      member.invited: "#/components/schemas/MemberInvitedEvent"
+      invoice.paid: "#/components/schemas/InvoicePaidEvent"
+```
+
+```ts
+export interface MemberInvitedEvent {
+  type: 'member.invited';   // the literal, not `string`
+  member: Member;
+}
+```
+
+Typed as `string`, nothing narrows and the union is unusable. Typed as the literal, narrowing and
+exhaustiveness checking both come for free:
+
+<CodeGroup>
+```ts TypeScript
+switch (event.type) {
+  case 'member.invited':
+    return event.member.email;     // narrowed — `member` is reachable
+  case 'invoice.paid':
+    return event.invoice.id;
+}
+```
+
+```python Python
+# pydantic dispatches on the literal, so you get the right class back.
+event = TypeAdapter(Event).validate_python(payload)
+if isinstance(event, MemberInvitedEvent):
+    print(event.member.email)
+```
+</CodeGroup>
+
+In TypeScript a `never` assignment after the last case also fails to compile if you miss a branch, so
+adding an event type to your spec surfaces every place that needs updating.
+
+<Warning>
+  Without a discriminator, a `oneOf` of object branches cannot be resolved — [`T006`](/reference/diagnostics)
+  reports it. Go has no sum types, so a union is `any` there with the variants named in the doc comment
+  regardless.
+</Warning>
+
+### `anyOf` versus `oneOf`
+
+besdk records which keyword you used, but validates them identically: a value matching more than one
+branch of a `oneOf` is accepted. A strict reading would reject data your server legitimately sent, and
+overlapping branches are extremely common — usually because two schemas share most of their fields and
+nobody intended exclusivity.
+
+The distinction is what powers `T006`: an ambiguous `anyOf` is fine, an ambiguous `oneOf` is a promise
+the spec cannot keep.

@@ -1,0 +1,258 @@
+---
+title: "Publishing"
+description: "Getting a generated SDK into npm, PyPI, Go modules, Packagist, Maven Central, and NuGet."
+---
+
+Generated packages are publishable as-is. `package.json`, `pyproject.toml`, `go.mod`,
+`composer.json`, `pom.xml`, and the `.csproj` are all emitted complete, with the version stamped in.
+
+The split to understand first: **besdk decides what to publish, and CI publishes it.**
+
+<Steps>
+  <Step title="Compute the version and changelog">
+    ```sh
+    besdk release openapi.yaml
+    ```
+
+    ```
+    1.4.2 → 2.0.0  (major: 3 breaking changes)
+      ✗ Widget.name — became optional
+      ✗ widgets.archive — method removed
+      + widgets.restore — method added
+
+    Wrote .besdk/openapi.sdk-version and CHANGELOG.md
+    ```
+
+    The bump comes from the *contract* diff, not from commit messages — which is the only way to know
+    that a required-ness flip breaks read and write models in opposite directions.
+
+    **Commit `.besdk/<spec>.sdk-version`.** It is how the next run knows what changed.
+  </Step>
+
+  <Step title="Regenerate so the version lands in the manifests">
+    ```sh
+    besdk generate openapi.yaml
+    ```
+
+    `generate` stamps the version into `package.json`, `pyproject.toml`, `composer.json`, `pom.xml`,
+    the `.csproj`, and the Go user agent. One version per spec across every language.
+  </Step>
+
+  <Step title="Tag, and let CI publish">
+    ```sh
+    git commit -am "Release 2.0.0" && git tag v2.0.0 && git push --tags
+    ```
+  </Step>
+</Steps>
+
+## Why besdk never publishes
+
+It runs no `npm publish`, no `twine upload`, no `git push --tags`. A tool that needs registry
+credentials is a tool you will not run locally to see what it would do — and publishing is
+environment-specific anyway. `release` decides; CI publishes, where the secrets already live.
+
+## Scaffolding the workflow
+
+```sh
+besdk release openapi.yaml --workflow
+```
+
+Writes `.github/workflows/release-sdks.yml` **once**. After that the file is yours: besdk will not
+overwrite it, because the parts it cannot know — which registry, which branch, whether a human
+approves — are exactly the parts you will change.
+
+It includes a guard worth keeping:
+
+```yaml
+verify-up-to-date:
+  steps:
+    - run: npx --yes besdk generate openapi.yaml
+    - run: git diff --exit-code
+```
+
+If regenerating changes anything, what you are about to publish is not what the spec says.
+
+<Note>
+  `--workflow` currently scaffolds jobs for **TypeScript, Python, and Go**. PHP, Java, and .NET need a
+  job written by hand — the recipes below are what those jobs do. Maven Central and NuGet both need
+  signing and credential setup that varies by organisation, which is why besdk does not guess at it.
+</Note>
+
+## Per registry
+
+<Tabs>
+  <Tab title="npm">
+    ```yaml
+    permissions:
+      id-token: write        # trusted publishing — npm mints a short-lived token
+    steps:
+      - run: npm ci --prefix sdks/typescript
+      - run: npm run build --prefix sdks/typescript
+      - run: npm publish --provenance --access public
+        working-directory: sdks/typescript
+    ```
+
+    `--provenance` links the package to the workflow run, so a consumer can verify it was built from
+    your source rather than uploaded by hand. Trusted publishing means no long-lived `NPM_TOKEN` has to
+    exist in the repository at all.
+
+    Set the package name in config, since the default is derived from the spec title:
+
+    ```yaml
+    targets:
+      typescript: { out: sdks/typescript, packageName: "@acme/sdk" }
+    ```
+  </Tab>
+
+  <Tab title="PyPI">
+    ```yaml
+    permissions:
+      id-token: write
+    steps:
+      - run: pipx run build
+        working-directory: sdks/python
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: sdks/python/dist
+    ```
+
+    `packageName` is the PyPI distribution name; hyphens are fine there and become underscores in the
+    importable module:
+
+    ```yaml
+    targets:
+      python: { out: sdks/python, packageName: acme-sdk }   # import acme_sdk
+    ```
+  </Tab>
+
+  <Tab title="Go modules">
+    There is no upload. A Go module is published by **tagging the repository**, and the proxy fetches
+    it on first request. So the tag that triggered your workflow has already published it.
+
+    Two things to get right:
+
+    ```yaml
+    targets:
+      go: { out: sdks/go, modulePath: github.com/acme/acme-go }
+    ```
+
+    `modulePath` is required for a publishable module — Go has no unscoped package names, so without
+    it besdk emits a placeholder and warns rather than guessing at your VCS host.
+
+    <Warning>
+      **A module in a subdirectory is tagged with its path.** `sdks/go/v1.2.3`, not `v1.2.3`. And at
+      `2.0.0` and above, the module path itself must end in `/v2` or consumers cannot `go get` it.
+      `besdk release` prints the tag to create and tells you when the major-version suffix applies; it
+      will not rewrite `modulePath` for you, because that changes every import in files you may have
+      customised.
+    </Warning>
+  </Tab>
+
+  <Tab title="Packagist">
+    Also tag-driven — Packagist watches the repository and picks up the tag. Register the package once
+    at packagist.org and there is nothing to run in CI beyond validating it:
+
+    ```yaml
+    steps:
+      - run: composer validate --strict
+        working-directory: sdks/php
+      - run: composer install && vendor/bin/phpstan analyse
+        working-directory: sdks/php
+    ```
+
+    ```yaml
+    targets:
+      php: { out: sdks/php, packageName: acme/sdk, namespace: 'Acme\Sdk' }
+    ```
+  </Tab>
+
+  <Tab title="Maven Central">
+    ```yaml
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+      - run: mvn --batch-mode deploy -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
+        working-directory: sdks/java
+    ```
+
+    Central requires signed artifacts plus `sources` and `javadoc` jars. The generated `pom.xml`
+    declares the coordinates and the metadata Central validates; the signing plugins are yours to add,
+    because the key is yours.
+
+    ```yaml
+    targets:
+      java: { out: sdks/java, packageName: "com.acme:acme-sdk" }
+    ```
+
+    `packageName` is Maven coordinates — `groupId:artifactId` — because that is what a consumer puts in
+    their `pom.xml`.
+  </Tab>
+
+  <Tab title="NuGet">
+    ```yaml
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - run: dotnet pack -c Release
+        working-directory: sdks/dotnet
+      - run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_API_KEY }}
+               --source https://api.nuget.org/v3/index.json --skip-duplicate
+        working-directory: sdks/dotnet
+    ```
+
+    ```yaml
+    targets:
+      dotnet: { out: sdks/dotnet, packageName: Acme.Sdk }
+    ```
+
+    `packageName` is the NuGet package id and, by default, the root namespace too. Set `rootNamespace`
+    when they differ.
+  </Tab>
+</Tabs>
+
+## The SDK version is not the API version
+
+Stripe's API version is `2026-07-29.dahlia`. Its SDK version is semver. besdk tracks them separately:
+the SDK's version lives in `.besdk/<spec>.sdk-version`, and it is one version per spec across every
+language. Three SDKs from one contract at three different numbers is a support burden with no upside.
+
+<Note>
+  A first release is `0.1.0`, not `1.0.0`. A generator declaring your API stable on your behalf is
+  overstepping; `0.x` says "generated, not yet promised", which is true. Use `--version 1.0.0` when you
+  mean it.
+
+  Below `1.0.0` a breaking change bumps the **minor** — that is the semver convention for `0.x`, and
+  treating it as a major would push an unfinished SDK to `1.0.0` on its first rename.
+</Note>
+
+## Before the first publish
+
+<AccordionGroup>
+  <Accordion title="Fill in `required`">
+    If your spec declares nothing required, every field is optional and your users null-check
+    everything. This is the single biggest quality win available, and it is a one-time edit. See
+    [Read and write models](/guides/read-write-models).
+  </Accordion>
+
+  <Accordion title="Set `modulePath` for Go and `packageName` everywhere">
+    Both default to something derived from the spec title, which is right for a first look and wrong
+    for a published artefact.
+  </Accordion>
+
+  <Accordion title="Run `besdk check --strict` and mean it">
+    It exits non-zero on anything under-specified, with a config fragment for each finding. Publishing
+    an SDK built on guesses commits you to those guesses.
+  </Accordion>
+
+  <Accordion title="Commit the generated output">
+    Not required, but it makes `besdk diff` and the `verify-up-to-date` guard meaningful, and it lets
+    reviewers see what a spec change did to the public surface.
+  </Accordion>
+</AccordionGroup>

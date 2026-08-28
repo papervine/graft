@@ -1,0 +1,115 @@
+---
+title: "Language support"
+description: "What each target can do today, and what it declines to generate."
+---
+
+Support is genuinely uneven. This page is the honest version — check it before committing to a
+language, rather than discovering a gap after you have published.
+
+## The matrix
+
+| | TypeScript | Python | Go | PHP | Java | .NET |
+|---|---|---|---|---|---|---|
+| Resources and methods | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Read/write model split](/guides/read-write-models) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Pagination](/sdk/pagination) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Errors](/sdk/errors) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Retries and idempotency](/sdk/retries) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Response validation](/sdk/validation) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Authentication](/sdk/authentication) incl. env vars | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| OAuth2 client credentials | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Binary responses | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Streaming](/sdk/streaming) | ✅ typed | ⚠️ raw lines | ⚠️ raw reader | — | — | — |
+| [File uploads](/sdk/file-uploads) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Async clients | native | ✅ separate | native | — | — | native |
+| Discriminated unions | ✅ | ✅ | `any` | `mixed` | `Object` | `object` |
+| [Custom code preservation](/guides/custom-code) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Deprecation markers | ✅ | ✅ | ✅ | — | ✅ | ✅ |
+| [Per-operation examples and tests](/sdk/examples-and-tests) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| [Webhooks](/sdk/webhooks) | ✅ | — | — | — | — | — |
+
+✅ supported · ⚠️ partial, see the linked page · — not generated, and generation warns
+
+## What "not generated" means
+
+An operation a target cannot handle is **skipped with a warning**, never emitted as something that
+does not work:
+
+```
+warn: The Java target does not support streaming responses, so `events.stream` was not generated.
+```
+
+Everything else in your spec still generates. A spec with one SSE endpoint and one upload endpoint
+produces a complete Java SDK minus those two methods, not a failure.
+
+This is deliberate and it is the thing to hold besdk to. Every one of these gaps was found as a
+*shipped method that silently did the wrong thing* — a JSON body posted to a multipart endpoint, a
+JSON decoder pointed at an SSE stream. Both compiled. Both passed the language's strictest
+typechecker. Only the server ever objected. A method you can see is missing costs you an afternoon;
+a method that looks correct and is not costs you a production incident.
+
+## Not built at all
+
+Distinct from the table above: these are absent from every language, so no target choice avoids them.
+
+| | Status |
+|---|---|
+| WebSocket clients | Not planned. A WebSocket API is not described by OpenAPI, so this would mean reading a second definition format. |
+| Audience or visibility filtering | Not built. `x-besdk-ignore` removes an operation unconditionally, but there is no way to emit a public subset and an internal subset from one spec. |
+| Multi-targeting for .NET | Not built. The `.csproj` pins `net8.0`, so Unity, Xamarin, and .NET Framework consumers are not covered. |
+
+## Dependencies each SDK adds
+
+The runtime is hand-written and vendored into your package, so nothing at runtime depends on besdk.
+What each package asks of *your* dependency graph:
+
+| Language | Runtime dependencies |
+|---|---|
+| TypeScript | none — `fetch` is a platform API |
+| Go | none — standard library only |
+| Java | none — `java.net.http` plus a hand-written JSON parser |
+| .NET | none — `System.Text.Json` and `System.Net.Http` are in the BCL |
+| PHP | none — `curl` and `json_*` are core extensions |
+| Python | `httpx`, `pydantic`, `anyio` |
+
+Python is the exception because pydantic is what makes its models idiomatic. Every other target
+reaches zero, which for a *library* matters: a generated SDK that pins Jackson or a specific HTTP
+client creates version skew with whatever your users' applications already have.
+
+## Verification each target must pass
+
+Generation **fails** if the output does not pass the language's own tools. This is a gate, not a
+report:
+
+| Language | Gates |
+|---|---|
+| TypeScript | `prettier`, `tsc --noEmit` |
+| Python | `ruff format`, `ruff check`, `mypy --strict` |
+| Go | `gofmt`, `go mod tidy`, `go build`, `go vet` |
+| PHP | `php -l`, `php-cs-fixer`, `phpstan` level 9 |
+| Java | google-java-format, `javac -Xlint:all -Werror` |
+| .NET | `dotnet format`, `dotnet build -warnaserror` with nullable references |
+
+Beyond that, all six SDKs run the same scenario suite against one real HTTP server, and the suite
+asserts both that each matched the expected wire trace *and* that every language observed the same
+thing. That second assertion is what catches a target that is individually plausible and
+collectively wrong.
+
+Those gates run against **every corpus spec in every language** — including Twilio's 197 operations, which
+is where the irregularity lives. A gate is a property of a *(spec, language)* pair rather than of a
+language: six languages each passing on one spec says nothing about a second spec none of them has seen.
+Generating Twilio in the five languages it had never been generated in turned up four build-breaking bugs
+that every gate had been passing.
+
+## Language priority
+
+Implemented: TypeScript, Python, Go, PHP, Java, .NET.
+
+Next, in order: Ruby, Swift, Rust — matching the languages Fern covers, so migrating off it never
+means dropping a language.
+
+**Kotlin** is not planned: a Kotlin project can use the Java SDK, which is what JVM interoperability is
+for. It becomes worth doing for coroutine-native `suspend` functions, and not before.
+
+**Postman collections** are not planned either. They are not an SDK, and generating product surface
+around the SDK is not what this project optimises for.

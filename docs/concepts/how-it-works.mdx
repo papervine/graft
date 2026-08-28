@@ -1,0 +1,105 @@
+---
+title: "Architecture"
+description: "How besdk gets from an OpenAPI document to six SDKs, and where each decision is made."
+---
+
+You do not need this page to use besdk. It is here for when you want to know why a particular thing
+came out the way it did, or you are [writing a target](/targets/writing-a-target).
+
+## Generation goes through an intermediate representation
+
+besdk does not generate code from your OpenAPI document. It generates from a semantic IR.
+
+Your spec is an *input format*, not a data model — too flexible and too irregular to template
+against directly, which is why templated generators produce output that reads as emitted. Every
+serious generator converged on this independently.
+
+```
+OpenAPI ──► Normalizer ──► Semantic IR ──► Target ──► Gates
+ + config   quirk           SDK concepts,   idiom      format,
+            quarantine      language-       mapping    typecheck
+                            neutral
+```
+
+## Normalizer
+
+Every OpenAPI oddity dies here, once, so no target ever sees it: `$ref` resolution including cycles,
+`allOf` flattening, nullable-vs-optional disambiguation, name synthesis for anonymous schemas, and
+tolerance for outright spec violations.
+
+It is also where the interesting judgments happen — detecting that one schema is used as both a
+request and a response body, that a `oneOf` is really a serialization artifact, that a header
+parameter is constant across every operation.
+
+## Semantic IR
+
+The IR does **not** model "HTTP operations with schemas". It models SDK concepts: resources,
+methods, request and response types, auth strategies, pagination, error taxonomy.
+
+It is language-neutral but SDK-opinionated. The decision "this API has a `widgets` resource with
+`list`, `get`, and `create`" is made once, here — not five times in five generators. **That is where
+consistency between languages comes from.**
+
+Names are stored as token sequences — `["user", "id"]`, never `"userId"` — because casing is a
+target's decision. The same tokens become `userId` in TypeScript, `user_id` in Python, `UserID` in
+Go.
+
+Inspect it any time:
+
+```sh
+besdk ir openapi.yaml --summary
+```
+
+## Targets
+
+A target answers one question: how does this language express each IR concept?
+
+| IR concept | TypeScript | Python | Go |
+|---|---|---|---|
+| paginated list | `AsyncIterable` | generator | iterator with `.Next()` |
+| optional field | `?` property | `NotGiven` sentinel | pointer |
+| error taxonomy | classes + `instanceof` | exception hierarchy | sentinel errors + `errors.As` |
+
+Two implementation rules matter:
+
+**Targets emit ASTs, not string templates.** Templates cannot manage imports, deduplicate types, or
+restructure — which is exactly why templated output reads dead.
+
+**The runtime is hand-written, not generated.** Transport, retries, auth, and pagination live in a
+small hand-written library vendored into your output. Generation touches as little as possible,
+because hand-written code is where quality lives.
+
+## Gates
+
+Generated code is formatted by the language's canonical formatter, then run through its own strict
+typechecker. **Output that does not typecheck fails the build.** Not a warning.
+
+<Note>
+  The typecheck gate proves output is *well-formed*, not that it is *useful*. An empty
+  `interface Member {}` typechecks perfectly. That is why besdk also runs conformance tests that
+  exercise generated SDKs against a mock server — and why `besdk check` exists to tell you what your
+  spec left unsaid.
+</Note>
+
+## Speed
+
+Generation is fast enough to sit in a file-watch loop, including on the largest public specs:
+
+| Spec | Operations | Types | End to end |
+|---|---|---|---|
+| Twilio | 197 | 148 | ~3s |
+| Box | 296 | 305 | ~3s |
+| Stripe | 589 | 1,440 | ~9s |
+| GitHub | 1,220 | 969 | ~14s |
+
+Those figures include formatting with Prettier and the full `tsc --noEmit` gate, so they are what
+you actually wait for — not just the emit step.
+
+## Any language
+
+A target is a subprocess: IR JSON on stdin, a file manifest on stdout. That boundary is what lets a
+Go target be written *in Go*, using `go/ast` and `gofmt` — the only way to hit the quality bar for a
+language whose tooling lives in its own ecosystem.
+
+The in-tree TypeScript target gets no shortcut around it. See
+[Writing a target](/targets/writing-a-target).

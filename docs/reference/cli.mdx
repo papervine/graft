@@ -1,0 +1,297 @@
+---
+title: "CLI reference"
+description: "Every besdk command, flag, and exit code."
+---
+
+## Exit codes
+
+Shared by every command, because CI needs to tell the cases apart.
+
+| Code | Meaning |
+|---|---|
+| `0` | Success |
+| `1` | The command ran and found something you asked it to gate on (`--strict`) |
+| `2` | Could not run — spec unreadable, config invalid, target missing |
+| `70` | An internal besdk bug. Please report it |
+
+`1` and `2` are deliberately distinct: "your spec is vague" and "your spec is broken" want
+different responses in a pipeline.
+
+---
+
+## `besdk check`
+
+Validate a spec and report what it fails to say. Writes nothing.
+
+```sh
+besdk check <spec> [--config besdk.yaml] [--strict] [--json] [--no-color]
+```
+
+| Flag | Effect |
+|---|---|
+| `--config` | Config to apply. Defaults to `besdk.yaml` when present |
+| `--strict` | Exit `1` if any warning is reported. Use in CI |
+| `--json` | Machine-readable output |
+| `--no-color` | Disable ANSI colour |
+
+Config is applied, so a finding you have already answered in `besdk.yaml` stops being reported — which
+is what makes `--strict` usable in CI. Run without `--config` against a spec with no `besdk.yaml` beside
+it to see the raw picture.
+
+The intended loop:
+
+```sh
+besdk init openapi.yaml     # writes the fixes it can infer
+# edit besdk.yaml — the REVIEW lines need your knowledge
+besdk check openapi.yaml --strict   # exits 0 once everything is answered
+```
+
+Every finding carries a `besdk.yaml` fragment that resolves it. See
+[Diagnostics](/reference/diagnostics) for the full list of codes.
+
+---
+
+## `besdk init`
+
+Scaffold a `besdk.yaml` from the spec, with every inference written out explicitly.
+
+```sh
+besdk init <spec> [--out PATH] [--target NAME] [--stdout] [--force]
+```
+
+| Flag | Effect |
+|---|---|
+| `--out PATH` | Where to write. Default `besdk.yaml` |
+| `--target NAME` | Which target to scaffold. Default `typescript` |
+| `--stdout` | Print instead of writing |
+| `--force` | Overwrite an existing config |
+
+<Warning>
+  Without `--force`, `init` refuses to overwrite an existing config. That file accumulates judgments
+  about your API that besdk cannot re-derive — it is the most expensive artifact in your repository.
+</Warning>
+
+---
+
+## `besdk generate`
+
+The main verb. Spawns the target, writes the output, runs the gates.
+
+```sh
+besdk generate <spec> [--target NAME] [--out DIR] [--config PATH]
+                      [--clean] [--skip-gates] [--baseline PATH] [--no-baseline]
+```
+
+| Flag | Effect |
+|---|---|
+| `--target NAME` | Target to run. Default: first in `targets`, else `typescript` |
+| `--out DIR` | Output directory. Overrides `targets.<name>.out` |
+| `--config PATH` | Config file. Default `./besdk.yaml` if present |
+| `--clean` | Remove the output directory first |
+| `--skip-gates` | Skip Prettier and `tsc --noEmit`. Not recommended |
+| `--baseline PATH` | Where to write the IR baseline |
+| `--no-baseline` | Do not write a baseline |
+| `--force-overwrite` | Discard preserved code that has nowhere to go. Never the default |
+
+Generation fails if the output does not typecheck. That is deliberate and not configurable except
+via `--skip-gates`.
+
+The IR baseline is written **only when it does not already exist**. Updating it is a deliberate act
+— see `besdk diff --accept`.
+
+---
+
+### Where the output goes
+
+Resolved in this order:
+
+1. `--out <dir>`
+2. `targets.<name>.out` in your config
+3. `sdks/<target>` — so a bare `besdk generate openapi.yaml` writes `sdks/typescript`
+
+### Finding the config
+
+`--config <path>`, or `besdk.yaml` in the working directory. If neither exists, generation proceeds with
+defaults and **says so**:
+
+```
+No besdk.yaml found, so the read/write split, pagination, and error shapes are unconfigured.
+  `besdk init openapi.yaml` writes one with every inference spelled out.
+```
+
+Worth heeding rather than skimming: the [read/write split](/guides/read-write-models) and
+[pagination](/sdk/pagination) are both opt-in, so without a config `widgets.create()` accepts the
+server-owned `id` it should refuse, and no list operation paginates. The output compiles either way.
+
+## `besdk diff`
+
+Report what regenerating would do to the people using your SDK.
+
+```sh
+besdk diff <spec> [--baseline PATH] [--config PATH] [--strict] [--json] [--accept]
+```
+
+| Flag | Effect |
+|---|---|
+| `--baseline PATH` | Baseline to compare against. Default `.besdk/<spec-slug>.ir.json` |
+| `--strict` | Exit `1` if any change is breaking. Use in CI |
+| `--json` | Machine-readable output, including the implied semver bump |
+| `--accept` | Update the baseline to the current contract |
+
+```
+✗ Widget.thumbnail: field removed
+✗ service.name: renamed from `Acme` to `AcmeCloud`
+    the exported client class is renamed, so every `import { … }` breaks
+
+2 breaking, 0 additive, 0 other — implies a major version bump.
+```
+
+See [Breaking changes](/guides/breaking-changes).
+
+---
+
+## `besdk ir`
+
+Dump the semantic intermediate representation as JSON. This is byte-for-byte what a target
+receives on stdin.
+
+```sh
+besdk ir <spec> [--config PATH] [--summary]
+```
+
+| Flag | Effect |
+|---|---|
+| `--summary` | Print counts instead of the full document |
+
+```sh
+$ besdk ir openapi.yaml --config besdk.yaml --summary
+service:    acme v2.8
+servers:    Staging, Production
+auth:       bearer | basic
+resources:  23
+methods:    121 (19 paginated)
+types:      206 (154 shared, 19 read, 19 create, 19 update)
+```
+
+Useful when a generated name surprises you: the IR shows what the target was told.
+
+---
+
+## `besdk targets`
+
+Which targets are installed, and will they actually run.
+
+```sh
+besdk targets [--config PATH] [--strict] [--json] [--no-color]
+```
+
+| Flag | Effect |
+|---|---|
+| `--config PATH` | Also probe every target named in this config |
+| `--strict` | Exit `1` if any target is unusable |
+| `--json` | Machine-readable output |
+
+```sh
+$ besdk targets
+besdk emits IR 1.2.0
+
+  ✗ ruby — not installed
+      expected `besdk-target-ruby` on PATH
+  ✓ typescript v0.0.0 (in-tree)
+      IR 1.x
+      pagination, read-write-split
+
+1 of 2 unusable: ruby.
+```
+
+Worth its own command because the three failure modes are indistinguishable from `generate`: a
+target that is not installed, one that crashes on handshake, and one that does not accept the IR
+version besdk emits. This separates them, and lets someone
+[writing a target](/targets/writing-a-target) check their handshake without generating anything.
+
+---
+
+## Global flags
+
+| Flag | Effect |
+|---|---|
+| `-h`, `--help` | Show help |
+| `-v`, `--version` | Show the besdk version and the IR contract version |
+
+## `besdk release`
+
+Computes the next version and the changelog from the contract diff. Publishes nothing.
+
+```sh
+besdk release openapi.yaml
+```
+
+```
+1.4.2 → 2.0.0  (major: 3 breaking changes)
+  ✗ Widget.name — became optional
+  ✗ widgets.archive — method removed
+  + widgets.restore — method added
+
+Wrote .besdk/openapi.sdk-version and CHANGELOG.md
+```
+
+The version comes from [`besdk diff`](#besdk-diff), which is the only thing in a release pipeline that
+knows a required-ness flip breaks read and write models in opposite directions. A commit message
+cannot know that.
+
+### Why it does not publish
+
+besdk never runs `npm publish`, `twine upload`, or `git push --tags`. A tool that needs registry
+credentials is a tool you will not run locally to see what it would do — and publishing is inherently
+environment-specific anyway. So `release` decides *what* to publish and CI does the publishing, where
+the secrets already live.
+
+`--workflow` writes a GitHub Actions workflow that does it, once. After that the file is yours: besdk
+will not overwrite the parts you edit, because the parts it cannot know — which registry, which
+branch, whether a human approves — are exactly the parts you will change.
+
+### Flags
+
+| Flag | Effect |
+|---|---|
+| `--version X.Y.Z` | Set the version explicitly, ignoring the computed bump |
+| `--changelog PATH` | Where to write the changelog. Default `CHANGELOG.md` |
+| `--version-file PATH` | Where the version is recorded. Default beside the IR baseline |
+| `--dry-run` | Print what would be written and write nothing |
+| `--workflow` | Also emit a publishing workflow |
+| `--workflow-path PATH` | Default `.github/workflows/release-sdks.yml` |
+| `--date YYYY-MM-DD` | Changelog date. Defaults to today; set it for reproducible output |
+
+### The SDK version is not the API version
+
+Stripe's API version is `2026-07-29.dahlia`. Its SDK version is semver. besdk tracks them separately —
+the SDK's version lives in `.besdk/<spec>.sdk-version`, **commit it** — and `generate` stamps it into
+`package.json`, `pyproject.toml`, and the Go user agent.
+
+One version per spec across every language. Three SDKs from one contract at three different numbers is
+a support burden with no upside.
+
+<Note>
+  A first release is `0.1.0`, not `1.0.0`. A generator declaring your API stable on your behalf is
+  overstepping; `0.x` says "generated, not yet promised", which is true. Use `--version 1.0.0` when you
+  mean it.
+</Note>
+
+<Warning>
+  **Go modules put the major version in the module path.** At `2.0.0` and above, consumers cannot
+  `go get` your module unless it ends in `/v2`. `release` tells you when this applies; it will not
+  rewrite `targets.go.modulePath` for you, because that changes every import in files you may have
+  customised.
+
+  A Go module in a subdirectory is also tagged with its path — `sdks/go/v1.2.3`, not `v1.2.3`.
+  `release` prints the tag to create.
+</Warning>
+
+### Below 1.0.0, a breaking change bumps the minor
+
+That is the semver convention for `0.x`: the major is pinned at zero precisely to say "anything may
+change". Treating a breaking change as a major bump would push an unfinished SDK to `1.0.0` on its first
+rename.
+
+So `0.3.0` with a breaking change becomes `0.4.0`, and the output says so rather than leaving you to
+wonder whether the classification was wrong.

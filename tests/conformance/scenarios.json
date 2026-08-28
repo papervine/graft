@@ -1,0 +1,415 @@
+{
+  "_comment": [
+    "Shared conformance scenarios. One definition, three implementations.",
+    "",
+    "Each scenario names a sequence of SDK calls, the responses the mock server should return, and",
+    "the wire trace plus decoded values every language must produce. The driver for each language",
+    "makes the calls natively \u2014 `client.orgs.listMembers(...)` in TypeScript, `client.orgs.list_members(...)`",
+    "in Python, `client.Orgs.ListMembers(...)` in Go \u2014 and reports what it observed.",
+    "",
+    "The runner then asserts two things: that each driver matches `expect`, and that all drivers agree",
+    "with each other. The second is the one that actually proves the product's central claim, because",
+    "a shared bug in the expectations would pass the first check and fail the second."
+  ],
+  "scenarios": [
+    {
+      "name": "list_categories",
+      "why": "Decoding an array of objects at the response root, with a nested recursive field.",
+      "responses": [
+        {
+          "status": 200,
+          "json": [
+            {
+              "slug": "tools",
+              "name": "Tools"
+            },
+            {
+              "slug": "parts",
+              "name": "Parts"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/categories",
+            "query": {}
+          }
+        ],
+        "values": {
+          "count": 2,
+          "first_slug": "tools",
+          "second_name": "Parts"
+        }
+      }
+    },
+    {
+      "name": "paginate_members",
+      "why": "Cursor pagination through an envelope. The second request must carry the cursor, or the iterator refetches page one forever \u2014 a bug the TypeScript runtime actually shipped.",
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "data": [
+              {
+                "id": "11111111-1111-4111-8111-111111111111",
+                "email": "a@example.com",
+                "role": "admin"
+              }
+            ],
+            "next_cursor": "c2",
+            "total": 3
+          }
+        },
+        {
+          "status": 200,
+          "json": {
+            "data": [
+              {
+                "id": "22222222-2222-4222-8222-222222222222",
+                "email": "b@example.com",
+                "role": "member"
+              }
+            ],
+            "next_cursor": "c3",
+            "total": 3
+          }
+        },
+        {
+          "status": 200,
+          "json": {
+            "data": [
+              {
+                "id": "33333333-3333-4333-8333-333333333333",
+                "email": "c@example.com",
+                "role": "viewer"
+              }
+            ],
+            "next_cursor": "",
+            "total": 3
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/orgs/o1/members",
+            "query": {
+              "limit": "2"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/orgs/o1/members",
+            "query": {
+              "limit": "2",
+              "cursor": "c2"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/orgs/o1/members",
+            "query": {
+              "limit": "2",
+              "cursor": "c3"
+            }
+          }
+        ],
+        "values": {
+          "emails": "a@example.com,b@example.com,c@example.com",
+          "count": 3
+        }
+      }
+    },
+    {
+      "name": "query_serialization",
+      "why": "Every language must put the same bytes on the wire. An omitted optional parameter is absent, not empty.",
+      "responses": [
+        {
+          "status": 200,
+          "json": [
+            {
+              "id": "11111111-1111-4111-8111-111111111111",
+              "email": "a@example.com",
+              "role": "admin"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/search",
+            "query": {
+              "q": "sprocket",
+              "kind": "member"
+            }
+          }
+        ],
+        "values": {
+          "count": "1"
+        }
+      }
+    },
+    {
+      "name": "path_escaping",
+      "why": "A path parameter containing a slash must be escaped, or the request addresses a different endpoint. A correctness issue, arguably a security one.",
+      "responses": [
+        {
+          "status": 200,
+          "body": "%PDF-1.4 fake",
+          "contentType": "application/pdf"
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/orgs/a%2Fb/invoices/i1/pdf",
+            "query": {}
+          }
+        ],
+        "values": {
+          "byte_length": "13"
+        }
+      }
+    },
+    {
+      "name": "error_404",
+      "why": "A 404 must arrive as a narrowable typed error carrying the status, the server's message, and the request id.",
+      "responses": [
+        {
+          "status": 404,
+          "json": {
+            "message": "Organisation not found"
+          },
+          "headers": {
+            "x-request-id": "req_abc123"
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/orgs/missing/members",
+            "query": {}
+          }
+        ],
+        "values": {
+          "error_kind": "not_found",
+          "status": "404",
+          "message": "Organisation not found",
+          "request_id": "req_abc123"
+        }
+      }
+    },
+    {
+      "name": "retry_then_success",
+      "why": "A 503 on a POST is retried only when an idempotency key is present, and the retry must resend an identical request. Without a key it is not retried at all: deduplication has to happen on the server, and an io.Reader body read once would send nothing the second time.",
+      "responses": [
+        {
+          "status": 503,
+          "json": {
+            "message": "try later"
+          }
+        },
+        {
+          "status": 200,
+          "json": {
+            "accepted": true,
+            "event_id": "e1"
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/events",
+            "query": {},
+            "bodyKeys": "type"
+          },
+          {
+            "method": "POST",
+            "path": "/events",
+            "query": {},
+            "bodyKeys": "type"
+          }
+        ],
+        "values": {
+          "accepted": "true",
+          "event_id": "e1"
+        }
+      }
+    },
+    {
+      "name": "no_retry_on_400",
+      "why": "A 400 was understood and rejected. Resending it is pure load on someone else's service, even with an idempotency key.",
+      "responses": [
+        {
+          "status": 400,
+          "json": {
+            "message": "bad request"
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/events",
+            "query": {},
+            "bodyKeys": "type"
+          }
+        ],
+        "values": {
+          "error_kind": "bad_request"
+        }
+      }
+    },
+    {
+      "name": "text_response",
+      "why": "A CSV export is text, not opaque bytes. Typing it as a blob forces callers to unwrap something that was always a string.",
+      "responses": [
+        {
+          "status": 200,
+          "body": "month,total\n2026-01,42\n",
+          "contentType": "text/csv"
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/reports/usage",
+            "query": {}
+          }
+        ],
+        "values": {
+          "text_starts_with": "month,total",
+          "line_count": "2"
+        }
+      }
+    },
+    {
+      "name": "validation_catches_a_broken_contract",
+      "why": "Every language must reject a response missing a required field, and name the same path. This is what makes the validation guarantee identical rather than merely present in three places.",
+      "responses": [
+        {
+          "status": 200,
+          "json": [
+            {
+              "slug": "tools"
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/categories",
+            "query": {}
+          }
+        ],
+        "values": {
+          "error_kind": "validation",
+          "path": "[0].name"
+        }
+      }
+    },
+    {
+      "name": "validation_allows_an_additive_field",
+      "why": "An API that grew must never break a client. All three languages must accept an unknown field at every level.",
+      "responses": [
+        {
+          "status": 200,
+          "json": [
+            {
+              "slug": "tools",
+              "name": "Tools",
+              "added_next_quarter": {
+                "nested": true
+              }
+            }
+          ]
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/categories",
+            "query": {}
+          }
+        ],
+        "values": {
+          "count": "1",
+          "first_slug": "tools"
+        }
+      }
+    },
+    {
+      "name": "validation_on_a_paginated_response",
+      "why": "Paginated methods call the transport directly, so they bypassed validation entirely \u2014 every list response went unchecked from the moment validation shipped. A list method is the most common thing in an SDK, so this was most of the surface.",
+      "responses": [
+        {
+          "status": 200,
+          "json": {
+            "data": [
+              {
+                "id": "11111111-1111-4111-8111-111111111111",
+                "role": "admin"
+              }
+            ],
+            "next_cursor": "",
+            "total": 1
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "GET",
+            "path": "/orgs/o1/members",
+            "query": {}
+          }
+        ],
+        "values": {
+          "error_kind": "validation",
+          "path": "email"
+        }
+      }
+    },
+    {
+      "name": "no_retry_without_idempotency_key",
+      "why": "A POST returning 503 must NOT be retried without an idempotency key. This was a real bug \u2014 a `POST /charges` was sent three times, and whether the server processed the first is unknowable from the client.",
+      "responses": [
+        {
+          "status": 503,
+          "json": {
+            "message": "try later"
+          }
+        }
+      ],
+      "expect": {
+        "requests": [
+          {
+            "method": "POST",
+            "path": "/events",
+            "query": {},
+            "bodyKeys": "type"
+          }
+        ],
+        "values": {
+          "error_kind": "server_error"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,344 @@
+openapi: 3.1.0
+info:
+  title: Kitchen Sink
+  version: '1.0'
+  description: >-
+    A deliberately pathological spec covering the constructs `corpus/pixwel` never exercises
+    (SPEC.md §7): anyOf, discriminated unions, allOf composition, cursor pagination, nested
+    resource groups, both nullability dialects, non-JSON content, binary and streaming
+    responses, and non-trivial path parameters.
+
+    Hand-authored rather than harvested, so it is a *conformance fixture*, not a substitute for
+    a real gnarly public spec. Its job is to make each documented gap fail loudly.
+servers:
+  - url: https://api.kitchen.test/v1
+    description: Production
+security:
+  - ApiKeyAuth: []
+paths:
+  # --- cursor pagination + nested resource group -----------------------------
+  /orgs/{orgId}/members:
+    get:
+      operationId: listOrgMembers
+      x-fern-sdk-group-name: orgs
+      x-fern-sdk-method-name: listMembers
+      summary: List members of an organization
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: cursor
+          in: query
+          schema: { type: string }
+          description: Opaque cursor from `next_cursor`.
+        - name: limit
+          in: query
+          schema: { type: integer, maximum: 100 }
+      responses:
+        '200':
+          description: A page of members
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data, has_more]
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/Member' }
+                  next_cursor:
+                    type: [string, 'null']
+                  has_more: { type: boolean }
+  # --- discriminated union + allOf -------------------------------------------
+  /events:
+    post:
+      operationId: publishEvent
+      x-fern-sdk-group-name: events
+      x-fern-sdk-method-name: publish
+      summary: Publish an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Event' }
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EventReceipt' }
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ValidationError' }
+  # --- anyOf + 3.0-style nullable + enum -------------------------------------
+  /search:
+    get:
+      operationId: search
+      x-fern-sdk-group-name: search
+      x-fern-sdk-method-name: query
+      summary: Search across resources
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string }
+        - name: kind
+          in: query
+          schema:
+            type: string
+            enum: [member, event, invoice]
+        - name: since
+          in: query
+          schema: { type: string, format: date-time }
+      responses:
+        '200':
+          description: Results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                    - $ref: '#/components/schemas/Member'
+                    - $ref: '#/components/schemas/Invoice'
+  # --- binary response + non-trivial path params -----------------------------
+  /orgs/{orgId}/invoices/{invoiceId}/pdf:
+    get:
+      operationId: downloadInvoicePdf
+      x-fern-sdk-group-name: orgs.invoices
+      x-fern-sdk-method-name: downloadPdf
+      summary: Download an invoice as a PDF
+      parameters:
+        - name: orgId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: invoiceId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The PDF
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+  # --- CSV response ----------------------------------------------------------
+  /reports/usage:
+    get:
+      operationId: exportUsage
+      x-fern-sdk-group-name: reports
+      x-fern-sdk-method-name: exportUsage
+      summary: Export usage as CSV
+      responses:
+        '200':
+          description: CSV rows
+          content:
+            text/csv:
+              schema: { type: string }
+  # --- multipart upload ------------------------------------------------------
+  /uploads:
+    post:
+      operationId: createUpload
+      x-fern-sdk-group-name: uploads
+      x-fern-sdk-method-name: create
+      summary: Upload a file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+                filename: { type: string }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Upload' }
+  # --- server-sent events ----------------------------------------------------
+  /events/stream:
+    get:
+      operationId: streamEvents
+      x-fern-sdk-group-name: events
+      x-fern-sdk-method-name: stream
+      summary: Stream events as they occur
+      responses:
+        '200':
+          description: An SSE stream
+          content:
+            text/event-stream:
+              schema: { $ref: '#/components/schemas/Event' }
+  # --- self-referential type -------------------------------------------------
+  /categories:
+    get:
+      operationId: listCategories
+      x-fern-sdk-group-name: categories
+      x-fern-sdk-method-name: list
+      summary: List category tree
+      responses:
+        '200':
+          description: Root categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Category' }
+# OpenAPI 3.1 declares webhooks at the top level. Two events, one of which reuses a schema the API also
+# returns — which is the case worth exercising, since a webhook payload is frequently a resource the API
+# already models.
+webhooks:
+  invoice.paid:
+    post:
+      summary: An invoice was paid.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaidEvent'
+      responses:
+        '200': { description: Acknowledged. }
+  member.invited:
+    post:
+      summary: A member was invited to an organisation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberInvitedEvent'
+      responses:
+        '200': { description: Acknowledged. }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: API key issued in the dashboard.
+    # OAuth2 client credentials: the flow an SDK can actually own. Exercises token acquisition,
+    # caching, single-flight refresh, and the retry-once-on-401 path.
+    OAuth2:
+      type: oauth2
+      description: Machine-to-machine access.
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.kitchen.test/oauth/token
+          scopes:
+            read:members: Read organisation members
+            write:members: Invite and remove members
+    # Declares only the authorization-code flow. besdk must *not* claim to perform the redirect —
+    # it should surface a diagnostic and accept a token instead.
+    OAuth2AuthCode:
+      type: oauth2
+      description: Interactive access.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.kitchen.test/oauth/authorize
+          tokenUrl: https://auth.kitchen.test/oauth/token
+          refreshUrl: https://auth.kitchen.test/oauth/token
+          scopes:
+            read:members: Read organisation members
+  schemas:
+    # allOf composition, two levels deep
+    Identified:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    Member:
+      allOf:
+        - $ref: '#/components/schemas/Identified'
+        - type: object
+          required: [email, role]
+          properties:
+            email: { type: string, format: email }
+            role:
+              type: string
+              enum: [owner, admin, member, viewer]
+            # OpenAPI 3.0 nullability dialect, in a 3.1 document: real specs mix these.
+            display_name:
+              type: string
+              nullable: true
+            seat_count: { type: integer, format: int64 }
+    Invoice:
+      allOf:
+        - $ref: '#/components/schemas/Identified'
+        - type: object
+          required: [amount_cents, currency]
+          properties:
+            amount_cents: { type: integer }
+            currency: { type: string, enum: [usd, eur, gbp] }
+            paid: { type: boolean }
+            # 3.1 nullability dialect
+            voided_at: { type: [string, 'null'], format: date-time }
+    # Discriminated union
+    Event:
+      oneOf:
+        - $ref: '#/components/schemas/MemberInvitedEvent'
+        - $ref: '#/components/schemas/InvoicePaidEvent'
+      discriminator:
+        propertyName: type
+        mapping:
+          member.invited: '#/components/schemas/MemberInvitedEvent'
+          invoice.paid: '#/components/schemas/InvoicePaidEvent'
+    MemberInvitedEvent:
+      type: object
+      required: [type, member]
+      properties:
+        type: { type: string, const: member.invited }
+        member: { $ref: '#/components/schemas/Member' }
+        invited_by: { $ref: '#/components/schemas/Member' }
+    InvoicePaidEvent:
+      type: object
+      required: [type, invoice]
+      properties:
+        type: { type: string, const: invoice.paid }
+        invoice: { $ref: '#/components/schemas/Invoice' }
+    EventReceipt:
+      type: object
+      required: [accepted]
+      properties:
+        accepted: { type: boolean }
+        event_id: { type: string }
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message: { type: string }
+        errors:
+          type: array
+          items:
+            type: object
+            required: [field, code]
+            properties:
+              field: { type: string }
+              code: { type: string }
+    Upload:
+      allOf:
+        - $ref: '#/components/schemas/Identified'
+        - type: object
+          required: [url, bytes]
+          properties:
+            url: { type: string, format: uri }
+            bytes: { type: integer }
+    # Self-referential, to exercise cycle handling
+    Category:
+      type: object
+      required: [slug, name]
+      properties:
+        slug: { type: string }
+        name: { type: string }
+        parent: { $ref: '#/components/schemas/Category' }
+        children:
+          type: array
+          items: { $ref: '#/components/schemas/Category' }
