@@ -20,12 +20,17 @@ NIX_DAEMON=/nix/var/nix/profiles/default/bin/nix-daemon
 
 # The Cloud Agent VM has no systemd (PID 1 is tini), so the multi-user Nix daemon that `devbox`
 # needs is not started for us. Launch it by hand and wait for its socket. Safe to call repeatedly.
+#
+# The liveness test is a *process* check, not a socket-file check: an environment build snapshots
+# the disk, so the daemon's socket file survives into the next boot with nothing listening on it.
+# Trusting the file would skip the (re)start and leave `devbox` with "Connection refused".
 start_nix_daemon() {
-  [ -S "$NIX_SOCKET" ] && return 0
+  pgrep -x nix-daemon >/dev/null 2>&1 && return 0
   [ -x "$NIX_DAEMON" ] || return 1
-  sudo sh -c "nohup '$NIX_DAEMON' >/tmp/nix-daemon.log 2>&1 &"
+  sudo rm -f "$NIX_SOCKET"
+  sudo sh -c "nohup '$NIX_DAEMON' >/nix/var/log/nix-daemon.log 2>&1 &"
   for _ in $(seq 1 60); do
-    [ -S "$NIX_SOCKET" ] && return 0
+    [ -S "$NIX_SOCKET" ] && pgrep -x nix-daemon >/dev/null 2>&1 && return 0
     sleep 1
   done
   return 1

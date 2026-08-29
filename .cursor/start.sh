@@ -10,10 +10,13 @@ set -euo pipefail
 NIX_SOCKET=/nix/var/nix/daemon-socket/socket
 NIX_DAEMON=/nix/var/nix/profiles/default/bin/nix-daemon
 
-if [ ! -S "$NIX_SOCKET" ] && [ -x "$NIX_DAEMON" ]; then
-  sudo sh -c "nohup '$NIX_DAEMON' >/tmp/nix-daemon.log 2>&1 &"
+# Liveness is a process check, not a socket-file check: the build snapshots the disk, so a dead
+# daemon's socket file survives the boot with nothing listening. Clear it and start fresh.
+if ! pgrep -x nix-daemon >/dev/null 2>&1 && [ -x "$NIX_DAEMON" ]; then
+  sudo rm -f "$NIX_SOCKET"
+  sudo sh -c "nohup '$NIX_DAEMON' >/nix/var/log/nix-daemon.log 2>&1 &"
   for _ in $(seq 1 60); do
-    [ -S "$NIX_SOCKET" ] && break
+    [ -S "$NIX_SOCKET" ] && pgrep -x nix-daemon >/dev/null 2>&1 && break
     sleep 1
   done
 fi
