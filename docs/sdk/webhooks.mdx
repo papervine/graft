@@ -27,16 +27,16 @@ app.post('/webhooks', async (request, response) => {
 
 ## Where the events come from
 
-Whichever dialect your spec uses. besdk reads all three:
+Whichever dialect your spec uses. graft reads all three:
 
 | Source | Where |
 |---|---|
 | OpenAPI 3.1 `webhooks` | top level |
 | `x-webhooks` | top level — what Fern, Speakeasy, and Redocly read |
-| `x-besdk-webhooks` | top level |
+| `x-graft-webhooks` | top level |
 
 A spec already annotated for another generator works with no changes. Each entry names an event and
-carries a request body schema, which is all besdk needs.
+carries a request body schema, which is all graft needs.
 
 <Note>
   OpenAPI 3.0's per-operation `callbacks` is deliberately **not** read. It means something different —
@@ -47,7 +47,7 @@ carries a request body schema, which is all besdk needs.
 
 ## Configuring the signature scheme
 
-OpenAPI has no field describing how a provider signs requests, so this is the one part besdk cannot
+OpenAPI has no field describing how a provider signs requests, so this is the one part graft cannot
 infer. Until you configure it, no verifier is emitted and `check` says so:
 
 ```
@@ -60,12 +60,12 @@ infer. Until you configure it, no verifier is emitted and `check` says so:
   A `verify()` that returned `true` because it checked something meaningless would be **worse than its
   absence**. The false confidence is exactly what stops anyone from thinking about the problem, and the
   failure is silent and total — nothing in your system tells you that forged requests are being
-  processed. So besdk emits nothing rather than something reassuring.
+  processed. So graft emits nothing rather than something reassuring.
 </Warning>
 
 The scheme is a descriptor, not a preset:
 
-```yaml besdk.yaml
+```yaml graft.yaml
 webhooks:
   signature:
     header: Stripe-Signature
@@ -134,7 +134,7 @@ Every real provider fits these fields:
 
 <Note>
   There are deliberately no provider presets (`signature: stripe`). A preset that drifts from a
-  provider's actual scheme fails in the direction of **accepting forged requests**, and besdk would have
+  provider's actual scheme fails in the direction of **accepting forged requests**, and graft would have
   no way to notice. The descriptor is barely longer than the preset name and says what it does.
 </Note>
 
@@ -190,7 +190,7 @@ what the signature *should* have been is an oracle.
 ## No framework adapters
 
 Verification takes raw bytes and headers and returns a parsed event, so it composes with Express,
-FastAPI, `net/http`, or a Lambda handler without besdk knowing about any of them. Shipping an adapter
+FastAPI, `net/http`, or a Lambda handler without graft knowing about any of them. Shipping an adapter
 per framework per language is a surface that ages badly, and the three lines it saves are the part you
 should be able to read.
 

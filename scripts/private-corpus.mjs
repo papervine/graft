@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Run besdk over every spec in `corpus/private/`, which is gitignored.
+ * Run graft over every spec in `corpus/private/`, which is gitignored.
  *
  * Exists so a proprietary or unreleased API description can be the thing you actually develop
  * against, without it becoming part of an open-source repository. That distinction is not a
@@ -30,8 +30,8 @@ async function listSpecs() {
     const entries = await readdir(PRIVATE);
     return entries
       .filter((name) => /\.(ya?ml|json)$/i.test(name))
-      // A sibling `<name>.besdk.yaml` is config, not a spec.
-      .filter((name) => !/\.besdk\.ya?ml$/i.test(name))
+      // A sibling `<name>.graft.yaml` is config, not a spec.
+      .filter((name) => !/\.graft\.ya?ml$/i.test(name))
       .sort();
   } catch {
     return undefined;
@@ -58,7 +58,7 @@ let failures = 0;
 for (const spec of specs) {
   const name = basename(spec, extname(spec));
   const specPath = join('corpus/private', spec);
-  const configPath = join(PRIVATE, `${name}.besdk.yaml`);
+  const configPath = join(PRIVATE, `${name}.graft.yaml`);
   const hasConfig = await stat(configPath).then(
     () => true,
     () => false,
@@ -66,7 +66,7 @@ for (const spec of specs) {
 
   console.log(`\n=== ${command} ${specPath} ===`);
   const args = [command, specPath];
-  if (hasConfig) args.push('--config', join('corpus/private', `${name}.besdk.yaml`));
+  if (hasConfig) args.push('--config', join('corpus/private', `${name}.graft.yaml`));
   if (command === 'generate') args.push('--out', join('sdks/private', name));
   args.push(...passthrough);
 

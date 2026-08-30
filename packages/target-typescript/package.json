@@ -1,11 +1,11 @@
 {
-  "name": "@besdk/target-typescript",
+  "name": "@graft/target-typescript",
   "version": "0.0.0",
-  "description": "besdk TypeScript target. Reads IR JSON on stdin, writes a file manifest on stdout.",
-  "license": "Apache-2.0",
+  "description": "graft TypeScript target. Reads IR JSON on stdin, writes a file manifest on stdout.",
+  "license": "MIT",
   "type": "module",
   "bin": {
-    "besdk-target-typescript": "./dist/bin.js"
+    "graft-target-typescript": "./dist/bin.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,9 +19,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@besdk/protocol": "workspace:*",
+    "@graft/protocol": "workspace:*",
     "ts-morph": "^25.0.1",
-    "@besdk/runtime-typescript": "workspace:*"
+    "@graft/runtime-typescript": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22",

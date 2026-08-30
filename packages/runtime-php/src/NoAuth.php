@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 final class NoAuth implements Auth
 {

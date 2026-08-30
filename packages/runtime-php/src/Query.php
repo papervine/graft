@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 /**
  * Building query strings and URLs.

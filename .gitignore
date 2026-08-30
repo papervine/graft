@@ -12,23 +12,23 @@ dist/
 
 # Your own specs. Nothing here is part of this repository — a proprietary or unreleased API
 # description must not be redistributed, and `UNLICENSED` specs legally cannot be.
-# `pnpm corpus:private` runs besdk over whatever is here.
+# `pnpm corpus:private` runs graft over whatever is here.
 /corpus/private/
 /sdks/private/
 /tests/private/
-# …and their IR baselines. `.besdk/` is otherwise committed on purpose, but a private spec's
+# …and their IR baselines. `.graft/` is otherwise committed on purpose, but a private spec's
 # baseline contains its schema and method names, which must not leak into a public repository.
-/.besdk/corpus-private-*
+/.graft/corpus-private-*
 # Records of what was last written to each output directory (SPEC.md §3.9.1). Local build state
 # describing gitignored output, so committing it would be churn nobody reviews.
-/.besdk/*.written.json
+/.graft/*.written.json
 
 .DS_Store
 *.log
 .vitest/
 coverage/
 
-# The IR baseline is committed on purpose: `besdk diff` compares against it so CI can
+# The IR baseline is committed on purpose: `graft diff` compares against it so CI can
 # gate on breaking changes to SDK consumers (SPEC.md §9). Not ignored.
 
 # Python target: local venv and generated Python SDKs
@@ -40,7 +40,7 @@ __pycache__/
 
 # Go target: built binary and generated Go SDKs
 /packages/target-go/bin/
-/packages/target-go/besdk-target-go
+/packages/target-go/graft-target-go
 /tests/conformance/drivers/godriver/godriver
 
 # Built output inside generated SDKs (rebuilt by the conformance suite)

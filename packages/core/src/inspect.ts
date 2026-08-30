@@ -6,7 +6,7 @@
  * genuine import cycle (`index` → `init` → `index`), which the boundary check in CI rejected.
  */
 
-import type { Diagnostic } from '@besdk/protocol';
+import type { Diagnostic } from '@graft/protocol';
 import { loadSpec, parseSpec, type LoadedSpec } from './load.js';
 import { resolveSpec, type ResolvedSpec } from './resolve.js';
 import { indexOperations, type OperationIndex } from './operations.js';
@@ -28,7 +28,7 @@ function inspectLoaded(spec: LoadedSpec, carried: readonly Diagnostic[]): Inspec
 
 /**
  * Run the read-only half of the pipeline against spec text. This is the whole of what
- * `besdk check` needs, and it takes a string so tests and the snapshot suite can drive the
+ * `graft check` needs, and it takes a string so tests and the snapshot suite can drive the
  * pipeline without touching the filesystem.
  */
 export function inspectSpec(contents: string, source: string): Inspection {

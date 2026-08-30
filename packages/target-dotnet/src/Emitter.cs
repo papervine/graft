@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>One emitted file.</summary>
 internal sealed record EmittedFile(string Path, string Contents);
@@ -86,7 +86,7 @@ internal sealed class Emitter
     {
       files.Add(new EmittedFile(
           "src/Core/" + name,
-          contents.Replace("namespace Besdk.Runtime;", "namespace " + core + ";", StringComparison.Ordinal)));
+          contents.Replace("namespace Graft.Runtime;", "namespace " + core + ";", StringComparison.Ordinal)));
     }
 
     files.Add(ProjectFile());

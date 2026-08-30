@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php;
+namespace Graft\Target\Php;
 
 /**
  * Turning IR token sequences into PHP identifiers.

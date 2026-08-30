@@ -1,12 +1,12 @@
 /**
- * The target protocol — how besdk supports "any language" (SPEC.md §3.5).
+ * The target protocol — how graft supports "any language" (SPEC.md §3.5).
  *
  * A target is an executable. It is invoked twice:
  *
- *   1. `besdk-target-<lang> --sdk-target-protocol`
+ *   1. `graft-target-<lang> --sdk-target-protocol`
  *        → prints a {@link Handshake} on stdout and exits 0.
  *
- *   2. `besdk-target-<lang>`
+ *   2. `graft-target-<lang>`
  *        ← receives a {@link TargetInput} as JSON on stdin
  *        → prints a {@link TargetOutput} on stdout and exits 0.
  *
@@ -113,7 +113,7 @@ export const TargetInputSchema = z.object({
   irVersion: z.string().min(1),
   ir: IRSchema,
   /**
-   * Target-specific options from `besdk.yaml` (`targets.<name>`). Deliberately opaque here:
+   * Target-specific options from `graft.yaml` (`targets.<name>`). Deliberately opaque here:
    * the core must not grow knowledge of individual targets' settings, or the boundary in
    * SPEC.md §3.7 is already broken.
    */
@@ -157,7 +157,7 @@ export const TargetOutputSchema = z.object({
 export type TargetOutput = z.infer<typeof TargetOutputSchema>;
 
 /**
- * Does the IR version besdk emits fall inside a target's declared ranges?
+ * Does the IR version graft emits fall inside a target's declared ranges?
  *
  * Lives here rather than in the CLI because two commands need it — `generate` gates on it and
  * `targets` reports it — and a compatibility check that disagrees with itself is worse than one

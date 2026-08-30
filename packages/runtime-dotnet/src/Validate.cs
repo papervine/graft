@@ -1,4 +1,4 @@
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// Walks a response against its declared shape (SPEC.md §3.4.1.1).

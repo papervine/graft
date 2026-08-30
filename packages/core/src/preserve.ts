@@ -9,14 +9,14 @@
  *   - Speakeasy's `// #region` markers let a method land on the generated class itself. Finer
  *     grained, but the generator must read its own prior output.
  *
- * besdk supports both, because they solve different problems, and adds the thing neither states:
+ * graft supports both, because they solve different problems, and adds the thing neither states:
  *
  * **Preservation failure never destroys code.** If a region exists on disk and the newly generated
  * file has no marker to put it back into, generation *aborts*. Silently dropping someone's
  * hand-written code is unforgivable, and "the marker moved" is exactly when it would happen.
  *
  * Markers are brand-neutral (`#region`, the common editor-folding convention) rather than
- * `besdk:`-prefixed. A marker carrying the tool's name would appear in users' files, making a
+ * `graft:`-prefixed. A marker carrying the tool's name would appear in users' files, making a
  * rename of this project a breaking change for everyone who customized anything.
  */
 
@@ -279,7 +279,7 @@ export function mergePackageJson(
   const carried: string[] = [];
   const merged: Record<string, unknown> = { ...generatedJson };
 
-  // Keys besdk derives from the spec and config. Everything else belongs to the user.
+  // Keys graft derives from the spec and config. Everything else belongs to the user.
   const owned = new Set(['name', 'version', 'type', 'main', 'types', 'exports', 'files', 'scripts']);
   for (const [key, value] of Object.entries(existingJson)) {
     if (owned.has(key)) continue;

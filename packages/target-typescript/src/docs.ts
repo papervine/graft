@@ -16,8 +16,8 @@
  * and type deduplication are what templates cannot do.
  */
 
-import { BRAND } from '@besdk/protocol';
-import type { Brand, IR, Method, NamedType, Resource, TypeRef } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
+import type { Brand, IR, Method, NamedType, Resource, TypeRef } from '@graft/protocol';
 import { camel, pascal, serviceLabel } from './naming.js';
 import type { TypeMapper } from './types.js';
 

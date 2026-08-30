@@ -8,7 +8,7 @@ type Page[T any] struct {
 	Total      *int64
 	NextCursor string
 	HasMore    *bool
-	// Raw is the decoded envelope, for a field besdk did not model.
+	// Raw is the decoded envelope, for a field graft did not model.
 	Raw any
 }
 

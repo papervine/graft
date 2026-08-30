@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using System.Web;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>Something with a wire representation distinct from its .NET name. Generated enums use this.</summary>
 public interface IWireValued

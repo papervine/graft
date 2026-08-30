@@ -1,4 +1,4 @@
-// Package emit turns besdk's semantic IR into Go source files.
+// Package emit turns graft's semantic IR into Go source files.
 //
 // The IR is decoded into these structs rather than navigated as map[string]any. That does not make
 // reading the wrong field impossible — JSON decoding leaves an unknown field at its zero value, so a

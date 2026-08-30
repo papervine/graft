@@ -5,7 +5,7 @@ repository. `CLAUDE.md` is a symlink to this file — there is one set of instru
 
 ## What this project is
 
-`besdk` is an open-source OpenAPI → SDK generator, targeting output quality on par with
+`graft` is an open-source OpenAPI → SDK generator, targeting output quality on par with
 Stainless, Speakeasy, and Fern. The goal is generated SDKs that are indistinguishable from
 hand-written, idiomatic client libraries in each target language — and a project that cannot
 strand its users, because it is open source and the spec is the source of truth.
@@ -52,8 +52,8 @@ as designed, in present tense. Don't narrate the history of the conversation.
 it lands in `SPEC.md`.** That is:
 
 - a CLI command, flag, or exit code
-- a `besdk.yaml` key
-- an `x-besdk-*` extension
+- a `graft.yaml` key
+- an `x-graft-*` extension
 - a diagnostic code
 - the shape of generated output — client construction, method signatures, error classes, pagination
 
@@ -62,7 +62,7 @@ alternatives are not user documentation, and padding `./docs` with them makes it
 complete. The test is simply: *could a user act on this?*
 
 Drift is guarded mechanically, not by discipline — `packages/cli/src/docs.test.ts` fails the build
-if a CLI command, `besdk.yaml` key, extension key, or diagnostic code exists in code but appears
+if a CLI command, `graft.yaml` key, extension key, or diagnostic code exists in code but appears
 nowhere in `./docs`. Adding a flag without documenting it breaks CI.
 
 Docs are Mintlify MDX: YAML frontmatter with `title` and `description`, `docs.json` for
@@ -128,7 +128,7 @@ A generator change without snapshot coverage is incomplete.
 
 ## The project name is a working title
 
-`besdk` may change. Every user-facing occurrence is derived from `BRAND_NAME` in
+`graft` may change. Every user-facing occurrence is derived from `BRAND_NAME` in
 `packages/protocol/src/branding.ts`, and a test fails the build if the name is hardcoded in a
 string literal anywhere else. **Never write the project name into a string** — import `BRAND`.
 
@@ -137,9 +137,15 @@ Renaming is therefore:
 1. Edit `BRAND_NAME` and `BRAND_TITLE` in `branding.ts`. This covers the CLI name, config
    filename, state directory, extension prefix, target-executable prefix, handshake flag, help
    text, diagnostics, and generated attribution.
-2. Rename the workspace packages (`@besdk/*` → `@newname/*`) and their import specifiers. These
-   are literals that no constant can abstract; `pnpm test` in `packages/protocol` lists them.
-3. If the old name ever shipped, add its extension prefix to `LEGACY_EXTENSION_PREFIXES` so specs
+2. Rename every package's own identity — the workspace packages (`@graft/*`) and their import
+   specifiers, the Python distributions (`graft_runtime`, `graft_target_python`), the Go module
+   paths, the Java packages *and their directories*, the PHP namespaces, the C# assemblies. These
+   are literals no constant can abstract; `pnpm test` in `packages/protocol` fails on any that is
+   missed.
+3. Regenerate the build caches that record the old name, or the failures read as unrelated bugs:
+   `pnpm install`, `composer dump-autoload` in each PHP package, and a `dotnet build` after clearing
+   `src/obj/`. Nothing in source is wrong at that point — the stale name is in a generated map.
+4. If the old name ever shipped, add its extension prefix to `LEGACY_EXTENSION_PREFIXES` so specs
    already annotated with `x-oldname-*` keep working.
 
 What must **never** carry the project name is generated output that consumers depend on. The

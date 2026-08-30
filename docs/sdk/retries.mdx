@@ -97,7 +97,7 @@ The same key is sent on every attempt, unchanged — a new key per attempt would
 The key goes in `Idempotency-Key`. That header is not standardised — `X-Idempotency-Key` and
 `Idempotency-Token` are both in real use — so if your API expects another name, set it once:
 
-```yaml besdk.yaml
+```yaml graft.yaml
 targets:
   typescript:
     out: sdks/typescript

@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// Turning IR token sequences into C# identifiers.

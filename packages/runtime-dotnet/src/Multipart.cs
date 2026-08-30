@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// Encoding a request body as <c>multipart/form-data</c>.

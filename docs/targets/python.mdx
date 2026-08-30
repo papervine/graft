@@ -4,7 +4,7 @@ description: "Generating a Python SDK: pydantic models, sync and async clients, 
 ---
 
 ```sh
-besdk generate openapi.yaml --target python --out sdks/python
+graft generate openapi.yaml --target python --out sdks/python
 ```
 
 ```python
@@ -166,4 +166,4 @@ sdks/python/
     └── _core/              the hand-written runtime, vendored
 ```
 
-`_core/` is vendored, so the package depends on `httpx` and `pydantic` and **not on besdk**.
+`_core/` is vendored, so the package depends on `httpx` and `pydantic` and **not on graft**.

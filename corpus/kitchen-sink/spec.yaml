@@ -235,7 +235,7 @@ components:
           scopes:
             read:members: Read organisation members
             write:members: Invite and remove members
-    # Declares only the authorization-code flow. besdk must *not* claim to perform the redirect —
+    # Declares only the authorization-code flow. graft must *not* claim to perform the redirect —
     # it should surface a diagnostic and accept a token instead.
     OAuth2AuthCode:
       type: oauth2

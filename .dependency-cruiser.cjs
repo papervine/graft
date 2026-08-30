@@ -11,8 +11,8 @@ module.exports = {
       name: 'protocol-is-standalone',
       severity: 'error',
       comment:
-        '@besdk/protocol is the public contract third-party targets depend on. If it grew an ' +
-        'internal dependency, implementing a target would mean depending on besdk internals.',
+        '@graft/protocol is the public contract third-party targets depend on. If it grew an ' +
+        'internal dependency, implementing a target would mean depending on graft internals.',
       from: { path: '^packages/protocol/' },
       to: { path: '^packages/(?!protocol/)' },
     },
@@ -66,7 +66,7 @@ module.exports = {
     tsPreCompilationDeps: true,
     tsConfig: { fileName: 'tsconfig.base.json' },
     // pnpm links workspace packages as symlinks. Preserving them (rather than resolving to
-    // the real path) would report imports as `node_modules/@besdk/*` and the rules above
+    // the real path) would report imports as `node_modules/@graft/*` and the rules above
     // would never match, so leave this false.
     preserveSymlinks: false,
     // Deliberately no `exclude` for dist/. Workspace `main` fields point into dist/, so a

@@ -1,11 +1,11 @@
 {
-  "name": "besdk",
+  "name": "graft",
   "version": "0.0.0",
   "description": "OpenAPI to idiomatic SDK generator",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "bin": {
-    "besdk": "./dist/bin.js"
+    "graft": "./dist/bin.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -19,10 +19,10 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@besdk/core": "workspace:*",
-    "@besdk/protocol": "workspace:*",
+    "@graft/core": "workspace:*",
+    "@graft/protocol": "workspace:*",
     "picocolors": "^1.1.1",
-    "@besdk/target-typescript": "workspace:*"
+    "@graft/target-typescript": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -11,7 +11,7 @@
  * small without forcing an arbitrary owner on a type two resources both use.
  */
 
-import type { IR, Method, NamedType, Resource, TypeRef } from '@besdk/protocol';
+import type { IR, Method, NamedType, Resource, TypeRef } from '@graft/protocol';
 
 /** Where a type is emitted. `null` means the shared module. */
 export type TypeOwner = string | null;

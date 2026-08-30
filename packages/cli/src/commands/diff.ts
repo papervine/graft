@@ -1,5 +1,5 @@
 /**
- * `besdk diff` — what regenerating would do to the SDK's consumers.
+ * `graft diff` — what regenerating would do to the SDK's consumers.
  *
  * Answers the open question in SPEC.md §9: regenerating must not silently break downstream users.
  * A file-level diff cannot answer it — reformatting shows as a change, and a renamed method shows
@@ -13,8 +13,8 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
 import pc from 'picocolors';
-import { buildIR, inspectSpecFile, diffIR, impliedBump, SpecLoadError, type Change } from '@besdk/core';
-import { BRAND, parseIR, type IR } from '@besdk/protocol';
+import { buildIR, inspectSpecFile, diffIR, impliedBump, SpecLoadError, type Change } from '@graft/core';
+import { BRAND, parseIR, type IR } from '@graft/protocol';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
 import type { CommandContext } from './context.js';
 import { resolveConfig } from './ir.js';

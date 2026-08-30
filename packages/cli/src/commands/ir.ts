@@ -1,5 +1,5 @@
 /**
- * `besdk ir` — dump the semantic IR as JSON.
+ * `graft ir` — dump the semantic IR as JSON.
  *
  * This is both the debugging affordance and the way the target protocol stays inspectable
  * rather than notional (SPEC.md §3.7): what this prints is byte-for-byte what a target
@@ -14,14 +14,14 @@ import {
   ConfigError,
   SpecLoadError,
   type Config,
-} from '@besdk/core';
-import { BRAND, parseIR } from '@besdk/protocol';
+} from '@graft/core';
+import { BRAND, parseIR } from '@graft/protocol';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
 import type { CommandContext } from './context.js';
 
 export const DEFAULT_CONFIG_PATH = BRAND.configFile;
 
-/** Load config from `--config`, or `besdk.yaml` if it happens to exist. */
+/** Load config from `--config`, or `graft.yaml` if it happens to exist. */
 export async function resolveConfig(
   args: ParsedArgs,
   ctx: CommandContext,
@@ -66,7 +66,7 @@ export async function runIr(args: ParsedArgs, ctx: CommandContext): Promise<numb
   const { ir, diagnostics } = buildIR(inspection, resolved.config);
 
   // Validate our own output against the published contract. If the core emits an IR that a
-  // target would reject, that is a besdk bug and it should surface here, not downstream.
+  // target would reject, that is a graft bug and it should surface here, not downstream.
   try {
     parseIR(ir);
   } catch (error) {

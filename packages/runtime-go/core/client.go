@@ -192,7 +192,7 @@ func NewClient(opts ClientOptions) *Client {
 //
 // A placeholder with no value is left in place rather than removed. `https://.api.example.com` is a
 // plausible-looking hostname that fails at DNS with nothing to point at; `https://{region}...` is
-// obviously wrong the moment anyone reads it, and besdk warns about it at generation time (S003).
+// obviously wrong the moment anyone reads it, and graft warns about it at generation time (S003).
 func resolveServerTemplate(template string, variables map[string]string) string {
 	for name, value := range variables {
 		if value == "" {

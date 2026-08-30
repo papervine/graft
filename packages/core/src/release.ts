@@ -1,16 +1,16 @@
 /**
  * Version and changelog computation (SPEC.md §3.5.1).
  *
- * besdk owns the parts that need contract knowledge — what the next version is, and what changed — and
+ * graft owns the parts that need contract knowledge — what the next version is, and what changed — and
  * nothing else. It never publishes: a tool that needs registry credentials is a tool nobody runs
  * locally to see what it would do.
  *
- * The version comes from `besdk diff`, which is the only thing in a release pipeline that knows a
+ * The version comes from `graft diff`, which is the only thing in a release pipeline that knows a
  * required-ness flip breaks read and write models in opposite directions (§3.8). A commit message
  * cannot know that, and neither can a human skimming a diff.
  */
 
-import { BRAND } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
 
 import type { Change, DiffResult } from './diff.js';
 import { impliedBump } from './diff.js';

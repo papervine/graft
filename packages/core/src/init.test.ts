@@ -18,7 +18,7 @@ function corpusInit(): string {
 describe('scalar quoting', () => {
   it('quotes values starting with a YAML reserved indicator', () => {
     // The regression that motivated this: `@scope/sdk` emitted plain is invalid YAML, so
-    // `besdk init` produced a config `besdk` itself could not read.
+    // `graft init` produced a config `graft` itself could not read.
     for (const value of ['@pixwel/sdk', '%dir', '&anchor', '*alias', '!tag', '|block', '>fold']) {
       expect(scalar(value), value).toBe(JSON.stringify(value));
     }
@@ -50,27 +50,27 @@ describe('scalar quoting', () => {
   });
 });
 
-describe('besdk init output', () => {
+describe('graft init output', () => {
   const generated = corpusInit();
 
   it('is valid YAML', () => {
     expect(() => parseYaml(generated)).not.toThrow();
   });
 
-  it('round-trips through besdk own config parser', () => {
-    // The property that matters: whatever init writes, besdk must accept. Without this the
+  it('round-trips through graft own config parser', () => {
+    // The property that matters: whatever init writes, graft must accept. Without this the
     // scaffold can emit a config that fails on the very next command.
-    expect(() => parseConfig(generated, 'besdk.yaml')).not.toThrow();
+    expect(() => parseConfig(generated, 'graft.yaml')).not.toThrow();
   });
 
   it('records the spec path and service name', () => {
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     expect(config.spec).toBe('corpus/kitchen-sink/spec.yaml');
     expect(config.name).toBe('Kitchen Sink');
   });
 
   it('writes inferred pagination explicitly rather than leaving it implicit', () => {
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     // Cursor style, with the envelope paths written out — without those the runtime cannot find
     // the items.
     expect(config.pagination?.default).toMatchObject({
@@ -83,13 +83,13 @@ describe('besdk init output', () => {
   });
 
   it('proposes a read/write split for conflated schemas', () => {
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     // `Event` is published as a request body and also streamed back, so it is flagged.
     expect(Object.keys(config.models ?? {})).toContain('Event');
   });
 
   it('suggests only server-owned fields that actually exist on the schema', () => {
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     for (const [schema, model] of Object.entries(config.models ?? {})) {
       for (const field of model.serverOwned ?? []) {
         // A name that matches nothing is the silent-typo failure mode; init must not invent one.
@@ -98,18 +98,18 @@ describe('besdk init output', () => {
     }
   });
 
-  it('marks the judgments besdk cannot make', () => {
+  it('marks the judgments graft cannot make', () => {
     expect(generated).toContain('REVIEW');
   });
 
   it('writes normalizer defaults out so they are visible and overridable', () => {
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     expect(config.normalize).toMatchObject({ phpEmptyMap: true, scalarUnion: 'widen' });
   });
 
   it('omits the headers block when no header is constant across operations', () => {
     // kitchen-sink has no such header; inventing one would put a lie in the config.
-    const config = parseConfig(generated, 'besdk.yaml');
+    const config = parseConfig(generated, 'graft.yaml');
     expect(config.headers?.constant ?? {}).toEqual({});
   });
 });
@@ -118,11 +118,11 @@ describe('config parsing', () => {
   it('rejects an unknown top-level key instead of ignoring it', () => {
     // A typo'd key that silently does nothing is worse than a failed run: the user believes
     // they fixed something.
-    expect(() => parseConfig('modles: {}\n', 'besdk.yaml')).toThrow(/invalid config/);
+    expect(() => parseConfig('modles: {}\n', 'graft.yaml')).toThrow(/invalid config/);
   });
 
   it('rejects an unknown key inside a model', () => {
-    expect(() => parseConfig('models:\n  A:\n    renmae: B\n', 'besdk.yaml')).toThrow(
+    expect(() => parseConfig('models:\n  A:\n    renmae: B\n', 'graft.yaml')).toThrow(
       /invalid config/,
     );
   });
@@ -134,12 +134,12 @@ describe('config parsing', () => {
   });
 
   it('accepts an empty config', () => {
-    expect(parseConfig('', 'besdk.yaml')).toEqual({});
-    expect(parseConfig('# just a comment\n', 'besdk.yaml')).toEqual({});
+    expect(parseConfig('', 'graft.yaml')).toEqual({});
+    expect(parseConfig('# just a comment\n', 'graft.yaml')).toEqual({});
   });
 
   it('accepts a partial config, so adoption can be incremental', () => {
-    expect(parseConfig('normalize: { phpEmptyMap: false }\n', 'besdk.yaml')).toEqual({
+    expect(parseConfig('normalize: { phpEmptyMap: false }\n', 'graft.yaml')).toEqual({
       normalize: { phpEmptyMap: false },
     });
   });
@@ -175,7 +175,7 @@ describe('config parsing', () => {
   });
 });
 
-describe('init emits config besdk itself accepts', () => {
+describe('init emits config graft itself accepts', () => {
   it('narrows a non-scalar error field to unknown', () => {
     // GitHub's error body has an `errors` array. Emitting the spec's own `array` produced a config
     // that `parseConfig` rejected — init must never write config it would refuse to read.
@@ -212,8 +212,8 @@ describe('init emits config besdk itself accepts', () => {
       },
     });
     const generated = renderInitConfig(inspectSpec(spec, 't.yaml'), { specPath: 't.yaml' });
-    expect(() => parseConfig(generated, 'besdk.yaml')).not.toThrow();
-    const config = parseConfig(generated, 'besdk.yaml');
+    expect(() => parseConfig(generated, 'graft.yaml')).not.toThrow();
+    const config = parseConfig(generated, 'graft.yaml');
     expect(config.errors?.default?.schema).toMatchObject({
       message: 'string',
       errors: 'unknown?',

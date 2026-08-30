@@ -6,7 +6,7 @@
  * break it however your language breaks cycles" (SPEC.md §3.2).
  */
 
-import { DIAGNOSTIC_CODES, type Diagnostic } from '@besdk/protocol';
+import { DIAGNOSTIC_CODES, type Diagnostic } from '@graft/protocol';
 import {
   entriesOf,
   isArray,

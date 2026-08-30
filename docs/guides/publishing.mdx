@@ -6,12 +6,12 @@ description: "Getting a generated SDK into npm, PyPI, Go modules, Packagist, Mav
 Generated packages are publishable as-is. `package.json`, `pyproject.toml`, `go.mod`,
 `composer.json`, `pom.xml`, and the `.csproj` are all emitted complete, with the version stamped in.
 
-The split to understand first: **besdk decides what to publish, and CI publishes it.**
+The split to understand first: **graft decides what to publish, and CI publishes it.**
 
 <Steps>
   <Step title="Compute the version and changelog">
     ```sh
-    besdk release openapi.yaml
+    graft release openapi.yaml
     ```
 
     ```
@@ -20,18 +20,18 @@ The split to understand first: **besdk decides what to publish, and CI publishes
       ✗ widgets.archive — method removed
       + widgets.restore — method added
 
-    Wrote .besdk/openapi.sdk-version and CHANGELOG.md
+    Wrote .graft/openapi.sdk-version and CHANGELOG.md
     ```
 
     The bump comes from the *contract* diff, not from commit messages — which is the only way to know
     that a required-ness flip breaks read and write models in opposite directions.
 
-    **Commit `.besdk/<spec>.sdk-version`.** It is how the next run knows what changed.
+    **Commit `.graft/<spec>.sdk-version`.** It is how the next run knows what changed.
   </Step>
 
   <Step title="Regenerate so the version lands in the manifests">
     ```sh
-    besdk generate openapi.yaml
+    graft generate openapi.yaml
     ```
 
     `generate` stamps the version into `package.json`, `pyproject.toml`, `composer.json`, `pom.xml`,
@@ -45,7 +45,7 @@ The split to understand first: **besdk decides what to publish, and CI publishes
   </Step>
 </Steps>
 
-## Why besdk never publishes
+## Why graft never publishes
 
 It runs no `npm publish`, no `twine upload`, no `git push --tags`. A tool that needs registry
 credentials is a tool you will not run locally to see what it would do — and publishing is
@@ -54,10 +54,10 @@ environment-specific anyway. `release` decides; CI publishes, where the secrets 
 ## Scaffolding the workflow
 
 ```sh
-besdk release openapi.yaml --workflow
+graft release openapi.yaml --workflow
 ```
 
-Writes `.github/workflows/release-sdks.yml` **once**. After that the file is yours: besdk will not
+Writes `.github/workflows/release-sdks.yml` **once**. After that the file is yours: graft will not
 overwrite it, because the parts it cannot know — which registry, which branch, whether a human
 approves — are exactly the parts you will change.
 
@@ -66,7 +66,7 @@ It includes a guard worth keeping:
 ```yaml
 verify-up-to-date:
   steps:
-    - run: npx --yes besdk generate openapi.yaml
+    - run: npx --yes graft generate openapi.yaml
     - run: git diff --exit-code
 ```
 
@@ -75,7 +75,7 @@ If regenerating changes anything, what you are about to publish is not what the 
 <Note>
   `--workflow` currently scaffolds jobs for **TypeScript, Python, and Go**. PHP, Java, and .NET need a
   job written by hand — the recipes below are what those jobs do. Maven Central and NuGet both need
-  signing and credential setup that varies by organisation, which is why besdk does not guess at it.
+  signing and credential setup that varies by organisation, which is why graft does not guess at it.
 </Note>
 
 ## Per registry
@@ -137,12 +137,12 @@ If regenerating changes anything, what you are about to publish is not what the 
     ```
 
     `modulePath` is required for a publishable module — Go has no unscoped package names, so without
-    it besdk emits a placeholder and warns rather than guessing at your VCS host.
+    it graft emits a placeholder and warns rather than guessing at your VCS host.
 
     <Warning>
       **A module in a subdirectory is tagged with its path.** `sdks/go/v1.2.3`, not `v1.2.3`. And at
       `2.0.0` and above, the module path itself must end in `/v2` or consumers cannot `go get` it.
-      `besdk release` prints the tag to create and tells you when the major-version suffix applies; it
+      `graft release` prints the tag to create and tells you when the major-version suffix applies; it
       will not rewrite `modulePath` for you, because that changes every import in files you may have
       customised.
     </Warning>
@@ -219,8 +219,8 @@ If regenerating changes anything, what you are about to publish is not what the 
 
 ## The SDK version is not the API version
 
-Stripe's API version is `2026-07-29.dahlia`. Its SDK version is semver. besdk tracks them separately:
-the SDK's version lives in `.besdk/<spec>.sdk-version`, and it is one version per spec across every
+Stripe's API version is `2026-07-29.dahlia`. Its SDK version is semver. graft tracks them separately:
+the SDK's version lives in `.graft/<spec>.sdk-version`, and it is one version per spec across every
 language. Three SDKs from one contract at three different numbers is a support burden with no upside.
 
 <Note>
@@ -246,13 +246,13 @@ language. Three SDKs from one contract at three different numbers is a support b
     for a published artefact.
   </Accordion>
 
-  <Accordion title="Run `besdk check --strict` and mean it">
+  <Accordion title="Run `graft check --strict` and mean it">
     It exits non-zero on anything under-specified, with a config fragment for each finding. Publishing
     an SDK built on guesses commits you to those guesses.
   </Accordion>
 
   <Accordion title="Commit the generated output">
-    Not required, but it makes `besdk diff` and the `verify-up-to-date` guard meaningful, and it lets
+    Not required, but it makes `graft diff` and the `verify-up-to-date` guard meaningful, and it lets
     reviewers see what a spec change did to the public surface.
   </Accordion>
 </AccordionGroup>

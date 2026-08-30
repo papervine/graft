@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime\Tests;
+namespace Graft\Runtime\Tests;
 
-use Besdk\Runtime\ConnectionError;
-use Besdk\Runtime\HttpRequest;
-use Besdk\Runtime\HttpResponse;
-use Besdk\Runtime\Transport;
+use Graft\Runtime\ConnectionError;
+use Graft\Runtime\HttpRequest;
+use Graft\Runtime\HttpResponse;
+use Graft\Runtime\Transport;
 
 /**
  * A transport that replays scripted responses and records what it was asked to send.

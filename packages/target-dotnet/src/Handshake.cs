@@ -1,4 +1,4 @@
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// What this target tells the core about itself (SPEC.md §3.5).

@@ -3,7 +3,7 @@
  *
  * `AGENTS.md` requires that any user-visible change land in `./docs` in the same turn it lands in
  * `SPEC.md`. A rule enforced only by discipline decays, so this enforces it: if a CLI command, a
- * `besdk.yaml` key, an extension key, or a diagnostic code exists in code but appears nowhere in
+ * `graft.yaml` key, an extension key, or a diagnostic code exists in code but appears nowhere in
  * `./docs`, the build fails.
  *
  * Deliberately checks *presence*, not prose quality. A test cannot tell whether documentation is
@@ -14,7 +14,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { BRAND, DIAGNOSTIC_CODES, extensionKey } from '@besdk/protocol';
+import { BRAND, DIAGNOSTIC_CODES, extensionKey } from '@graft/protocol';
 
 const REPO_ROOT = new URL('../../../', import.meta.url).pathname;
 const DOCS_ROOT = join(REPO_ROOT, 'docs');
@@ -63,7 +63,7 @@ describe('CLI surface is documented', () => {
       const text = readFileSync(join(REPO_ROOT, 'packages/cli/src', file), 'utf8');
       for (const match of text.matchAll(/--([a-z][a-z-]{2,})/g)) flags.add(match[1]!);
     }
-    // Not user-facing CLI flags: the handshake flag, and arguments besdk passes to the external
+    // Not user-facing CLI flags: the handshake flag, and arguments graft passes to the external
     // tools it spawns (Prettier, tsc).
     for (const internal of [`${BRAND.name}-protocol`, 'log-level', 'write', 'noEmit']) {
       flags.delete(internal);
@@ -95,7 +95,7 @@ describe('extensions are documented', () => {
     expect(DOCS).toContain(extensionKey(suffix));
   });
 
-  it('documents the vendor extensions besdk reads', () => {
+  it('documents the vendor extensions graft reads', () => {
     const extensions = readFileSync(join(REPO_ROOT, 'packages/core/src/extensions.ts'), 'utf8');
     // Vendor keys are literals in the tier tables, so they can be extracted directly.
     const vendorKeys = new Set(
@@ -107,7 +107,7 @@ describe('extensions are documented', () => {
   });
 });
 
-describe('besdk.yaml keys are documented', () => {
+describe('graft.yaml keys are documented', () => {
   /**
    * Every key a user can type, at any depth and in any schema in the file.
    *

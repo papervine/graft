@@ -1,6 +1,6 @@
 """Unit tests for the hand-written runtime.
 
-No generated code is involved: the runtime is the quality ceiling for every Python SDK besdk
+No generated code is involved: the runtime is the quality ceiling for every Python SDK graft
 produces, so it is tested on its own first (SPEC.md build order, M3 before M4).
 
 Requests go through `httpx.MockTransport`, which exercises the real request-building, retry, and
@@ -12,7 +12,7 @@ from __future__ import annotations
 import httpx
 import pytest
 
-from besdk_runtime import (
+from graft_runtime import (
     NOT_GIVEN,
     APIConnectionTimeoutError,
     AsyncBaseClient,

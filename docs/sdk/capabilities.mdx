@@ -42,7 +42,7 @@ warn: The Java target does not support streaming responses, so `events.stream` w
 Everything else in your spec still generates. A spec with one SSE endpoint and one upload endpoint
 produces a complete Java SDK minus those two methods, not a failure.
 
-This is deliberate and it is the thing to hold besdk to. Every one of these gaps was found as a
+This is deliberate and it is the thing to hold graft to. Every one of these gaps was found as a
 *shipped method that silently did the wrong thing* — a JSON body posted to a multipart endpoint, a
 JSON decoder pointed at an SSE stream. Both compiled. Both passed the language's strictest
 typechecker. Only the server ever objected. A method you can see is missing costs you an afternoon;
@@ -55,12 +55,12 @@ Distinct from the table above: these are absent from every language, so no targe
 | | Status |
 |---|---|
 | WebSocket clients | Not planned. A WebSocket API is not described by OpenAPI, so this would mean reading a second definition format. |
-| Audience or visibility filtering | Not built. `x-besdk-ignore` removes an operation unconditionally, but there is no way to emit a public subset and an internal subset from one spec. |
+| Audience or visibility filtering | Not built. `x-graft-ignore` removes an operation unconditionally, but there is no way to emit a public subset and an internal subset from one spec. |
 | Multi-targeting for .NET | Not built. The `.csproj` pins `net8.0`, so Unity, Xamarin, and .NET Framework consumers are not covered. |
 
 ## Dependencies each SDK adds
 
-The runtime is hand-written and vendored into your package, so nothing at runtime depends on besdk.
+The runtime is hand-written and vendored into your package, so nothing at runtime depends on graft.
 What each package asks of *your* dependency graph:
 
 | Language | Runtime dependencies |

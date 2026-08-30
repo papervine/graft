@@ -1,5 +1,5 @@
 /**
- * Vendor extensions — `x-besdk-*` and other generators' equivalents.
+ * Vendor extensions — `x-graft-*` and other generators' equivalents.
  *
  * **Why extensions exist at all.** A spec cannot say "group these operations under `users`",
  * "this endpoint paginates by cursor", or "the server assigns this field". That information has to
@@ -7,21 +7,21 @@
  *
  * **Why we read other vendors' extensions.** `x-fern-sdk-method-name: list` is the API owner
  * stating, unambiguously, that they want this method called `list`. That intent does not stop
- * being true because it was written for a different generator. Ignoring it would make besdk
+ * being true because it was written for a different generator. Ignoring it would make graft
  * produce worse names than the spec already asks for, and would force a migrating user to
  * re-annotate a spec that is already annotated.
  *
- * **Extensions and config serve different owners**, which is why besdk supports both:
+ * **Extensions and config serve different owners**, which is why graft supports both:
  *   - If you own the spec, annotating it is natural and the intent travels with the API.
  *   - If you are generating from someone else's spec you cannot edit it, so config is the only
  *     option.
  *
  * Precedence, therefore:
  *
- *   1. `besdk.yaml`      — the consumer's explicit override, closest to the person running besdk
- *   2. `x-besdk-*`       — the spec owner's explicit intent *for besdk*
+ *   1. `graft.yaml`      — the consumer's explicit override, closest to the person running graft
+ *   2. `x-graft-*`       — the spec owner's explicit intent *for graft*
  *   3. other vendors' `x-*` — the spec owner's intent for *some* generator; still intent
- *   4. inference         — besdk guessing
+ *   4. inference         — graft guessing
  *
  * **An extension we half-understand is worse than one we ignore**, because the user assumes it was
  * applied. Simple naming keys are read confidently. Complex nested ones whose semantics differ
@@ -29,7 +29,7 @@
  * guessed at — see {@link UNHANDLED_EXTENSIONS}.
  */
 
-import { BRAND, extensionKey } from '@besdk/protocol';
+import { BRAND, extensionKey } from '@graft/protocol';
 import { getBoolean, getObject, getString, isObject, type Json, type JsonObject } from './json.js';
 
 /** Which layer supplied a value. Reported so a surprising name can be traced to its source. */
@@ -83,7 +83,7 @@ const SCHEMA_NAME_KEYS = {
 } as const;
 
 /**
- * Extensions besdk recognizes but does not act on.
+ * Extensions graft recognizes but does not act on.
  *
  * Reported rather than silently ignored: a spec author who wrote `x-fern-pagination` reasonably
  * expects *some* pagination to happen, and saying nothing lets them believe it did. Their
@@ -138,7 +138,7 @@ function tieredBoolean(
 // Operations
 // ---------------------------------------------------------------------------
 
-/** Pagination declared inline on an operation via `x-besdk-pagination`. */
+/** Pagination declared inline on an operation via `x-graft-pagination`. */
 export interface PaginationHint {
   /** `'none'` disables pagination for an operation that merely accepts paging parameters. */
   readonly disabled: boolean;
@@ -220,7 +220,7 @@ export interface PropertyExtensions {
   /**
    * Whether the server assigns this field.
    *
-   * The single most valuable thing an extension can express: it is what besdk cannot infer, and
+   * The single most valuable thing an extension can express: it is what graft cannot infer, and
    * the API owner knows it for certain. Marking it in the spec beats listing field names in
    * config because it lives next to the field and cannot drift.
    */
@@ -244,7 +244,7 @@ export interface ExtensionUsage {
   readonly used: ReadonlyMap<string, number>;
   /** Recognized but unacted-on keys, with the config setting that would work instead. */
   readonly unhandled: ReadonlyMap<string, number>;
-  /** `x-*` keys besdk does not recognize at all, so the user can spot a typo. */
+  /** `x-*` keys graft does not recognize at all, so the user can spot a typo. */
   readonly unknown: ReadonlyMap<string, number>;
 }
 
@@ -264,7 +264,7 @@ const HANDLED_KEYS = new Set<string>([
   extensionKey('client-name'),
 ]);
 
-/** Walk every node, counting `x-` keys by how besdk treats them. */
+/** Walk every node, counting `x-` keys by how graft treats them. */
 export function surveyExtensions(document: Json): ExtensionUsage {
   const used = new Map<string, number>();
   const unhandled = new Map<string, number>();
@@ -294,7 +294,7 @@ export function surveyExtensions(document: Json): ExtensionUsage {
   return { used, unhandled, unknown };
 }
 
-/** Every `x-besdk-*` key besdk understands, for `--help` and documentation. */
+/** Every `x-graft-*` key graft understands, for `--help` and documentation. */
 export function supportedExtensions(): Array<{ key: string; where: string; description: string }> {
   return [
     { key: extensionKey('group'), where: 'operation', description: 'Resource to group under; dotted for nesting (`orgs.invoices`).' },
@@ -304,7 +304,7 @@ export function supportedExtensions(): Array<{ key: string; where: string; descr
     { key: extensionKey('name'), where: 'schema', description: 'Rename the generated type.' },
     { key: extensionKey('server-owned'), where: 'property', description: 'The server assigns this field, so it is omitted from write models.' },
     { key: extensionKey('server-name'), where: 'server', description: 'Name for this server entry.' },
-    { key: extensionKey('client-name'), where: 'document root', description: 'Name of the generated client class. Overridden by `name` in besdk.yaml.' },
+    { key: extensionKey('client-name'), where: 'document root', description: 'Name of the generated client class. Overridden by `name` in graft.yaml.' },
   ];
 }
 

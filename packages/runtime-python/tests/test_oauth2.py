@@ -14,7 +14,7 @@ from typing import Any
 import httpx
 import pytest
 
-from besdk_runtime import (
+from graft_runtime import (
     AsyncBaseClient,
     AsyncTokenSource,
     Auth,
@@ -121,7 +121,7 @@ class TestCachingAndExpiry:
             CLIENT_CREDENTIALS, httpx.Client(transport=httpx.MockTransport(handler))
         )
         clock = [1000.0]
-        monkeypatch.setattr("besdk_runtime._oauth2.time.monotonic", lambda: clock[0])
+        monkeypatch.setattr("graft_runtime._oauth2.time.monotonic", lambda: clock[0])
 
         assert source.token() == "tok_1"
         # 35s in: still inside the 60s lifetime, but past the 30s safety margin.
@@ -134,7 +134,7 @@ class TestCachingAndExpiry:
         transport = token_transport([{"body": {"access_token": "tok"}}], calls)
         source = TokenSource(CLIENT_CREDENTIALS, httpx.Client(transport=transport))
         clock = [1000.0]
-        monkeypatch.setattr("besdk_runtime._oauth2.time.monotonic", lambda: clock[0])
+        monkeypatch.setattr("graft_runtime._oauth2.time.monotonic", lambda: clock[0])
         source.token()
         clock[0] += 86_400
         source.token()
@@ -206,7 +206,7 @@ class TestRefreshTokenFlow:
         )
         source = TokenSource(config, httpx.Client(transport=httpx.MockTransport(handler)))
         clock = [1000.0]
-        monkeypatch.setattr("besdk_runtime._oauth2.time.monotonic", lambda: clock[0])
+        monkeypatch.setattr("graft_runtime._oauth2.time.monotonic", lambda: clock[0])
 
         assert source.token() == "a_1"
         assert "refresh_token=r_0" in calls[0].content.decode()
@@ -398,13 +398,13 @@ class TestRetrySafety:
         assert self.attempts(method) == 1
 
     def test_retries_post_with_a_key(self) -> None:
-        from besdk_runtime import RequestOptions
+        from graft_runtime import RequestOptions
 
         assert self.attempts("post", RequestOptions(idempotency_key="req_abc")) == 3
 
     def test_sends_the_key_on_every_attempt(self) -> None:
         # One key per logical request, never per attempt — the server has to recognise the replay.
-        from besdk_runtime import RequestOptions
+        from graft_runtime import RequestOptions
 
         seen: list[str] = []
         calls = {"n": 0}
@@ -428,7 +428,7 @@ class TestRetrySafety:
         assert seen == ["key_1", "key_1"]
 
     def test_honours_a_configured_header_name(self) -> None:
-        from besdk_runtime import RequestOptions
+        from graft_runtime import RequestOptions
 
         seen: dict[str, str] = {}
 

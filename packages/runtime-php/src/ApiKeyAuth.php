@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 /**
  * An API key, in a header or the query string.
  *
  * The query variant exists because specs declare it, not because it is a good idea — a key in a URL lands
- * in access logs and browser history. besdk honours what the spec says and does not editorialise.
+ * in access logs and browser history. graft honours what the spec says and does not editorialise.
  */
 final class ApiKeyAuth implements Auth
 {

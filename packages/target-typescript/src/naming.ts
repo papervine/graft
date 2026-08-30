@@ -1,13 +1,13 @@
 /**
  * Casing for TypeScript.
  *
- * Deliberately duplicated rather than imported from `@besdk/core`: a target must not depend on
+ * Deliberately duplicated rather than imported from `@graft/core`: a target must not depend on
  * the core (SPEC.md §3.5), and casing is precisely the decision each target owns. The IR hands
  * over token sequences; turning `["user","id"]` into `userId` is this file's job and nobody
  * else's.
  */
 
-import type { IR, Name } from '@besdk/protocol';
+import type { IR, Name } from '@graft/protocol';
 
 function capitalize(token: string): string {
   return token.length === 0 ? token : token[0]!.toUpperCase() + token.slice(1);

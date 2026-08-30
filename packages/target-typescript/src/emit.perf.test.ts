@@ -23,8 +23,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { brandPayload } from '@besdk/protocol';
-import type { Field, IR, Method, NamedType, Resource } from '@besdk/protocol';
+import { brandPayload } from '@graft/protocol';
+import type { Field, IR, Method, NamedType, Resource } from '@graft/protocol';
 import { TypeScriptEmitter } from './emit.js';
 
 const docs = {};

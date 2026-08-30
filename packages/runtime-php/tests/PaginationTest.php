@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime\Tests;
+namespace Graft\Runtime\Tests;
 
-use Besdk\Runtime\HttpResponse;
-use Besdk\Runtime\PaginationScheme;
-use Besdk\Runtime\Paginator;
+use Graft\Runtime\HttpResponse;
+use Graft\Runtime\PaginationScheme;
+use Graft\Runtime\Paginator;
 use PHPUnit\Framework\TestCase;
 
 final class PaginationTest extends TestCase

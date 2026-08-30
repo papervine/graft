@@ -1755,7 +1755,7 @@ export class Api20100401Account {
   }
 
   // Custom methods added between these markers are preserved across regeneration.
-  // Set \`preserve.regions: false\` in besdk.yaml to opt out.
+  // Set \`preserve.regions: false\` in graft.yaml to opt out.
   // #region Api20100401Account
   // #endregion Api20100401Account
 }

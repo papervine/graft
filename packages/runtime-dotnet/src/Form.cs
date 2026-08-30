@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// Encoding a request body as <c>application/x-www-form-urlencoded</c>.

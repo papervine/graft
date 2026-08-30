@@ -1,14 +1,14 @@
 ---
 title: "Architecture"
-description: "How besdk gets from an OpenAPI document to six SDKs, and where each decision is made."
+description: "How graft gets from an OpenAPI document to six SDKs, and where each decision is made."
 ---
 
-You do not need this page to use besdk. It is here for when you want to know why a particular thing
+You do not need this page to use graft. It is here for when you want to know why a particular thing
 came out the way it did, or you are [writing a target](/targets/writing-a-target).
 
 ## Generation goes through an intermediate representation
 
-besdk does not generate code from your OpenAPI document. It generates from a semantic IR.
+graft does not generate code from your OpenAPI document. It generates from a semantic IR.
 
 Your spec is an *input format*, not a data model — too flexible and too irregular to template
 against directly, which is why templated generators produce output that reads as emitted. Every
@@ -47,7 +47,7 @@ Go.
 Inspect it any time:
 
 ```sh
-besdk ir openapi.yaml --summary
+graft ir openapi.yaml --summary
 ```
 
 ## Targets
@@ -76,8 +76,8 @@ typechecker. **Output that does not typecheck fails the build.** Not a warning.
 
 <Note>
   The typecheck gate proves output is *well-formed*, not that it is *useful*. An empty
-  `interface Member {}` typechecks perfectly. That is why besdk also runs conformance tests that
-  exercise generated SDKs against a mock server — and why `besdk check` exists to tell you what your
+  `interface Member {}` typechecks perfectly. That is why graft also runs conformance tests that
+  exercise generated SDKs against a mock server — and why `graft check` exists to tell you what your
   spec left unsaid.
 </Note>
 

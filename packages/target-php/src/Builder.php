@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php;
+namespace Graft\Target\Php;
 
 /**
  * A structured code builder for PHP source.

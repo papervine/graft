@@ -6,7 +6,7 @@ description: "From an OpenAPI document to a publishable SDK in three commands."
 <Steps>
   <Step title="See what your spec does and does not say">
     ```sh
-    besdk check openapi.yaml
+    graft check openapi.yaml
     ```
 
     ```
@@ -31,11 +31,11 @@ description: "From an OpenAPI document to a publishable SDK in three commands."
 
   <Step title="Scaffold a config">
     ```sh
-    besdk init openapi.yaml
+    graft init openapi.yaml
     ```
 
-    Writes `besdk.yaml` with every inference spelled out rather than left implicit, so you can see and
-    override each judgment. Lines marked `REVIEW` are the ones besdk cannot infer:
+    Writes `graft.yaml` with every inference spelled out rather than left implicit, so you can see and
+    override each judgment. Lines marked `REVIEW` are the ones graft cannot infer:
 
     ```yaml
     spec: openapi.yaml
@@ -58,10 +58,10 @@ description: "From an OpenAPI document to a publishable SDK in three commands."
 
   <Step title="Generate">
     ```sh
-    besdk generate openapi.yaml
+    graft generate openapi.yaml
     ```
 
-    Picks up `./besdk.yaml` automatically, formats with the language's canonical formatter, and
+    Picks up `./graft.yaml` automatically, formats with the language's canonical formatter, and
     **fails** if the output does not pass its strict typechecker.
   </Step>
 </Steps>
@@ -71,7 +71,7 @@ description: "From an OpenAPI document to a publishable SDK in three commands."
 One spec, one config, any number of targets. Every judgment above is made once and applies to all of
 them:
 
-```yaml besdk.yaml
+```yaml graft.yaml
 targets:
   typescript: { out: sdks/typescript, packageName: "@acme/sdk" }
   python:     { out: sdks/python,     packageName: acme }
@@ -82,12 +82,12 @@ targets:
 ```
 
 ```sh
-besdk generate openapi.yaml --target python
-besdk generate openapi.yaml               # all of them
+graft generate openapi.yaml --target python
+graft generate openapi.yaml               # all of them
 ```
 
 Check [Language support](/sdk/capabilities) before committing to one — streaming and file uploads are
-not yet available everywhere, and besdk skips those operations with a warning rather than emitting
+not yet available everywhere, and graft skips those operations with a warning rather than emitting
 something that does not work.
 
 ## Use it
@@ -164,8 +164,8 @@ Credentials come from the environment by default; pass them explicitly and the a
 ## Keep it honest in CI
 
 ```sh
-besdk check openapi.yaml --strict   # fail if the spec is vague
-besdk diff  openapi.yaml --strict   # fail if regenerating would break consumers
+graft check openapi.yaml --strict   # fail if the spec is vague
+graft diff  openapi.yaml --strict   # fail if regenerating would break consumers
 ```
 
 `diff` compares the API contract against a committed baseline, so a renamed method or a field that
@@ -175,7 +175,7 @@ became optional cannot ship unnoticed. See [Breaking changes](/guides/breaking-c
 
 <CardGroup cols={2}>
   <Card title="What gets generated" icon="folder-tree" href="/project-structure">
-    The files, and which ones besdk will not overwrite.
+    The files, and which ones graft will not overwrite.
   </Card>
   <Card title="Read and write models" icon="scissors" href="/guides/read-write-models">
     The `split` config, and why it matters more than it looks.
@@ -190,6 +190,6 @@ became optional cannot ship unnoticed. See [Breaking changes](/guides/breaking-c
 
 <Tip>
   Name the client whatever you like. `info.title: "Acme Platform"` yields `AcmePlatform` by default;
-  `name: Acme` in `besdk.yaml` gives you `import { Acme }`, and the package name, environment
+  `name: Acme` in `graft.yaml` gives you `import { Acme }`, and the package name, environment
   variables, README, and examples all follow. See [Naming](/guides/naming).
 </Tip>

@@ -1,7 +1,7 @@
 /**
  * Templated server URLs (SPEC.md §3.4.0.2).
  *
- * The bug these pin: besdk passed a templated URL through untouched, so every request in a generated
+ * The bug these pin: graft passed a templated URL through untouched, so every request in a generated
  * SDK went to a host containing literal braces. A URL with `{region}` in it does not resolve, and the
  * failure surfaced as a DNS error at the first call rather than at generation time.
  */

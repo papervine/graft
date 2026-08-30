@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>One HTTP exchange, as this runtime models it.</summary>
 /// <remarks>

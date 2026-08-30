@@ -83,7 +83,7 @@ export interface OperationView {
   readonly nameKeys: readonly string[];
   /** True when an extension asks for this operation to be left out of the SDK. */
   readonly ignored: boolean;
-  /** Inline pagination declared by `x-besdk-pagination`. */
+  /** Inline pagination declared by `x-graft-pagination`. */
   readonly paginationHint: PaginationHint | undefined;
   readonly parameters: readonly ParameterView[];
   readonly body: BodyView | undefined;

@@ -4,7 +4,7 @@ description: "Generating a Go SDK: context-first methods, typed errors via error
 ---
 
 ```sh
-besdk generate openapi.yaml --target go --out sdks/go
+graft generate openapi.yaml --target go --out sdks/go
 ```
 
 ```go
@@ -19,7 +19,7 @@ if err != nil {
 fmt.Println(widget.ID)
 ```
 
-`widget.ID`, not `widget.Id` — Go capitalises initialisms wholly, and besdk follows.
+`widget.ID`, not `widget.Id` — Go capitalises initialisms wholly, and graft follows.
 
 <Warning>
   Go has no unscoped package name, so set `modulePath`. Without it the generator emits a placeholder
@@ -46,7 +46,7 @@ in a service that needs cancellation or deadlines. A cancelled context is never 
 ## Optional fields take pointers
 
 Go has no literal syntax for the address of a constant — `&50` does not compile — so every Go SDK
-ships pointer helpers, and besdk generates them:
+ships pointer helpers, and graft generates them:
 
 ```go
 params := &acme.WidgetsListParams{
@@ -64,7 +64,7 @@ name := acme.Deref(widget.Name)
 <Note>
   A required field is a plain value; only optional ones are pointers. The exception is a field that
   would make its struct infinitely sized — a struct containing itself by value does not compile in Go,
-  so besdk pointer-ises exactly the field that closes the cycle and leaves the rest alone.
+  so graft pointer-ises exactly the field that closes the cycle and leaves the rest alone.
 </Note>
 
 ## Pagination is an iterator

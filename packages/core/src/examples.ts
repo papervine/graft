@@ -20,7 +20,7 @@ import type {
   NamedType,
   PaginationScheme,
   TypeRef,
-} from '@besdk/protocol';
+} from '@graft/protocol';
 
 /** JSON, as it would appear on the wire. */
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
@@ -212,7 +212,7 @@ function lastPage(ir: IR, method: Method, value: Json, scheme: PaginationScheme)
   // but only the explicit one tells a reader why the test asserts a single page. That matters when the
   // envelope also carries a `has_more`-style flag the scheme does not read: `has_more: true` beside nothing
   // reads as a bug in the SDK, and beside `next_cursor: null` reads as what it is, an API that offers two
-  // signals of which besdk uses the authoritative one.
+  // signals of which graft uses the authoritative one.
   //
   // Guarded on the field being *declared*, because inventing one would make the fixture fail the SDK's own
   // response validation — a confusing way to learn about pagination.

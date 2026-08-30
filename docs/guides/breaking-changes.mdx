@@ -7,7 +7,7 @@ Regenerating an SDK is not like rebuilding an app. Your users depend on the surf
 method or a field that quietly became optional is *their* problem, at a time you chose by accident.
 
 ```sh
-besdk diff openapi.yaml --strict
+graft diff openapi.yaml --strict
 ```
 
 ```
@@ -22,7 +22,7 @@ besdk diff openapi.yaml --strict
 ## It compares the contract, not the text
 
 A file diff cannot answer this question: reformatting registers as a change, and a renamed method
-looks like one removal plus one addition. `besdk diff` compares the **intermediate
+looks like one removal plus one addition. `graft diff` compares the **intermediate
 representation** — the API contract — so every finding is expressed in terms of what breaks.
 
 It also means the analysis is language-neutral. One diff covers every target.
@@ -32,15 +32,15 @@ It also means the analysis is language-neutral. One diff covers every target.
 <Steps>
   <Step title="Generate once to create a baseline">
     ```sh
-    besdk generate openapi.yaml
+    graft generate openapi.yaml
     ```
 
-    Writes `.besdk/<spec>.ir.json`. **Commit it** — it is the comparison point.
+    Writes `.graft/<spec>.ir.json`. **Commit it** — it is the comparison point.
   </Step>
 
   <Step title="Gate CI on it">
     ```sh
-    besdk diff openapi.yaml --strict
+    graft diff openapi.yaml --strict
     ```
 
     Exits `1` on any breaking change.
@@ -48,7 +48,7 @@ It also means the analysis is language-neutral. One diff covers every target.
 
   <Step title="Accept changes deliberately">
     ```sh
-    besdk diff openapi.yaml --accept
+    graft diff openapi.yaml --accept
     ```
 
     Updates the baseline. `generate` will never overwrite it — the baseline is written only when it
@@ -84,7 +84,7 @@ different host.
 ## Machine-readable
 
 ```sh
-besdk diff openapi.yaml --json
+graft diff openapi.yaml --json
 ```
 
 ```json
@@ -94,6 +94,6 @@ besdk diff openapi.yaml --json
 `bump` is the semver bump the change set implies — `major`, `minor`, `patch`, or `none`.
 
 <Note>
-  besdk reports the implied bump but does not apply it to your `package.json`. Deciding your own
+  graft reports the implied bump but does not apply it to your `package.json`. Deciding your own
   version is not something a generator should do for you.
 </Note>

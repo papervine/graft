@@ -29,13 +29,13 @@ importers:
 
   packages/cli:
     dependencies:
-      '@besdk/core':
+      '@graft/core':
         specifier: workspace:*
         version: link:../core
-      '@besdk/protocol':
+      '@graft/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@besdk/target-typescript':
+      '@graft/target-typescript':
         specifier: workspace:*
         version: link:../target-typescript
       picocolors:
@@ -54,7 +54,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@besdk/protocol':
+      '@graft/protocol':
         specifier: workspace:*
         version: link:../protocol
       yaml:
@@ -98,10 +98,10 @@ importers:
 
   packages/target-typescript:
     dependencies:
-      '@besdk/protocol':
+      '@graft/protocol':
         specifier: workspace:*
         version: link:../protocol
-      '@besdk/runtime-typescript':
+      '@graft/runtime-typescript':
         specifier: workspace:*
         version: link:../runtime-typescript
       ts-morph:

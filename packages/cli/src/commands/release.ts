@@ -1,7 +1,7 @@
 /**
- * `besdk release` — compute the next version and the changelog (SPEC.md §3.5.1).
+ * `graft release` — compute the next version and the changelog (SPEC.md §3.5.1).
  *
- * Writes two things and publishes nothing. That split is deliberate: besdk owns what needs contract
+ * Writes two things and publishes nothing. That split is deliberate: graft owns what needs contract
  * knowledge, and a tool holding registry credentials is a tool nobody runs locally to see what it would
  * do.
  */
@@ -9,7 +9,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { BRAND } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
 import {
   buildIR,
   diffIR,
@@ -19,10 +19,10 @@ import {
   renderChangelogEntry,
   SpecLoadError,
   type ReleasePlan,
-} from '@besdk/core';
-import type { IR } from '@besdk/protocol';
+} from '@graft/core';
+import type { IR } from '@graft/protocol';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
-import type { Config } from '@besdk/core';
+import type { Config } from '@graft/core';
 import type { CommandContext } from './context.js';
 import { resolveConfig } from './ir.js';
 import { defaultBaselinePath } from './diff.js';
@@ -182,7 +182,7 @@ export async function runRelease(args: ParsedArgs, ctx: CommandContext): Promise
  *
  * Emitted rather than executed. Publishing needs registry credentials, and a tool that needs
  * credentials is one nobody runs locally to see what it would do — so the steps live where the secrets
- * already are. It is also the only honest place for the parts besdk cannot know: which registry, which
+ * already are. It is also the only honest place for the parts graft cannot know: which registry, which
  * branch, whether a human approves.
  *
  * Written once and then owned by the user. Regenerating it would overwrite the customisations that

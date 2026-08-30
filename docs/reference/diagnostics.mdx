@@ -1,19 +1,19 @@
 ---
 title: "Diagnostics"
-description: "Every code besdk reports, what it means, and how to resolve it."
+description: "Every code graft reports, what it means, and how to resolve it."
 ---
 
 Codes are stable — people suppress them in config and grep them in CI logs — so they are treated as
-a public contract. Every warning carries a `besdk.yaml` fragment that resolves it.
+a public contract. Every warning carries a `graft.yaml` fragment that resolves it.
 
-Severities: **error** stops the run, **warn** is gated by `--strict`, **info** is besdk telling you
+Severities: **error** stops the run, **warn** is gated by `--strict`, **info** is graft telling you
 what it decided.
 
 ## Models — `M`
 
 ### `M001` — read/write conflation
 **warn.** A schema is used as both a request and a response body, so write methods would accept
-fields the server assigns. This is the highest-leverage finding besdk produces: the result compiles,
+fields the server assigns. This is the highest-leverage finding graft produces: the result compiles,
 which is why nothing else catches it.
 
 ```yaml
@@ -39,7 +39,7 @@ models:
 **info.** Structurally identical inline schemas were collapsed into one named type.
 
 ### `M004` — name synthesized
-**info.** A name was generated for an anonymous inline schema. Override with `x-besdk-name` or
+**info.** A name was generated for an anonymous inline schema. Override with `x-graft-name` or
 `models.<schema>.rename`.
 
 ## Errors — `E`
@@ -60,7 +60,7 @@ pagination structure. Without configuration its method returns a single page ins
 
 ### `P002` — pagination unresolved
 **info.** An operation accepts paging parameters but does not appear to return a collection, so
-besdk did **not** paginate it. Usually means a shared parameter block was applied to every
+graft did **not** paginate it. Usually means a shared parameter block was applied to every
 operation. Override per operation if one of them really does page.
 
 See [Pagination](/sdk/pagination).
@@ -94,7 +94,7 @@ so callers must narrow before use.
 ## Spec — `S`
 
 ### `S001` — spec violation tolerated
-**warn.** The document deviates from OpenAPI and besdk absorbed it: a missing `openapi` version, an
+**warn.** The document deviates from OpenAPI and graft absorbed it: a missing `openapi` version, an
 unresolvable `$ref`, a config key naming a field that does not exist. Tolerating malformed specs is
 a feature; not telling you would not be.
 
@@ -124,7 +124,7 @@ wrong to anyone reading it, where `https://.api.example.com` looks plausible and
 **warn.** Your spec declares webhooks, so the SDK has typed events — but no `webhooks.signature` is
 configured, so it cannot verify that a payload actually came from your API.
 
-```yaml besdk.yaml
+```yaml graft.yaml
 webhooks:
   signature:
     header: Stripe-Signature
@@ -135,8 +135,8 @@ webhooks:
 ```
 
 A warning rather than an error, because typed events are useful alone and your spec is not at fault:
-OpenAPI has no field describing a signature scheme, so besdk cannot infer one. But it has to be *said* —
-the failure mode of not knowing is accepting forged requests, and unlike most gaps besdk reports, nothing
+OpenAPI has no field describing a signature scheme, so graft cannot infer one. But it has to be *said* —
+the failure mode of not knowing is accepting forged requests, and unlike most gaps graft reports, nothing
 downstream will ever surface this one.
 
 No verifier is emitted until you configure it. See [Webhooks](/sdk/webhooks) for why an unconfigured
@@ -153,16 +153,16 @@ it does not understand produces a subtly wrong SDK, which is worse than no SDK.
 
 ### `A001` — no usable OAuth2 flow
 
-The security scheme declares OAuth2 but no flow besdk can perform, so the generated client accepts a
+The security scheme declares OAuth2 but no flow graft can perform, so the generated client accepts a
 token directly. Obtain one however your provider requires and pass it as `token`.
 
 This also covers `openIdConnect`, which points at a discovery document rather than declaring flows.
-Fetching it would make generation depend on the network, so besdk does not.
+Fetching it would make generation depend on the network, so graft does not.
 
 ### `A002` — authorization-code flow
 
 Informational, not a problem. The redirect needs a browser and a human, so it stays your
-application's job — besdk will not pretend to own it. Pass the resulting access token as `token`, or a
+application's job — graft will not pretend to own it. Pass the resulting access token as `token`, or a
 refresh token to have the SDK keep it current.
 
 ```ts
@@ -171,7 +171,7 @@ const client = new Acme({ refreshToken: process.env.ACME_REFRESH_TOKEN });
 
 ### `A003` — deprecated flow only
 
-The scheme declares only the implicit or password flow. Both are deprecated by OAuth 2.1 and besdk
+The scheme declares only the implicit or password flow. Both are deprecated by OAuth 2.1 and graft
 does not implement them; the client accepts a token instead.
 
 ## Unions
@@ -216,7 +216,7 @@ discriminator:
     simple: "#/components/schemas/validation-error-simple"
 ```
 
-besdk then narrows each branch on that property, so callers can switch on it — see
+graft then narrows each branch on that property, so callers can switch on it — see
 [Discriminated unions](/guides/read-write-models#discriminated-unions).
 
 <Note>

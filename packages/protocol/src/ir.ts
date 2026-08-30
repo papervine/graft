@@ -1,5 +1,5 @@
 /**
- * The besdk semantic IR.
+ * The graft semantic IR.
  *
  * This file is the public contract between the core and every target. See SPEC.md §3.2
  * (Semantic IR) and §3.5 (target protocol).
@@ -561,7 +561,7 @@ export const ServerSchema = z.object({
    * The base URL with every variable replaced by its default.
    *
    * Resolved here rather than left templated so that a target which knows nothing about variables
-   * still produces a working SDK. besdk previously passed the template through untouched, and every
+   * still produces a working SDK. graft previously passed the template through untouched, and every
    * request went to a host containing literal braces, which does not resolve.
    */
   url: z.string(),
@@ -610,7 +610,7 @@ export type Service = z.infer<typeof ServiceSchema>;
  * schema, which is a named type plus a key. `signature` is a *descriptor for a hand-written verifier*,
  * because a generated HMAC comparison is short, security-critical, and has three ways to be subtly wrong.
  *
- * `signature` is absent unless configured. OpenAPI has no field describing a signature scheme, so besdk
+ * `signature` is absent unless configured. OpenAPI has no field describing a signature scheme, so graft
  * cannot infer one — and a `verify()` returning true because it checked something meaningless is strictly
  * worse than its absence.
  */

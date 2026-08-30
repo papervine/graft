@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Options are the target-specific settings from besdk.yaml.
+// Options are the target-specific settings from graft.yaml.
 type Options struct {
 	// ModulePath is the Go module path, e.g. github.com/acme/acme-go. Required for a publishable
 	// module; Go has no equivalent of an unscoped package name.
@@ -19,7 +19,7 @@ type Options struct {
 	// IdempotencyHeader is the header an idempotency key is sent in, when the API does not use the
 	// default. Empty means DefaultIdempotencyHeader.
 	IdempotencyHeader string `json:"idempotencyHeader"`
-	// SDKVersion is the released version recorded by `besdk release`. Distinct from the API's own
+	// SDKVersion is the released version recorded by `graft release`. Distinct from the API's own
 	// version, which is not a package version (SPEC.md §3.5.1).
 	SDKVersion string `json:"sdkVersion"`
 }

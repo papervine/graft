@@ -2,14 +2,14 @@
  * What this target tells the core about itself.
  *
  * Both assertions here pin bugs that were live. The capability list claimed two of the five things this
- * target emits, and `besdk targets` prints that list — so an author reading the reference target to see
+ * target emits, and `graft targets` prints that list — so an author reading the reference target to see
  * what is expected of theirs was told less than the truth. And no gates were declared at all, which the
  * core papered over with a hardcoded prettier-and-tsc branch: the language-specific table SPEC.md §3.7
  * exists to prevent, kept alive for the one target that ships the protocol.
  */
 
 import { describe, expect, it } from 'vitest';
-import { IR_VERSION } from '@besdk/protocol';
+import { IR_VERSION } from '@graft/protocol';
 import { handshake } from './index.js';
 
 describe('handshake', () => {

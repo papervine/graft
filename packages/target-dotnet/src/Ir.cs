@@ -1,4 +1,4 @@
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// Reading the IR without lying about its type.

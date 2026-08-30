@@ -198,7 +198,7 @@ describe('mergePackageJson', () => {
     expect(JSON.parse(text).author).toBe('Jeff');
   });
 
-  it('keeps generated values for fields besdk owns', () => {
+  it('keeps generated values for fields graft owns', () => {
     // Renaming the package is a config decision, not something a stale file should win.
     const existing = JSON.stringify({ name: '@stale/name', version: '0.0.1' });
     const { text } = mergePackageJson(generated, existing);

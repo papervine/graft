@@ -1,10 +1,10 @@
-// Package besdk is the hand-written runtime vendored into every generated Go SDK.
+// Package graft is the hand-written runtime vendored into every generated Go SDK.
 //
 // Nothing here is generated, so this is where care is affordable. Generated code is a thin,
 // well-named surface over it (AGENTS.md, "Quality bar").
 //
 // A generated SDK copies this package in as `internal/core`, so the published module depends only on
-// the standard library — no dependency on besdk, and nothing to strand a user.
+// the standard library — no dependency on graft, and nothing to strand a user.
 package core
 
 import (
@@ -27,7 +27,7 @@ type SDKError interface {
 // Matched with errors.As, which is Go's own mechanism for narrowing — the equivalent of `except` in
 // Python and `instanceof` in TypeScript:
 //
-//	var apiErr *besdk.APIError
+//	var apiErr *graft.APIError
 //	if errors.As(err, &apiErr) && apiErr.StatusCode == http.StatusNotFound {
 //		// ...
 //	}
@@ -36,7 +36,7 @@ type APIError struct {
 	StatusCode int
 	// Message is the server's own message where it supplied one, otherwise the HTTP status text.
 	Message string
-	// Body is the raw response body, kept verbatim so a caller can decode a shape besdk did not
+	// Body is the raw response body, kept verbatim so a caller can decode a shape graft did not
 	// know about. Capped, because an error need not carry a megabyte of HTML.
 	Body []byte
 	// RequestID is the first request-correlation header present. Surfaced deliberately: it is the

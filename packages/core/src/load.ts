@@ -9,7 +9,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { parse as parseYaml } from 'yaml';
-import { BRAND, DIAGNOSTIC_CODES, type Diagnostic } from '@besdk/protocol';
+import { BRAND, DIAGNOSTIC_CODES, type Diagnostic } from '@graft/protocol';
 import { getString, isObject, type JsonObject } from './json.js';
 
 /** Which OpenAPI dialect the document uses. The two differ in ways the normalizer cares about. */

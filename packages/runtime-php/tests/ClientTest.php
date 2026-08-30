@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime\Tests;
+namespace Graft\Runtime\Tests;
 
-use Besdk\Runtime\ApiError;
-use Besdk\Runtime\BearerAuth;
-use Besdk\Runtime\Client;
-use Besdk\Runtime\ConnectionError;
-use Besdk\Runtime\DecodeError;
-use Besdk\Runtime\HttpResponse;
-use Besdk\Runtime\InternalServerError;
-use Besdk\Runtime\NotFoundError;
-use Besdk\Runtime\RateLimitError;
-use Besdk\Runtime\RequestOptions;
+use Graft\Runtime\ApiError;
+use Graft\Runtime\BearerAuth;
+use Graft\Runtime\Client;
+use Graft\Runtime\ConnectionError;
+use Graft\Runtime\DecodeError;
+use Graft\Runtime\HttpResponse;
+use Graft\Runtime\InternalServerError;
+use Graft\Runtime\NotFoundError;
+use Graft\Runtime\RateLimitError;
+use Graft\Runtime\RequestOptions;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

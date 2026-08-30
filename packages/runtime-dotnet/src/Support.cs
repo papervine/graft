@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// Helpers generated models call.

@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>Configuration for an OAuth2 token source (SPEC.md §3.1.6).</summary>
 public sealed record OAuth2Config

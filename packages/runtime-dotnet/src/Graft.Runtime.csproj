@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    No package references, deliberately. `System.Text.Json` and `System.Net.Http` are both in the BCL, so a
+    generated SDK has nothing that can conflict with what its consumer already depends on — which is the same
+    goal the Java target reaches by hand-writing a JSON parser, achieved here for free (SPEC.md §3.3.11).
+  -->
+  <PropertyGroup>
+    <RootNamespace>Graft.Runtime</RootNamespace>
+    <AssemblyName>Graft.Runtime</AssemblyName>
+  </PropertyGroup>
+
+</Project>

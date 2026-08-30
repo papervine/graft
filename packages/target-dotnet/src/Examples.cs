@@ -1,11 +1,11 @@
-using Besdk.Runtime;
+using Graft.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// Per-operation examples and tests (SPEC.md §3.11).

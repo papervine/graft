@@ -1,4 +1,4 @@
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>How strictly a response is checked against the shape the spec declared (SPEC.md §3.4.1.1).</summary>
 public enum ValidationMode

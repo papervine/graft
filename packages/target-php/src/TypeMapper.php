@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php;
+namespace Graft\Target\Php;
 
 /**
  * IR type references to PHP types.

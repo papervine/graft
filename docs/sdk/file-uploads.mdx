@@ -51,7 +51,7 @@ type in your spec is the whole trigger.
 Whatever your spec declares as `format: binary`. In TypeScript that is a `Blob`, in Python `bytes`, in Go
 `[]byte` — so the runtime can tell a file from a text field by its type alone.
 
-PHP, Java, and C# have no distinct binary type, so a binary field is a `string` there. besdk passes the
+PHP, Java, and C# have no distinct binary type, so a binary field is a `string` there. graft passes the
 binary field names from the spec instead, which is why an upload works identically in all six even though
 three of them cannot see the difference:
 

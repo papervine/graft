@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>How a request proves who is making it.</summary>
 public interface IAuth
@@ -80,7 +80,7 @@ public sealed class BasicAuth : IAuth
 /// </summary>
 /// <remarks>
 /// The query variant exists because specs declare it, not because it is a good idea — a key in a URL lands in
-/// access logs and browser history. besdk honours what the spec says and does not editorialise.
+/// access logs and browser history. graft honours what the spec says and does not editorialise.
 /// </remarks>
 public sealed class ApiKeyAuth : IAuth
 {

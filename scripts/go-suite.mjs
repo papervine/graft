@@ -8,8 +8,8 @@
  * contributor working only on the TypeScript target should not need a Go toolchain to run
  * `pnpm verify`. CI installs it, so the suite is enforced where enforcement matters. The skip is loud.
  *
- * The build step is not optional even in "test" mode: `corpus/kitchen-sink/besdk.yaml` points the Go
- * target at `packages/target-go/bin/besdk-target-go`, so a stale binary would silently generate from
+ * The build step is not optional even in "test" mode: `corpus/kitchen-sink/graft.yaml` points the Go
+ * target at `packages/target-go/bin/graft-target-go`, so a stale binary would silently generate from
  * yesterday's emitter.
  */
 
@@ -39,7 +39,7 @@ if (go === undefined) {
 }
 
 const steps = [
-  ['target: build binary', ['build', '-o', 'bin/besdk-target-go', './cmd/besdk-target-go'], 'packages/target-go'],
+  ['target: build binary', ['build', '-o', 'bin/graft-target-go', './cmd/graft-target-go'], 'packages/target-go'],
   ['runtime: vet', ['vet', './...'], 'packages/runtime-go'],
   ['runtime: test', ['test', './...'], 'packages/runtime-go'],
   ['target: vet', ['vet', './...'], 'packages/target-go'],

@@ -1,5 +1,5 @@
 /**
- * `besdk.yaml` — the config overlay.
+ * `graft.yaml` — the config overlay.
  *
  * This is a primary user-facing surface, not a patch kit (SPEC.md "Enrichment, not just
  * translation"). Most of what makes output good on a real spec is expressed here, so the
@@ -126,12 +126,12 @@ const TargetConfigSchema = z
     out: z.string().min(1),
     packageName: z.string().optional(),
     /**
-     * How to run the target, when it is not `besdk-target-<name>` on `PATH`.
+     * How to run the target, when it is not `graft-target-<name>` on `PATH`.
      *
      * An argv array, so no shell is involved and a path containing a space needs no quoting. It is
      * the escape hatch for a target that lives in a virtualenv, a monorepo checkout, or behind a
-     * launcher (`["uv", "run", "besdk-target-python"]`). Resolution order is this key, then an
-     * installed `@besdk/target-<name>` package, then `PATH`.
+     * launcher (`["uv", "run", "graft-target-python"]`). Resolution order is this key, then an
+     * installed `@graft/target-<name>` package, then `PATH`.
      */
     command: z.array(z.string().min(1)).min(1).optional(),
     /**
@@ -245,8 +245,8 @@ export const ConfigSchema = z
     preserve: z
       .object({
         /**
-         * Files besdk must never write. Gitignore-style globs, relative to the output directory.
-         * `.besdkignore` in the output directory is read as well.
+         * Files graft must never write. Gitignore-style globs, relative to the output directory.
+         * `.graftignore` in the output directory is read as well.
          */
         files: z.array(z.string().min(1)).optional(),
         /**
@@ -265,7 +265,7 @@ export const ConfigSchema = z
       .object({
         /**
          * Extra words used to split all-lowercase compounds, e.g. adding `clerk` turns
-         * `syncclerk` into `syncClerk`. Merged with besdk's built-in vocabulary.
+         * `syncclerk` into `syncClerk`. Merged with graft's built-in vocabulary.
          */
         words: z.array(z.string().min(2)).optional(),
       })

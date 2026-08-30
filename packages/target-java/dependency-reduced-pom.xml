@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>dev.besdk</groupId>
+  <groupId>dev.graft</groupId>
   <artifactId>target-java</artifactId>
-  <name>besdk Java target</name>
+  <name>graft Java target</name>
   <version>0.0.0</version>
   <description>IR JSON on stdin, a file manifest on stdout.</description>
   <build>
@@ -32,10 +32,10 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <finalName>besdk-target-java</finalName>
+              <finalName>graft-target-java</finalName>
               <transformers>
                 <transformer>
-                  <mainClass>besdk.target.java.Main</mainClass>
+                  <mainClass>graft.target.java.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>

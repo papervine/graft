@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 /** One HTTP exchange, as this runtime models it. */
 final class HttpRequest

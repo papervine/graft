@@ -1,5 +1,5 @@
 /**
- * Diagnostics — the shared vocabulary for everything besdk has to *tell* the user.
+ * Diagnostics — the shared vocabulary for everything graft has to *tell* the user.
  *
  * This type is in `protocol/` rather than `core/` because targets emit diagnostics too, and
  * they travel back across the subprocess boundary in the manifest (SPEC.md §3.5).
@@ -7,7 +7,7 @@
  * Design note: `fix` is not optional decoration. On an under-specified spec the tool's job
  * includes saying what the spec fails to say (SPEC.md "Enrichment, not just translation"),
  * and a diagnostic the user cannot act on has not done that job. Prefer a copy-pasteable
- * `besdk.yaml` fragment over prose.
+ * `graft.yaml` fragment over prose.
  */
 
 import { z } from 'zod';
@@ -97,7 +97,7 @@ export const DIAGNOSTIC_CODES = {
    * The spec declares webhooks but no signature scheme is configured, so no verifier is emitted.
    *
    * A warning rather than an error, because typed events are useful on their own and the spec is not at
-   * fault: OpenAPI has no field describing a signature scheme, so besdk cannot infer one. But it must be
+   * fault: OpenAPI has no field describing a signature scheme, so graft cannot infer one. But it must be
    * *said*, because the failure mode of not knowing is accepting forged requests — and unlike most gaps in
    * this list, nothing downstream will ever surface it.
    */
@@ -116,18 +116,18 @@ export const DiagnosticSchema = z.object({
   message: z.string().min(1),
   /** Supporting lines — the specific schemas, operations, or counts involved. */
   detail: z.array(z.string()).optional(),
-  /** A copy-pasteable `besdk.yaml` fragment that resolves this. */
+  /** A copy-pasteable `graft.yaml` fragment that resolves this. */
   fix: z.string().optional(),
   /** JSON pointer into the source spec, when a single site is responsible. */
   sourcePointer: z.string().optional(),
   /** How many sites this diagnostic aggregates, when it was rolled up. */
   count: z.number().int().positive().optional(),
   /**
-   * Dotted `besdk.yaml` paths that answer this diagnostic, e.g. `models.Widget.split`.
+   * Dotted `graft.yaml` paths that answer this diagnostic, e.g. `models.Widget.split`.
    *
    * Machine-readable alongside the human `fix`, so `check` can stop reporting something the user has
-   * already resolved. Without it `check` had no idea: `besdk init` wrote the split, the required
-   * fields, and the pagination scheme into `besdk.yaml`, and `check` reported all three anyway — which
+   * already resolved. Without it `check` had no idea: `graft init` wrote the split, the required
+   * fields, and the pagination scheme into `graft.yaml`, and `check` reported all three anyway — which
    * meant `--strict` could never pass and the documented CI gate was unusable.
    *
    * Declared *by the diagnostic that raises it*, deliberately. A separate table mapping codes to

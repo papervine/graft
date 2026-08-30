@@ -11,7 +11,7 @@
 import { describe, expect, it } from 'vitest';
 import { stringify } from 'yaml';
 import { buildIR, inspectSpec } from './index.js';
-import type { Method } from '@besdk/protocol';
+import type { Method } from '@graft/protocol';
 
 function build(paths: unknown, schemas: unknown = {}, config: Parameters<typeof buildIR>[1] = {}) {
   const yaml = stringify({
@@ -244,7 +244,7 @@ describe('example synthesis', () => {
       '/orgs/{orgId}/invoices': {
         get: {
           operationId: 'listInvoices',
-          'x-besdk-group': 'orgs.invoices',
+          'x-graft-group': 'orgs.invoices',
           parameters: [{ name: 'orgId', in: 'path', required: true, schema: { type: 'string' } }],
           responses: okJson({ type: 'array', items: { type: 'string' } }),
         },

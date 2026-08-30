@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php;
+namespace Graft\Target\Php;
 
 /**
  * Planning the runtime validation descriptor table (SPEC.md §3.4.1.1).

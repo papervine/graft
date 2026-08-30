@@ -28,7 +28,7 @@ import { BRAND, extensionKey,
   type TypeRef,
   type Diagnostic,
   DIAGNOSTIC_CODES,
-} from '@besdk/protocol';
+} from '@graft/protocol';
 import {
   entriesOf,
   getArray,
@@ -89,7 +89,7 @@ const GENERIC_LEAF_TOKENS = new Set([
  *
  * A model called `Error` or `Response` exported from an SDK is a genuine hazard: importing it
  * shadows the built-in for that module, and the failure is confusing rather than loud. This
- * applies only to names *besdk chooses*. A component the spec itself names `Event` keeps that
+ * applies only to names *graft chooses*. A component the spec itself names `Event` keeps that
  * name — renaming what the API author declared would be more surprising than the shadowing.
  */
 const RESERVED_TYPE_NAMES = new Set([
@@ -229,7 +229,7 @@ class IRBuilder {
   private buildService() {
     const document = this.inspection.spec.document;
     const info = getObject(document, 'info');
-    // Precedence: config > `x-besdk-client-name` on the document > `info.title`.
+    // Precedence: config > `x-graft-client-name` on the document > `info.title`.
     const declared =
       this.config.name ??
       getString(this.inspection.spec.document, extensionKey('client-name')) ??
@@ -282,7 +282,7 @@ class IRBuilder {
    * Narrow each discriminated union's member types on their discriminator field.
    *
    * The spec already said this: a `discriminator.mapping` entry asserts that a schema carries a
-   * particular value in a particular field. besdk was recording the mapping and then typing the field
+   * particular value in a particular field. graft was recording the mapping and then typing the field
    * as `string`, which left a union nobody could use — TypeScript cannot narrow on a non-literal, and
    * pydantic has nothing to dispatch on.
    *
@@ -681,7 +681,7 @@ class IRBuilder {
     );
 
     return Object.entries(properties)
-      // A property the spec marks `x-besdk-ignore` never becomes a field at all, so it cannot
+      // A property the spec marks `x-graft-ignore` never becomes a field at all, so it cannot
       // leak into a read model either.
       .filter(([, raw]) => !(isObject(raw) && readPropertyExtensions(raw).ignore?.value === true))
       .map(([wireName, raw]) => {
@@ -692,7 +692,7 @@ class IRBuilder {
         wireName,
         type: this.toTypeRef(node, [...nameHint, ...tokens]),
         required: declaredRequired.has(wireName) || extraRequired.has(wireName),
-        // `x-besdk-server-owned` on the property beats listing names in config: it lives next to
+        // `x-graft-server-owned` on the property beats listing names in config: it lives next to
         // the field and cannot drift out of sync with a rename.
         serverOwned: readPropertyExtensions(node).serverOwned?.value === true,
         readOnly: node['readOnly'] === true,
@@ -947,7 +947,7 @@ class IRBuilder {
     return this.models[schemaName];
   }
 
-  /** `x-besdk-name` on the schema, used when config does not rename it. */
+  /** `x-graft-name` on the schema, used when config does not rename it. */
   private schemaExtensionName(schemaName: string): string | undefined {
     const schema = this.inspection.resolved.schemas.get(schemaName);
     return schema === undefined ? undefined : readSchemaExtensions(schema).name?.value;
@@ -1382,7 +1382,7 @@ class IRBuilder {
    * Webhooks the API sends, from whichever dialect the spec used.
    *
    * Three sources, in precedence order: OpenAPI 3.1's top-level `webhooks`, `x-webhooks` (what Fern,
-   * Speakeasy, and Redocly all read), and `x-besdk-webhooks`. Reading all three follows §3.1.5: another
+   * Speakeasy, and Redocly all read), and `x-graft-webhooks`. Reading all three follows §3.1.5: another
    * tool's annotation still states the API owner's intent.
    *
    * 3.0's per-operation `callbacks` is deliberately *not* a source. It means something different — "this
@@ -1417,7 +1417,7 @@ class IRBuilder {
 
     if (configured === undefined) {
       // Said out loud, because the failure mode of *not knowing* is accepting forged requests — and unlike
-      // most gaps besdk reports, nothing downstream will ever surface this one. `resolvedBy` names the key
+      // most gaps graft reports, nothing downstream will ever surface this one. `resolvedBy` names the key
       // that closes it, so `check --strict` can pass once it is set.
       this.diagnostics.push({
         code: DIAGNOSTIC_CODES.WEBHOOK_NO_SIGNATURE_SCHEME,

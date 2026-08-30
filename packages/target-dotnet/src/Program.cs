@@ -1,17 +1,17 @@
-using Besdk.Runtime;
+using Graft.Runtime;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// The target protocol entry point (SPEC.md §3.5).
 /// </summary>
 /// <remarks>
 /// <para>
-/// <c>besdk-target-dotnet --sdk-target-protocol</c> prints a handshake; with no flag it reads IR JSON on stdin and
+/// <c>graft-target-dotnet --sdk-target-protocol</c> prints a handshake; with no flag it reads IR JSON on stdin and
 /// writes a manifest on stdout.
 /// </para>
 /// <para>
-/// Nothing here imports anything from besdk's core: the contract is the JSON, which is what makes a target in
+/// Nothing here imports anything from graft's core: the contract is the JSON, which is what makes a target in
 /// <i>any</i> language possible. The one thing it shares with the runtime is the JSON layer, which is a build
 /// dependency of the generator rather than a runtime dependency of generated SDKs.
 /// </para>
@@ -31,7 +31,7 @@ internal static class Program
     var stdin = Console.In.ReadToEnd();
     if (string.IsNullOrWhiteSpace(stdin))
     {
-      Console.Error.WriteLine("besdk-target-dotnet: expected IR JSON on stdin");
+      Console.Error.WriteLine("graft-target-dotnet: expected IR JSON on stdin");
       return 2;
     }
 
@@ -42,14 +42,14 @@ internal static class Program
     }
     catch (DecodeException error)
     {
-      Console.Error.WriteLine("besdk-target-dotnet: stdin was not valid JSON: " + error.Message);
+      Console.Error.WriteLine("graft-target-dotnet: stdin was not valid JSON: " + error.Message);
       return 2;
     }
 
     var ir = Ir.Obj(Ir.Get(payload, "ir"));
     if (ir.Count == 0)
     {
-      Console.Error.WriteLine("besdk-target-dotnet: payload had no `ir` object");
+      Console.Error.WriteLine("graft-target-dotnet: payload had no `ir` object");
       return 2;
     }
 
@@ -58,7 +58,7 @@ internal static class Program
     {
       // Required rather than defaulted: a hardcoded fallback would put this project's name in files a
       // consumer commits, which is the one place it must never appear (SPEC.md §1.2).
-      Console.Error.WriteLine("besdk-target-dotnet: payload had no `brand.generatedNotice`");
+      Console.Error.WriteLine("graft-target-dotnet: payload had no `brand.generatedNotice`");
       return 2;
     }
 
@@ -70,7 +70,7 @@ internal static class Program
     }
     catch (Exception error) when (error is InvalidOperationException or IOException)
     {
-      Console.Error.WriteLine("besdk-target-dotnet: " + error.Message);
+      Console.Error.WriteLine("graft-target-dotnet: " + error.Message);
       return 70;
     }
 

@@ -7,8 +7,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { brandPayload } from '@besdk/protocol';
-import type { IR, Server } from '@besdk/protocol';
+import { brandPayload } from '@graft/protocol';
+import type { IR, Server } from '@graft/protocol';
 import { TypeScriptEmitter } from './emit.js';
 
 const docs = {};

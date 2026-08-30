@@ -1,15 +1,15 @@
 /**
- * `besdk check` — validate a spec and report what it fails to say (SPEC.md §3.6).
+ * `graft check` — validate a spec and report what it fails to say (SPEC.md §3.6).
  *
  * Exit codes: 0 clean, 1 warnings present under `--strict`, 2 the spec could not be read.
  * The distinction matters for CI, where "your spec is vague" and "your spec is broken" want
  * different responses.
  */
 
-import { buildIR, inspectSpecFile, SpecLoadError } from '@besdk/core';
+import { buildIR, inspectSpecFile, SpecLoadError } from '@graft/core';
 import { renderReport } from '../report.js';
 import { flagBoolean, type ParsedArgs } from '../args.js';
-import { BRAND, withoutResolved, type Diagnostic } from '@besdk/protocol';
+import { BRAND, withoutResolved, type Diagnostic } from '@graft/protocol';
 import { resolveConfig } from './ir.js';
 import type { CommandContext } from './context.js';
 
@@ -55,11 +55,11 @@ export async function runCheck(args: ParsedArgs, ctx: CommandContext): Promise<n
   // A command whose entire purpose is surfacing what a spec fails to say must not hide half of it.
   //
   // Config is loaded for the same reason: a diagnostic the user has already answered in
-  // `besdk.yaml` is noise, and `check` that keeps nagging about a fixed problem stops being read.
+  // `graft.yaml` is noise, and `check` that keeps nagging about a fixed problem stops being read.
   const resolved = await resolveConfig(args, ctx);
   if (typeof resolved === 'number') return resolved;
   const { diagnostics: irDiagnostics } = buildIR(inspection, resolved.config);
-  // Anything the config already answers is dropped. `besdk init` writes exactly these fixes, so without
+  // Anything the config already answers is dropped. `graft init` writes exactly these fixes, so without
   // this the documented flow — init, edit, gate CI on `check --strict` — could never pass: the three
   // warnings init had just resolved were reported on every run.
   const diagnostics = withoutResolved(

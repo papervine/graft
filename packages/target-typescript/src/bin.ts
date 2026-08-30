@@ -2,8 +2,8 @@
 /**
  * The target protocol entry point (SPEC.md §3.5).
  *
- *   besdk-target-typescript --sdk-target-protocol   → handshake on stdout
- *   besdk-target-typescript                    → IR JSON on stdin, manifest on stdout
+ *   graft-target-typescript --sdk-target-protocol   → handshake on stdout
+ *   graft-target-typescript                    → IR JSON on stdin, manifest on stdout
  *
  * Runs as a subprocess like any third-party target, with no privileged access to the core.
  */
@@ -16,7 +16,7 @@ import { BRAND,
   parseTargetInput,
   type GeneratedFile,
   type TargetOutput,
-} from '@besdk/protocol';
+} from '@graft/protocol';
 import { handshake } from './index.js';
 import { TypeScriptEmitter } from './emit.js';
 
@@ -29,7 +29,7 @@ import { TypeScriptEmitter } from './emit.js';
  */
 export function loadRuntimeSources(): Map<string, string> {
   const require = createRequire(import.meta.url);
-  const packageJsonPath = require.resolve('@besdk/runtime-typescript/package.json');
+  const packageJsonPath = require.resolve('@graft/runtime-typescript/package.json');
   const sourceDir = join(dirname(packageJsonPath), 'src');
   const files = new Map<string, string>();
   for (const name of readdirSync(sourceDir).sort()) {

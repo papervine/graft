@@ -4,11 +4,11 @@ description: "Add your own methods and files to a generated SDK without losing t
 ---
 
 Every real SDK grows sugar the spec cannot describe — a convenience method, a helper, a retry wrapper.
-besdk gives you two ways to add it, and **never destroys it silently**.
+graft gives you two ways to add it, and **never destroys it silently**.
 
 ## Methods on the generated class
 
-Write between the markers besdk emits. Nothing to enable — region preservation is on by default,
+Write between the markers graft emits. Nothing to enable — region preservation is on by default,
 because a generated file that invites you to add a method has already promised to keep it:
 
 ```ts src/resources/widgets.ts
@@ -42,7 +42,7 @@ To opt out, set `preserve.regions: false`. Markers are still emitted; nothing be
 
 <Warning>
   If a region holds code and the regenerated file has no matching marker — you renamed it, or the
-  resource left the spec — besdk **writes nothing** and exits non-zero rather than dropping the code.
+  resource left the spec — graft **writes nothing** and exits non-zero rather than dropping the code.
   Fix the marker, move the code into a file under `preserve.files`, or pass `--force-overwrite` to
   discard it deliberately.
 </Warning>
@@ -50,16 +50,16 @@ To opt out, set `preserve.regions: false`. Markers are still emitted; nothing be
 ## Whole files you own
 
 For anything larger — helpers, a custom resource, your own tests — write a normal file and tell
-besdk to leave it alone:
+graft to leave it alone:
 
-```yaml besdk.yaml
+```yaml graft.yaml
 preserve:
   files:
     - src/custom/**
     - README.md
 ```
 
-Or drop a `.besdkignore` in the output directory, using gitignore syntax:
+Or drop a `.graftignore` in the output directory, using gitignore syntax:
 
 ```
 src/custom/**
@@ -74,19 +74,19 @@ Both are honoured, including under `--clean`: marking a file means it survives, 
 Dependencies you add by hand are kept automatically — no configuration needed:
 
 ```sh
-$ besdk generate openapi.yaml
+$ graft generate openapi.yaml
 Wrote 44 files to sdks/typescript
   kept in package.json: dependencies.date-fns, author
 ```
 
-besdk keeps ownership of the fields it derives from your spec and config — `name`, `version`,
-`exports`, `files`, `scripts` — and carries everything else across. Where you and besdk both declare
+graft keeps ownership of the fields it derives from your spec and config — `name`, `version`,
+`exports`, `files`, `scripts` — and carries everything else across. Where you and graft both declare
 a dependency, **your pin wins**: you chose that version on purpose.
 
 ## What happens when preservation cannot succeed
 
 <Warning>
-  If a region has code on disk and the regenerated file has no matching marker, besdk **refuses to
+  If a region has code on disk and the regenerated file has no matching marker, graft **refuses to
   write anything** and exits `1`. Your code is left exactly as it was.
 </Warning>
 
@@ -107,10 +107,10 @@ region with it. Your options:
     Put it in a file under `preserve.files`. Best answer if it is not tied to one resource.
   </Step>
   <Step title="Rename the marker to match">
-    Look at what besdk now emits and align the region name.
+    Look at what graft now emits and align the region name.
   </Step>
   <Step title="Discard it deliberately">
-    `besdk generate … --force-overwrite`. Only ever an explicit choice, never a default.
+    `graft generate … --force-overwrite`. Only ever an explicit choice, never a default.
   </Step>
 </Steps>
 
@@ -120,8 +120,8 @@ ambiguous, and guessing risks moving code somewhere it does not belong.
 
 ## Preserved files can go stale
 
-A file besdk never writes also never gets improvements. When holding a file back costs you an
-update, besdk says so:
+A file graft never writes also never gets improvements. When holding a file back costs you an
+update, graft says so:
 
 ```
 warn: README.md is preserved, but the generator would have changed it — it may be out of date
@@ -147,5 +147,5 @@ Worth knowing about: a file-level ignore is a trade, and other generators let th
 
 <Tip>
   Markers are the plain `#region` / `#endregion` convention your editor already folds — not
-  besdk-branded. They carry no dependency on this tool's name.
+  graft-branded. They carry no dependency on this tool's name.
 </Tip>

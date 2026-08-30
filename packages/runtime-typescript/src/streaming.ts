@@ -141,7 +141,7 @@ export async function* streamSSE<T>(response: Response): AsyncGenerator<T> {
  * Decode an SSE response into typed events with their framing metadata.
  *
  * The sibling of {@link streamSSE}: same payloads, plus the `id` a caller needs to resume and the `retry`
- * the server suggested waiting. besdk does not reconnect — see SPEC.md §3.4.1.2 for why that is a decision
+ * the server suggested waiting. graft does not reconnect — see SPEC.md §3.4.1.2 for why that is a decision
  * rather than an omission.
  */
 export async function* streamSSEEvents<T>(response: Response): AsyncGenerator<StreamEvent<T>> {

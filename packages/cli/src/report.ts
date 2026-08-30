@@ -1,5 +1,5 @@
 /**
- * Rendering for `besdk check`.
+ * Rendering for `graft check`.
  *
  * The report is the product (SPEC.md §3.6), so its legibility is a feature, not polish. Two
  * rules shape everything here:
@@ -10,7 +10,7 @@
  */
 
 import pc from 'picocolors';
-import type { Diagnostic, Severity } from '@besdk/protocol';
+import type { Diagnostic, Severity } from '@graft/protocol';
 
 export interface ReportOptions {
   readonly color: boolean;

@@ -1,6 +1,6 @@
 ---
 title: "Pagination"
-description: "How besdk decides an endpoint paginates, and what the generated iterator looks like."
+description: "How graft decides an endpoint paginates, and what the generated iterator looks like."
 ---
 
 ## The generated shape
@@ -28,7 +28,7 @@ const all = await client.widgets.list().all();
 One return value rather than a `list`/`listPaginated` pair. Nothing is requested until you await or
 iterate.
 
-## How besdk decides
+## How graft decides
 
 **Paging parameters alone are not evidence.** On a real spec, one shared parameter block was applied
 to all 33 `GET` operations, so `limit` and `offset` appeared on `reindex`, `analyze`, and
@@ -44,7 +44,7 @@ So an operation is paginated only when the response *also* looks like a collecti
 | A single object | **not** paginated |
 | No schema at all | **not** paginated — cannot tell |
 
-The ones besdk declines are reported as
+The ones graft declines are reported as
 [`P002`](/reference/diagnostics#p002-pagination-unresolved) so you can correct any it got wrong.
 
 ## Configuring it
@@ -60,7 +60,7 @@ The ones besdk declines are reported as
         total: "header:X-Content-Range"
     ```
 
-    A total count is the most reliable stop signal. Without one, besdk stops on a short page — and
+    A total count is the most reliable stop signal. Without one, graft stops on a short page — and
     if there is no `limit` either, it cannot know a next page exists and stops after one request
     rather than looping.
   </Tab>
@@ -108,7 +108,7 @@ Keyed by `operationId`. Or in the spec:
 paths:
   /assets/reindex:
     get:
-      x-besdk-pagination: none
+      x-graft-pagination: none
 ```
 
 <Note>

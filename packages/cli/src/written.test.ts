@@ -15,7 +15,7 @@ import { removeOrphans } from './written.js';
 const created: string[] = [];
 
 function sandbox(files: Record<string, string>): string {
-  const dir = mkdtempSync(join(tmpdir(), 'besdk-written-'));
+  const dir = mkdtempSync(join(tmpdir(), 'graft-written-'));
   created.push(dir);
   for (const [path, contents] of Object.entries(files)) {
     const full = join(dir, path);
@@ -30,7 +30,7 @@ afterEach(() => {
 });
 
 describe('removeOrphans', () => {
-  it('removes a file besdk wrote last time and is not writing now', () => {
+  it('removes a file graft wrote last time and is not writing now', () => {
     // The reported bug: an `examples/pagination.ts` from an earlier run, importing a client name a later
     // run did not produce, failing the typecheck gate on every subsequent generation.
     const dir = sandbox({ 'examples/pagination.ts': 'stale', 'src/client.ts': 'fresh' });
@@ -43,7 +43,7 @@ describe('removeOrphans', () => {
     );
   });
 
-  it('never touches a file besdk did not write', async () => {
+  it('never touches a file graft did not write', async () => {
     // The whole reason a record exists rather than clearing the directory. A default that behaved like
     // `--clean` would take a `.git`, a `node_modules`, or anything the user added.
     const dir = sandbox({ 'NOTES.md': 'mine', 'src/client.ts': 'generated' });
@@ -53,7 +53,7 @@ describe('removeOrphans', () => {
   });
 
   it('never removes a preserved file, even one it wrote before it was preserved', async () => {
-    // A file besdk generated in an earlier run and the user has since claimed via `preserve.files` is in
+    // A file graft generated in an earlier run and the user has since claimed via `preserve.files` is in
     // the previous record *and* must survive. Preservation wins.
     const dir = sandbox({ 'README.md': 'edited by hand' });
     const removed = await removeOrphans(dir, new Set(['README.md']), new Set(['README.md']));
@@ -119,7 +119,7 @@ describe('removeOrphans', () => {
     // Emptied entirely, so both it and its now-empty parent go.
     expect(existsSync(join(dir, 'examples/operations'))).toBe(false);
     expect(existsSync(join(dir, 'examples'))).toBe(false);
-    // `tests/` still holds a file besdk never wrote, so it survives even though `tests/operations` went.
+    // `tests/` still holds a file graft never wrote, so it survives even though `tests/operations` went.
     expect(existsSync(join(dir, 'tests/operations'))).toBe(false);
     expect(existsSync(join(dir, 'tests/mine.test.ts'))).toBe(true);
   });

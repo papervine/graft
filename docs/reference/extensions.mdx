@@ -1,17 +1,17 @@
 ---
 title: "Spec extensions"
-description: "Annotate your OpenAPI document with x-besdk-* — and why besdk reads other generators' extensions too."
+description: "Annotate your OpenAPI document with x-graft-* — and why graft reads other generators' extensions too."
 ---
 
 An OpenAPI document cannot say "group these under `users`", "this paginates by cursor", or "the
 server assigns this field". Every serious generator invented extensions for exactly that. So did
-besdk.
+graft.
 
 ## Extensions or config?
 
 Both work. They serve different people:
 
-| | Use extensions | Use `besdk.yaml` |
+| | Use extensions | Use `graft.yaml` |
 |---|---|---|
 | You own the spec | ✓ intent travels with the API to every generator | also fine |
 | Generating from someone else's spec | you cannot edit it | ✓ the only option |
@@ -20,51 +20,51 @@ Both work. They serve different people:
 
 | Tier | Source |
 |---|---|
-| 1 | `besdk.yaml` — closest to whoever runs the generator |
-| 2 | `x-besdk-*` — your explicit intent for besdk |
+| 1 | `graft.yaml` — closest to whoever runs the generator |
+| 2 | `x-graft-*` — your explicit intent for graft |
 | 3 | Other vendors' `x-*` — your intent for *some* generator |
-| 4 | Inference — besdk guessing |
+| 4 | Inference — graft guessing |
 
-`besdk check` reports which tier supplied each name, so a surprising method name can be traced.
+`graft check` reports which tier supplied each name, so a surprising method name can be traced.
 
-## `x-besdk-*`
+## `x-graft-*`
 
 | Key | Where | Effect |
 |---|---|---|
-| `x-besdk-group` | operation | Resource to group under. Dotted nests: `orgs.invoices` |
-| `x-besdk-method` | operation | Method name |
-| `x-besdk-pagination` | operation | `none`, or `{ style, limit, offset, cursor, items, cursorFrom, total }` |
-| `x-besdk-ignore` | operation, schema, property | Leave it out of the SDK |
-| `x-besdk-name` | schema | Rename the generated type |
-| `x-besdk-server-owned` | property | The server assigns it, so write models omit it |
-| `x-besdk-client-name` | document root | Name the generated client class |
+| `x-graft-group` | operation | Resource to group under. Dotted nests: `orgs.invoices` |
+| `x-graft-method` | operation | Method name |
+| `x-graft-pagination` | operation | `none`, or `{ style, limit, offset, cursor, items, cursorFrom, total }` |
+| `x-graft-ignore` | operation, schema, property | Leave it out of the SDK |
+| `x-graft-name` | schema | Rename the generated type |
+| `x-graft-server-owned` | property | The server assigns it, so write models omit it |
+| `x-graft-client-name` | document root | Name the generated client class |
 
 ```yaml
 paths:
   /orgs/{orgId}/invoices:
     get:
       operationId: listOrgInvoices
-      x-besdk-group: orgs.invoices     # → client.orgs.invoices
-      x-besdk-method: list             # → .list()
+      x-graft-group: orgs.invoices     # → client.orgs.invoices
+      x-graft-method: list             # → .list()
 components:
   schemas:
     Widget:
-      x-besdk-name: Gadget
+      x-graft-name: Gadget
       properties:
         id:
           type: string
-          x-besdk-server-owned: true   # omitted from GadgetCreate
+          x-graft-server-owned: true   # omitted from GadgetCreate
 ```
 
 <Tip>
-  `x-besdk-server-owned` is the most valuable of these. It is precisely what besdk cannot infer, you
+  `x-graft-server-owned` is the most valuable of these. It is precisely what graft cannot infer, you
   know it for certain, and living next to the field means it cannot drift out of sync with a rename
   the way a config list can.
 </Tip>
 
 ## Other generators' extensions
 
-besdk reads these, deliberately:
+graft reads these, deliberately:
 
 | Key | Read as |
 |---|---|
@@ -78,31 +78,31 @@ besdk reads these, deliberately:
 
 `x-fern-sdk-method-name: list` is you stating unambiguously that you want the method called `list`.
 That does not stop being true because it was written for a different tool. Ignoring it would make
-besdk produce worse names than your spec already asks for, and force you to re-annotate a document
+graft produce worse names than your spec already asks for, and force you to re-annotate a document
 that is already annotated.
 
 `x-internal` is not any one generator's extension — it is a broad convention for "do not publish
 this", so honouring it is what you would expect.
 
-## Extensions besdk reports but does not act on
+## Extensions graft reports but does not act on
 
 <Warning>
-  An extension besdk half-understands is worse than one it ignores, because you would assume it was
-  applied. These are named in `besdk check` output with the config setting that does work.
+  An extension graft half-understands is worse than one it ignores, because you would assume it was
+  applied. These are named in `graft check` output with the config setting that does work.
 </Warning>
 
 | Key | Why, and what to use instead |
 |---|---|
 | `x-fern-pagination` | Nested structure whose meaning differs between generators → `pagination` |
 | `x-speakeasy-pagination` | Same → `pagination` |
-| `x-fern-sdk-return-value` | Not supported; besdk returns the whole response body |
+| `x-fern-sdk-return-value` | Not supported; graft returns the whole response body |
 | `x-fern-examples` | Examples are generated from the spec's own `example` fields |
 | `x-fern-audiences` | Not supported |
 | `x-speakeasy-retries` | Retries are a runtime concern; configure them on the client |
 | `x-speakeasy-usage-example` | Examples are generated automatically |
 | `x-speakeasy-max-method-params` | Not supported |
 
-Unrecognised `x-*` keys are listed too — a typo in `x-besdk-server-owned` would otherwise be
+Unrecognised `x-*` keys are listed too — a typo in `x-graft-server-owned` would otherwise be
 indistinguishable from silence.
 
 ```
@@ -110,5 +110,5 @@ indistinguishable from silence.
     x-fern-pagination (1×) → configure via pagination.default / pagination.operations
 ℹ 1 extension is not recognized and ignored.
     x-some-typo (1×)
-    Harmless, but a typo in an `x-besdk-*` key would look exactly like this.
+    Harmless, but a typo in an `x-graft-*` key would look exactly like this.
 ```

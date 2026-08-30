@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="740" height="660" viewBox="0 0 740 660" role="img"
+     aria-label="Terminal output of graft check against a real OpenAPI spec: three warnings and one informational finding, each with a stable diagnostic code and the graft.yaml fragment that resolves it">
+  <title>graft check — every judgment the generator would have to make, and the config that settles it</title>
+
+  <!--
+    Hand-authored rather than a captured screenshot, so the text stays selectable, scales without
+    resampling, and can be corrected when the CLI's wording changes. Indentation is expressed as an
+    explicit `x` per line rather than leading spaces: SVG collapses whitespace in `<text>`, and both
+    `xml:space="preserve"` and CSS `white-space: pre` are inconsistently honoured by renderers. One
+    monospace advance at 14px is 8.4 units, so an indent of n columns is 26 + 8.4n.
+  -->
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1B2430" />
+      <stop offset="1" stop-color="#161D27" />
+    </linearGradient>
+    <style>
+      .t { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 14px; }
+      .dim  { fill: #7D8590; }
+      .fg   { fill: #C9D1D9; }
+      .br   { fill: #E6EDF3; }
+      .warn { fill: #E3B341; }
+      .info { fill: #58A6FF; }
+      .fix  { fill: #56D364; }
+      .code { fill: #6E7681; }
+      .teal { fill: #2DD4BF; }
+    </style>
+  </defs>
+
+  <rect width="740" height="660" rx="10" fill="#0D1117" />
+  <path d="M0 10a10 10 0 0 1 10-10h720a10 10 0 0 1 10 10v26H0z" fill="url(#chrome)" />
+  <line x1="0" y1="36" x2="740" y2="36" stroke="#232B36" stroke-width="1" />
+  <circle cx="20" cy="18" r="5" fill="#3D4450" /><circle cx="38" cy="18" r="5" fill="#3D4450" /><circle cx="56" cy="18" r="5" fill="#3D4450" />
+  <text class="t dim" x="370" y="23" text-anchor="middle" font-size="12">graft check</text>
+
+  <g class="t">
+    <text x="26" y="72"><tspan class="teal">$</tspan><tspan class="br"> graft check openapi.yaml</tspan></text>
+
+    <text x="26" y="108"><tspan class="dim">openapi.yaml → </tspan><tspan class="fg">197</tspan><tspan class="dim"> operations, </tspan><tspan class="fg">75</tspan><tspan class="dim"> resources, </tspan><tspan class="fg">148</tspan><tspan class="dim"> named schemas</tspan></text>
+
+    <text x="42.8" y="144"><tspan class="warn">⚠ </tspan><tspan class="br">76 named schemas declare no required fields.</tspan><tspan class="code">  [M002]</tspan></text>
+    <text x="76.4" y="164" class="dim">Worst: incoming_phone_number — 35/35 fields optional.</text>
+    <text x="76.4" y="184" class="dim">Under a strict typechecker every access needs a null check,</text>
+    <text x="76.4" y="204" class="dim">which makes the SDK unpleasant to use even though it compiles.</text>
+    <text x="76.4" y="224" class="fix">→ models:</text>
+    <text x="110" y="244" class="fix">incoming_phone_number:</text>
+    <text x="126.8" y="264"><tspan class="fix">required: [account_sid, address_sid]</tspan><tspan class="code">  # always present</tspan></text>
+
+    <text x="42.8" y="300"><tspan class="warn">⚠ </tspan><tspan class="br">61 operations return a collection with paging parameters</tspan></text>
+    <text x="59.6" y="320"><tspan class="br">but no declared pagination.</tspan><tspan class="code">  [P001]</tspan></text>
+    <text x="76.4" y="340" class="dim">Inferred cursor pagination from parameter names, corroborated</text>
+    <text x="76.4" y="360" class="dim">by an envelope with items under `accounts`.</text>
+    <text x="76.4" y="380" class="dim">Without this, list methods return one page, not an iterator.</text>
+    <text x="76.4" y="400" class="fix">→ pagination:</text>
+    <text x="110" y="420" class="fix">default:</text>
+    <text x="126.8" y="440" class="fix">style: cursor</text>
+    <text x="126.8" y="460" class="fix">limit: PageSize</text>
+    <text x="126.8" y="480" class="fix">cursor: PageToken</text>
+    <text x="126.8" y="500" class="fix">items: "body:accounts"</text>
+
+    <text x="42.8" y="536"><tspan class="info">ℹ </tspan><tspan class="br">4 extensions were not recognized and ignored.</tspan><tspan class="code">  [S002]</tspan></text>
+    <text x="76.4" y="556" class="dim">x-twilio (190×)   x-class-extra-annotation (12×)   …and 2 more</text>
+    <text x="76.4" y="576" class="dim">Harmless, but a typo in an `x-graft-*` key looks exactly like this.</text>
+
+    <text x="26" y="616"><tspan class="fg">3 warnings, 1 informational.</tspan><tspan class="dim"> Generation will proceed;</tspan></text>
+    <text x="26" y="636"><tspan class="dim">run with </tspan><tspan class="br">--strict</tspan><tspan class="dim"> to gate on this in CI.</tspan></text>
+  </g>
+</svg>

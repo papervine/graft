@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>Emitting one method on a resource class.</summary>
 internal static class Methods

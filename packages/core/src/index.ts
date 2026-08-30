@@ -1,5 +1,5 @@
 /**
- * `@besdk/core` — the pipeline: load → resolve → normalize → overlay → ir.
+ * `@graft/core` — the pipeline: load → resolve → normalize → overlay → ir.
  *
  * Boundary rules (SPEC.md §3.7), both enforced in CI by `pnpm boundaries`:
  *   - this package must never import a target;

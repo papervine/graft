@@ -1,5 +1,5 @@
 /**
- * `@besdk/runtime-typescript` — the hand-written runtime vendored into generated SDKs.
+ * `@graft/runtime-typescript` — the hand-written runtime vendored into generated SDKs.
  *
  * Everything here is written and reviewed as a library, not as generator output. This is where
  * SDK quality actually lives (SPEC.md §3.3); generated code should be a thin surface over it.

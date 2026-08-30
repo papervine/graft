@@ -1,5 +1,5 @@
 /**
- * IR diffing, for `besdk diff` (SPEC.md §9, "versioning / breaking-change policy").
+ * IR diffing, for `graft diff` (SPEC.md §9, "versioning / breaking-change policy").
  *
  * **The diff operates on the IR, not on emitted code.** That is the whole design: a change is
  * breaking or not because of what it does to the *contract*, and the IR is the contract. Diffing
@@ -16,7 +16,7 @@
  * A `shared` model is used in both directions, so either flip is breaking.
  */
 
-import type { Field, IR, Method, NamedType, Param, Resource, TypeRef } from '@besdk/protocol';
+import type { Field, IR, Method, NamedType, Param, Resource, TypeRef } from '@graft/protocol';
 
 export type ChangeSeverity =
   /** Existing consumer code can stop compiling or start misbehaving. */

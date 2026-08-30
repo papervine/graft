@@ -1,8 +1,8 @@
 {
-  "name": "@besdk/runtime-typescript",
+  "name": "@graft/runtime-typescript",
   "version": "0.0.0",
   "description": "Hand-written TypeScript SDK runtime: transport, retries, auth, pagination, errors. Vendored into generated output.",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

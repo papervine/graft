@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// A C# source file under construction.

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Graft.Target.Dotnet</RootNamespace>
+    <AssemblyName>graft-target-dotnet</AssemblyName>
+    <RootNamespace>Graft.Target.Dotnet</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      The runtime, for its JSON layer only. The target reads the IR and writes the manifest, both JSON, and
+      duplicating that to avoid a build-time dependency would be worse than sharing it. This is a build
+      dependency of the generator, not a runtime dependency of generated SDKs.
+    -->
+    <ProjectReference Include="../../runtime-dotnet/src/Graft.Runtime.csproj" />
+  </ItemGroup>
+
+</Project>

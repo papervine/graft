@@ -16,7 +16,7 @@
  * than by a depth cap.
  */
 
-import type { IR, NamedType, TypeRef } from '@besdk/protocol';
+import type { IR, NamedType, TypeRef } from '@graft/protocol';
 
 /** Mirror of the runtime's `Schema`, kept structural so this module needs no runtime import. */
 export type SchemaDescriptor =

@@ -1,5 +1,5 @@
 /**
- * `besdk targets` — what targets are installed, and will they run?
+ * `graft targets` — what targets are installed, and will they run?
  *
  * Exists because the failure it diagnoses is otherwise opaque. A target is a subprocess discovered
  * on `PATH` (SPEC.md §3.5), so "it isn't installed", "it crashed on handshake", and "it does not
@@ -20,8 +20,8 @@ import {
   satisfiesIrVersion,
   TARGET_EXECUTABLE_PREFIX,
   type Handshake,
-} from '@besdk/protocol';
-import { loadConfig, ConfigError } from '@besdk/core';
+} from '@graft/protocol';
+import { loadConfig, ConfigError } from '@graft/core';
 import { existsSync } from 'node:fs';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
 import type { CommandContext } from './context.js';

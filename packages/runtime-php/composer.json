@@ -1,8 +1,8 @@
 {
-  "name": "besdk/runtime-php",
+  "name": "graft/runtime-php",
   "description": "Hand-written runtime vendored into generated PHP SDKs.",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "require": {
     "php": ">=8.4",
     "ext-curl": "*",
@@ -14,10 +14,10 @@
     "friendsofphp/php-cs-fixer": "^3.64"
   },
   "autoload": {
-    "psr-4": { "Besdk\\Runtime\\": "src/" }
+    "psr-4": { "Graft\\Runtime\\": "src/" }
   },
   "autoload-dev": {
-    "psr-4": { "Besdk\\Runtime\\Tests\\": "tests/" }
+    "psr-4": { "Graft\\Runtime\\Tests\\": "tests/" }
   },
   "config": { "sort-packages": true }
 }

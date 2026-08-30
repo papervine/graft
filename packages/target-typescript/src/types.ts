@@ -6,7 +6,7 @@
  * array; `T | null` distinct from an optional property.
  */
 
-import type { IR, NamedType, TypeRef } from '@besdk/protocol';
+import type { IR, NamedType, TypeRef } from '@graft/protocol';
 import { pascal } from './naming.js';
 
 /**

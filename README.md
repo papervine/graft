@@ -1,22 +1,29 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/papervine/graft/main/docs/favicon.svg" width="96" height="96" alt="besdk" />
+<img src="https://raw.githubusercontent.com/papervine/graft/main/docs/favicon.svg" width="110" height="110" alt="Graft" />
 
-# besdk
+# Graft
 
 ***The open-source OpenAPI → SDK generator whose output reads as hand-written.***
 
-One spec in. Six idiomatic client libraries out, each one gated by its own language's strict typechecker.
+One spec in. Six idiomatic client libraries out, each gated by its own language's strict typechecker.
 
-[![license](https://img.shields.io/badge/license-Apache--2.0-0F766E)](./LICENSE) [![node](https://img.shields.io/badge/node-%E2%89%A520-0F766E?logo=nodedotjs&logoColor=white)](https://nodejs.org) [![targets](https://img.shields.io/badge/SDK%20targets-6-0F766E)](#language-support) [![conformance](https://img.shields.io/badge/conformance-12%20scenarios%20%C3%97%206%20languages-0F766E)](#the-tests-that-actually-matter) [![docs](https://img.shields.io/badge/docs-.%2Fdocs-0F766E)](./docs)
+[![license](https://img.shields.io/badge/license-MIT-0F766E)](./LICENSE)
+[![node](https://img.shields.io/badge/node-%E2%89%A520-0F766E?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![targets](https://img.shields.io/badge/SDK%20targets-6-0F766E)](#language-support)
+[![conformance](https://img.shields.io/badge/conformance-12%20scenarios%20%C3%97%206%20languages-0F766E)](#the-tests-that-actually-matter)
+[![diagnostics](https://img.shields.io/badge/diagnostics-22%20codes-0F766E)](./docs/reference/diagnostics.mdx)
+[![docs](https://img.shields.io/badge/docs-.%2Fdocs-0F766E)](./docs)
 
-[Quickstart](#quickstart) · [Six languages](#one-spec-six-languages) · [`check`](#besdk-check--what-your-spec-fails-to-say) · [`diff`](#besdk-diff--breaking-changes-before-your-users-find-them) · [Commands](#commands) · [How it works](#how-it-works) · [Support](#language-support) · [Docs](./docs)
+[Quickstart](#quickstart) · [Six languages](#one-spec-six-languages) · [Commands](#commands) · [`check`](#graft-check) · [`diff`](#graft-diff) · [Config](#configuration) · [How it works](#how-it-works) · [Support](#language-support) · [Docs](./docs)
+
+<img src="https://raw.githubusercontent.com/papervine/graft/main/docs/images/check.svg" width="740" alt="Terminal output of graft check against a real OpenAPI spec: three warnings and one informational finding, each with a stable diagnostic code and the graft.yaml fragment that resolves it" />
 
 </div>
 
 > [!NOTE]
 > **Early, and honest about it.** All six targets generate, format, typecheck and pass a shared
-> cross-language conformance suite — but nothing is published to a registry yet, `besdk` is a
+> cross-language conformance suite — but nothing is published to a registry yet, `graft` is a
 > working title, and [the support matrix](#language-support) has real gaps in it. Read that table
 > before you commit to a language.
 
@@ -30,9 +37,9 @@ working if the vendor disappears, and your OpenAPI document is portable by desig
 **forced migration at an inconvenient time**, and it lands on *your* SDK's users as breaking changes
 rather than on you alone.
 
-besdk removes that risk without accepting the usual open-source quality penalty. Generated packages
-have **no runtime dependency on besdk**: the transport, retries, auth, pagination and validation
-machinery is hand-written per language and vendored into your output. Delete besdk from your
+Graft removes that risk without accepting the usual open-source quality penalty. Generated packages
+have **no runtime dependency on Graft**: the transport, retries, auth, pagination and validation
+machinery is hand-written per language and vendored into your output. Delete Graft from your
 toolchain and the SDK you already shipped keeps building.
 
 ### Quickstart
@@ -47,11 +54,11 @@ pnpm install && pnpm build
 Then point it at a spec:
 
 ```sh
-pnpm --silent besdk check    openapi.yaml                          # what your spec fails to say
-pnpm --silent besdk init     openapi.yaml                          # scaffold besdk.yaml
-pnpm --silent besdk generate openapi.yaml --out sdks/typescript
-pnpm --silent besdk generate openapi.yaml --target python --out sdks/python
-pnpm --silent besdk generate openapi.yaml --target go     --out sdks/go
+pnpm --silent graft check    openapi.yaml                          # what your spec fails to say
+pnpm --silent graft init     openapi.yaml                          # scaffold graft.yaml
+pnpm --silent graft generate openapi.yaml --out sdks/typescript
+pnpm --silent graft generate openapi.yaml --target python --out sdks/python
+pnpm --silent graft generate openapi.yaml --target go     --out sdks/go
 ```
 
 Or against the corpus this repository ships, no spec of your own required:
@@ -62,15 +69,16 @@ pnpm generate:all            # generate every committed corpus entry, in every l
 pnpm corpus:fetch            # download the large specs (Stripe, GitHub, Box)
 ```
 
-**Generation fails if the output does not pass the target language's own strict typechecker** —
-`tsc --noEmit`, `mypy --strict`, `go build`, PHPStan, `javac`, `dotnet build`. That is deliberate,
-and the target decides which tools those are, not the core.
+> [!IMPORTANT]
+> **Generation fails if the output does not pass the target language's own strict typechecker** —
+> `tsc --noEmit`, `mypy --strict`, `go build`, PHPStan, `javac`, `dotnet build`. That is deliberate,
+> and the *target* decides which tools those are, not the core.
 
 Full documentation is in [`docs/`](./docs) — start with [`docs/quickstart.mdx`](./docs/quickstart.mdx).
 
 ### One spec, six languages
 
-Every snippet below is **real generated output**, copied from the `examples/` directory besdk emits
+Every snippet below is **real generated output**, copied from the `examples/` directory Graft emits
 alongside each SDK — the same operation, `GET /orgs/{orgId}/members`, in every target. The examples
 are compiled and typechecked as part of the package they ship in, so they cannot drift out of date
 with the API.
@@ -144,7 +152,9 @@ optional query parameters are threaded positionally and you get <code>null, null
 <em>bodies</em> use builders for exactly this reason; the parameter list has not had the same
 treatment yet.</sub>
 
-Idiom goes deeper than iteration:
+**Idiom goes deeper than iteration.** The request type is a distinct
+[read/write split](./docs/guides/read-write-models.mdx), not the response type with its fields made
+optional — so there is no `id` on create, because the server assigns it:
 
 ```ts
 const created = await client.events.publish({
@@ -153,11 +163,9 @@ const created = await client.events.publish({
 });
 ```
 
-No `id` on create, because the server assigns it — the request type is a distinct
-[read/write split](./docs/guides/read-write-models.mdx), not the response type with optional fields.
 `widgets.get(id)`, not `widgets.get_(id)`. And the response is checked against the shape the spec
 promised, so a server that breaks its contract says so at the SDK boundary rather than three frames
-into your code.
+into your code. Errors are a subclass per status, so narrowing needs no cast:
 
 ```ts
 try {
@@ -173,81 +181,177 @@ try {
 }
 ```
 
-### `besdk check` — what your spec fails to say
+### Commands
+
+| Command | What it does |
+| --- | --- |
+| [`graft check <spec>`](#graft-check) | Report what the spec fails to say |
+| [`graft init <spec>`](#graft-init) | Scaffold `graft.yaml`, with every inference written out explicitly |
+| [`graft generate <spec>`](#graft-generate) | Emit the SDK, then format and typecheck it |
+| [`graft diff <spec>`](#graft-diff) | What regenerating would do to your SDK's consumers |
+| [`graft release <spec>`](#graft-release) | Next version and changelog, computed from the contract diff |
+| [`graft ir <spec>`](#graft-ir) | Dump the semantic IR as JSON |
+| [`graft targets`](#graft-targets) | Which targets are installed, and whether they will run |
+
+`--config` is global; `check`, `diff` and `targets` take `--strict` and `--json`. Full flag reference:
+[`docs/reference/cli.mdx`](./docs/reference/cli.mdx).
+
+Exit codes are three-valued on purpose, because "your spec is vague" and "your spec is broken" want
+different responses in a pipeline:
+
+| Code | Meaning |
+| --- | --- |
+| `0` | Success |
+| `1` | Ran, and found something you asked it to gate on (`--strict`) |
+| `2` | Could not run — spec unreadable, config invalid, target missing |
+| `70` | An internal Graft bug. Please report it |
+
+#### `graft check`
 
 Most specs are under-specified, and a generator that quietly guesses produces an SDK that is subtly
 wrong in ways nobody can trace back. `check` reports every judgment it would have to make, ranked by
 how much damage the wrong answer does, and prints **the config that fixes it**.
 
-This is real output against the vendored Twilio spec (`pnpm demo`):
-
-```
-corpus/twilio/spec.yaml → 197 operations, 75 resources, 148 named schemas, 124 inline schemas
-
-  ⚠ 76 named schemas declare no required fields. [M002]
-      Worst: api.v2010.account.incoming_phone_number — 35/35 fields optional.
-      Under a strict typechecker every access needs a null check, which makes the SDK
-      unpleasant to use even though it compiles.
-      → models:
-          api.v2010.account.incoming_phone_number:
-            required: [account_sid, address_sid]  # list the always-present fields
-
-  ⚠ 61 operations return a collection with paging parameters but no declared pagination. [P001]
-      Inferred cursor pagination from parameter names, corroborated by an envelope with
-      items under `accounts`.
-      Without this, list methods return one page instead of an iterator.
-      → pagination:
-          default:
-            style: cursor
-            limit: PageSize
-            page: Page
-            cursor: PageToken
-            items: "body:accounts"
-
-  ℹ 4 extensions were not recognized and ignored. [S002]
-      x-twilio (190×)  x-class-extra-annotation (12×)  x-field-extra-annotation (11×)
-      Harmless, but a typo in an `x-besdk-*` key would look exactly like this.
+```sh
+graft check <spec> [--config graft.yaml] [--strict] [--json] [--no-color]
 ```
 
-Twenty-two [diagnostic codes](./docs/reference/diagnostics.mdx), each with a stable identifier so you
-can suppress one deliberately rather than ignoring the whole report. `--strict` turns warnings into a
-non-zero exit, which is how you gate CI on it; `--json` makes it machine-readable.
+| Flag | Effect |
+| --- | --- |
+| `--config` | Config to apply. Defaults to `graft.yaml` when present |
+| `--strict` | Exit `1` if any warning is reported. Use in CI |
+| `--json` | Machine-readable output |
+| `--no-color` | Disable ANSI colour |
 
-### `besdk diff` — breaking changes before your users find them
+The terminal at the top of this page is that output against the vendored Twilio spec, trimmed only
+to fit the frame — run it in full with `pnpm demo`. Twenty-two
+[diagnostic codes](./docs/reference/diagnostics.mdx), each with a stable identifier so you can
+suppress one deliberately rather than ignoring the whole report.
 
-`diff` compares your spec against a committed IR baseline and answers one question: **what would
+Config is applied, so a finding you have already answered stops being reported — which is what makes
+`--strict` usable in CI at all. The intended loop:
+
+```sh
+graft init openapi.yaml            # writes the fixes it can infer
+# edit graft.yaml — the REVIEW lines need your knowledge
+graft check openapi.yaml --strict  # exits 0 once everything is answered
+```
+
+#### `graft init`
+
+Scaffolds a `graft.yaml` from the spec, with every inference written out explicitly rather than left
+implicit in the generator.
+
+```sh
+graft init <spec> [--out PATH] [--target NAME] [--stdout] [--force]
+```
+
+> [!WARNING]
+> Without `--force`, `init` refuses to overwrite an existing config. That file accumulates judgments
+> about your API that Graft cannot re-derive — it is the most expensive artifact in your repository.
+
+#### `graft generate`
+
+The main verb. Spawns the target, writes the output, runs the gates.
+
+```sh
+graft generate <spec> [--target NAME] [--out DIR] [--config PATH]
+                      [--clean] [--skip-gates] [--baseline PATH] [--no-baseline]
+```
+
+| Flag | Effect |
+| --- | --- |
+| `--target NAME` | Target to run. Default: first in `targets`, else `typescript` |
+| `--out DIR` | Output directory. Overrides `targets.<name>.out`, then `sdks/<target>` |
+| `--clean` | Remove the output directory first |
+| `--skip-gates` | Skip the formatter and typechecker. Not recommended |
+| `--force-overwrite` | Discard preserved code that has nowhere to go. Never the default |
+
+Running without a config proceeds with defaults and **says so**, because the
+[read/write split](./docs/guides/read-write-models.mdx) and
+[pagination](./docs/sdk/pagination.mdx) are both opt-in — without one, `widgets.create()` accepts the
+server-owned `id` it should refuse and no list operation paginates. The output compiles either way,
+which is exactly why it is worth a warning.
+
+#### `graft diff`
+
+Compares your spec against a committed IR baseline and answers one question: **what would
 regenerating do to the people who depend on your SDK?**
 
-```
-corpus/kitchen-sink/spec.yaml vs baseline .besdk/corpus-kitchen-sink-spec.ir.json
-
-✓ No contract changes.
+```sh
+graft diff <spec> [--baseline PATH] [--config PATH] [--strict] [--json] [--accept]
 ```
 
-It is direction-sensitive, which is the part that a naive schema diff gets wrong. Adding a field to a
+```
+✗ Widget.thumbnail: field removed
+✗ service.name: renamed from `Acme` to `AcmeCloud`
+    the exported client class is renamed, so every `import { … }` breaks
+
+2 breaking, 0 additive, 0 other — implies a major version bump.
+```
+
+It is direction-sensitive, which is the part a naive schema diff gets wrong. Adding a field to a
 *response* is additive; adding a required field to a *request* is breaking. The same edit to the same
-schema is safe in one direction and not the other, and the read/write split is what lets besdk tell
-them apart. `--strict` gates CI. `--accept` records the new baseline once you have decided the change
+schema is safe in one direction and not the other, and the read/write split is what lets Graft tell
+them apart. `--strict` gates CI; `--accept` records the new baseline once you have decided the change
 is intended.
 
-`besdk release` builds on the same comparison: the version bump comes from the contract diff and the
-changelog from the same set of changes, so the semver is *derived* rather than asserted. It emits the
-publishing steps as a CI workflow rather than running them, because publishing needs registry
-credentials and those belong in CI, not in a generator.
+#### `graft release`
 
-### Commands
+Builds on the same comparison: the version bump comes from the contract diff and the changelog from
+the same set of changes, so the semver is *derived* rather than asserted.
 
-| | |
-|---|---|
-| `check <spec>` | Report what the spec fails to say. `--strict` gates CI, `--json` for tooling |
-| `init <spec>` | Scaffold `besdk.yaml`, with every inference written out explicitly |
-| `generate <spec>` | Emit the SDK, then format and typecheck it |
-| `diff <spec>` | What regenerating would do to your SDK's consumers. `--strict` gates CI |
-| `release <spec>` | Next version and changelog, computed from the contract diff |
-| `ir <spec>` | Dump the semantic IR as JSON. `--summary` for the readable version |
-| `targets` | Which targets are installed, and whether they will run |
+```
+1.4.2 → 2.0.0  (major: 3 breaking changes)
+  ✗ Widget.name — became optional
+  ✗ widgets.archive — method removed
+  + widgets.restore — method added
 
-Full flag reference: [`docs/reference/cli.mdx`](./docs/reference/cli.mdx).
+Wrote .graft/openapi.sdk-version and CHANGELOG.md
+```
+
+`--workflow` emits the publishing steps as a GitHub Actions workflow rather than running them, because
+publishing needs registry credentials and those belong in CI, not in a generator. One version per spec
+across every language: three SDKs from one contract at three different numbers is a support burden
+with no upside.
+
+#### `graft ir`
+
+Dumps the semantic intermediate representation as JSON — byte-for-byte what a target receives on
+stdin. `--summary` prints the readable version:
+
+```sh
+$ graft ir openapi.yaml --config graft.yaml --summary
+service:    acme v2.8
+servers:    Staging, Production
+auth:       bearer | basic
+resources:  23
+methods:    121 (19 paginated)
+types:      206 (154 shared, 19 read, 19 create, 19 update)
+```
+
+Useful when a generated name surprises you: the IR shows what the target was told.
+
+#### `graft targets`
+
+Which targets are installed, and whether they will actually run.
+
+```sh
+$ graft targets
+graft emits IR 1.2.0
+
+  ✗ ruby — not installed
+      expected `graft-target-ruby` on PATH
+  ✓ typescript v0.0.0 (in-tree)
+      IR 1.x
+      pagination, read-write-split
+
+1 of 2 unusable: ruby.
+```
+
+Worth its own command because three failure modes are indistinguishable from `generate`: a target
+that is not installed, one that crashes on handshake, and one that does not accept the IR version
+Graft emits.
 
 ### Configuration
 
@@ -265,20 +369,21 @@ targets:
   dotnet:     { out: sdks/dotnet,     packageName: "Acme.Sdk" }
 ```
 
-`besdk.yaml` is not a patch kit for edge cases — on a real spec, most of what makes the output good
+`graft.yaml` is not a patch kit for edge cases — on a real spec, most of what makes the output good
 is expressed here, because most specs are under-specified and enriching them is part of the job. The
 read/write split, the pagination scheme and the hoisted headers are decided once and apply to every
 language.
 
-**Unknown keys are an error, not ignored.** A typo that silently does nothing is worse than a failed
-run, because you believe you fixed something. The same goes for values: a field name in `serverOwned`
-that does not exist on the schema is reported rather than skipped.
+> [!WARNING]
+> **Unknown keys are an error, not ignored.** A typo that silently does nothing is worse than a
+> failed run, because you believe you fixed something. The same goes for values: a field name in
+> `serverOwned` that does not exist on the schema is reported rather than skipped.
 
 Every key: [`docs/reference/configuration.mdx`](./docs/reference/configuration.mdx).
 
 ### How it works
 
-besdk does not generate from your OpenAPI document. It generates from an intermediate representation.
+Graft does not generate from your OpenAPI document. It generates from an intermediate representation.
 
 ```
 OpenAPI ──► Normalizer ──► Semantic IR ──► Target ──► Gates
@@ -330,7 +435,7 @@ language rather than discovering a gap after you have published.
 
 ✅ supported · ⚠️ partial · — not generated, **and generation warns**
 
-That last point is the one to hold besdk to. An operation a target cannot handle is skipped with a
+That last point is the one to hold Graft to. An operation a target cannot handle is skipped with a
 warning, never emitted as something that does not work:
 
 ```
@@ -365,7 +470,7 @@ this project.
 | [File uploads](./docs/sdk/file-uploads.mdx) | Multipart, with the language's native file type |
 | [Webhooks](./docs/sdk/webhooks.mdx) | Signature verification and typed handlers |
 | [Examples and tests](./docs/sdk/examples-and-tests.mdx) | One runnable example and one request-assertion test per operation, compiled with the package |
-| [Custom code](./docs/guides/custom-code.mdx) | `#region` markers and `.besdkignore`; ambiguous markers refuse to write rather than merge destructively |
+| [Custom code](./docs/guides/custom-code.mdx) | `#region` markers and `.graftignore`; ambiguous markers refuse to write rather than merge destructively |
 
 ### Repository
 
@@ -373,7 +478,7 @@ this project.
 packages/
 ├── protocol/            the IR and target protocol. Depends on nothing but zod
 ├── core/                load → resolve → normalize → overlay → ir
-├── cli/                 the besdk binary
+├── cli/                 the graft binary
 ├── target-typescript/   IR JSON → file manifest, via ts-morph
 ├── target-python/       written *in* Python, gated by ruff and mypy --strict
 ├── target-go/           written *in* Go, gated by go/format and go build
@@ -413,10 +518,10 @@ shared bug passes the second. It found three real defects on its first run.
 
 Snapshot tests cover the generated surface, and the diffs are reviewed rather than blindly accepted.
 
-The Python, Go, PHP, Java and .NET suites are part of `verify` and **skip loudly** when their
-toolchains are absent — someone working on the TypeScript target should need none of them. Toolchains
-are pinned in [`devbox.json`](./devbox.json), so CI and the next contributor get the same versions
-rather than rediscovering them.
+<sub>The Python, Go, PHP, Java and .NET suites are part of <code>verify</code> and <strong>skip
+loudly</strong> when their toolchains are absent — someone working on the TypeScript target should
+need none of them. Toolchains are pinned in <a href="./devbox.json"><code>devbox.json</code></a>, so
+CI and the next contributor get the same versions rather than rediscovering them.</sub>
 
 ### Contributing
 
@@ -427,7 +532,7 @@ tests rather than by discipline:
   alternatives, in the same turn it is made. Conversations are ephemeral; `SPEC.md` is the durable
   memory. It is a design document, not a changelog.
 - **Every user-visible change goes in [`docs/`](./docs)** — a CLI flag, a config key, an
-  `x-besdk-*` extension, a diagnostic code. `packages/cli/src/docs.test.ts` fails the build if one
+  `x-graft-*` extension, a diagnostic code. `packages/cli/src/docs.test.ts` fails the build if one
   exists in code and appears nowhere in the docs.
 
 The quality bar is non-negotiable, because output quality is the entire value of the project:
@@ -438,7 +543,7 @@ deduplicate types, or restructure — which is why templated output reads as dea
 
 ### The name is a working title
 
-`besdk` may change, so no user-facing string contains it: every occurrence is derived from
+`graft` may change, so no user-facing string contains it: every occurrence is derived from
 `BRAND_NAME` in [`packages/protocol/src/branding.ts`](./packages/protocol/src/branding.ts), and a
 test fails the build if the name is hardcoded in a string literal anywhere else.
 
@@ -447,7 +552,11 @@ Generated output deliberately carries **no** generator branding. The runtime's b
 generator-branded class would make renaming this project a breaking change for every SDK it ever
 produced.
 
-### Licence
+### Get started
 
-[Apache-2.0](./LICENSE) — permissive, with a patent grant, so companies can depend on it for their
-public SDKs.
+Docs in [`./docs`](./docs) — start with [`quickstart`](./docs/quickstart.mdx) · design notes and
+rejected alternatives in [`SPEC.md`](./SPEC.md) · source and issues at
+[github.com/papervine/graft](https://github.com/papervine/graft).
+
+[MIT](./LICENSE) licensed — the least you have to think about before depending on it for your public
+SDKs.

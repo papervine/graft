@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php;
+namespace Graft\Target\Php;
 
 /**
  * Turns an IR into PHP source files.
@@ -92,7 +92,7 @@ final class Emitter
             $files[] = [
                 'path' => 'src/Core/' . $name,
                 'contents' => str_replace(
-                    'namespace Besdk\\Runtime;',
+                    'namespace Graft\\Runtime;',
                     'namespace ' . $this->namespace . '\\Core;',
                     $contents,
                 ),
@@ -107,7 +107,7 @@ final class Emitter
 
         $files[] = $this->composerFile();
         $files[] = $this->readmeFile();
-        // The tool configs ship with the package, so a consumer runs the same gates besdk does rather
+        // The tool configs ship with the package, so a consumer runs the same gates graft does rather
         // than inventing their own and getting different answers.
         $files[] = $this->phpstanConfigFile();
         $files[] = $this->fixerConfigFile();
@@ -2302,7 +2302,7 @@ PHP;
         $version = $this->options['sdkVersion'] ?? null;
         if (is_string($version) && $version !== '') {
             // Composer resolves a package version from its git tag, so this is written only when
-            // `besdk release` has recorded one — an invented version would conflict with the tag.
+            // `graft release` has recorded one — an invented version would conflict with the tag.
             $manifest['version'] = $version;
         }
 
@@ -2722,9 +2722,9 @@ PHPCONF;
      * The phpdoc type describing what a method **actually returns**, not what the IR declares.
      *
      * These diverge in one place: an array whose elements are a union of named objects with no
-     * discriminator. besdk cannot decode those — `anyOf` means at least one branch matches, and picking is
+     * discriminator. graft cannot decode those — `anyOf` means at least one branch matches, and picking is
      * guesswork — so the items stay raw decoded arrays. Documenting them as `list<Member|Invoice>` would be
-     * a lie the typechecker rightly rejects, and `besdk check` already reports the underlying ambiguity as
+     * a lie the typechecker rightly rejects, and `graft check` already reports the underlying ambiguity as
      * `T006` where the user can act on it.
      *
      * @param array<string,mixed> $ref

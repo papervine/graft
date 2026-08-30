@@ -1,4 +1,4 @@
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// Planning the validation descriptor table (SPEC.md §3.4.1.1).

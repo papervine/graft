@@ -1,9 +1,9 @@
 ---
-title: "besdk"
+title: "graft"
 description: "An open-source OpenAPI to SDK generator whose output reads as hand-written."
 ---
 
-besdk turns an OpenAPI document into client libraries for six languages that look like somebody wrote
+graft turns an OpenAPI document into client libraries for six languages that look like somebody wrote
 them by hand.
 
 ```ts
@@ -86,15 +86,15 @@ Generation **fails** if the output does not pass the target language's own forma
 typechecker — `tsc --noEmit`, `mypy --strict`, `go vet`, PHPStan level 9, `javac -Werror`,
 `dotnet build -warnaserror`. A generated SDK that does not typecheck is a bug, not a warning.
 
-## Nothing depends on besdk
+## Nothing depends on graft
 
 The transport, retries, auth, pagination, and validation internals are hand-written and vendored into
 your package as `core/`. Your published SDK has no runtime dependency on this tool, so nothing that
-happens to it can reach your users. [Migrating away](/guides/migrating#migrating-away-from-besdk)
+happens to it can reach your users. [Migrating away](/guides/migrating#migrating-away-from-graft)
 costs nothing, which is the point rather than a courtesy.
 
 <Note>
-  besdk is early, and the project name is a working title. Six languages are implemented; support is
+  graft is early, and the project name is a working title. Six languages are implemented; support is
   uneven in the places listed under [Language support](/sdk/capabilities), and each gap is a method
-  besdk declines to generate rather than one that quietly does the wrong thing.
+  graft declines to generate rather than one that quietly does the wrong thing.
 </Note>

@@ -125,7 +125,7 @@ for await (const event of client.events.streamEvents({ lastEventId })) {
 not configurable.
 
 <Warning>
-  **besdk does not reconnect for you**, and that is deliberate rather than missing.
+  **graft does not reconnect for you**, and that is deliberate rather than missing.
 
   Nothing in OpenAPI says whether replaying from an id yields the events you missed or restarts the stream
   from the beginning. Reconnecting on that assumption silently duplicates or drops events. It would also

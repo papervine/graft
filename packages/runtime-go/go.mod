@@ -1,3 +1,3 @@
-module github.com/besdk/runtime-go
+module github.com/graft/runtime-go
 
 go 1.22

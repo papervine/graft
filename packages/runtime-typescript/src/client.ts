@@ -58,7 +58,7 @@ export interface RequestOptions {
   /**
    * Sent as `Last-Event-ID`, to resume a stream from the last event you processed.
    *
-   * A request option rather than automatic behaviour: besdk does not reconnect, deliberately. Nothing in
+   * A request option rather than automatic behaviour: graft does not reconnect, deliberately. Nothing in
    * OpenAPI says whether replaying from an id yields the missed events or restarts the stream, and
    * reconnecting on that assumption silently duplicates or drops them (SPEC.md §3.4.1.2). Take the id from
    * `streamEvents()` and pass it here on the next call.
@@ -93,7 +93,7 @@ export interface ClientOptions {
    * Header the API expects an idempotency key in. Defaults to {@link DEFAULT_IDEMPOTENCY_HEADER}.
    *
    * Configurable because it is not standardised; a generated client sets it from the spec's own
-   * convention where `besdk.yaml` names one.
+   * convention where `graft.yaml` names one.
    */
   readonly idempotencyHeader?: string;
 }
@@ -126,7 +126,7 @@ export interface InternalRequest {
    * TypeScript does not give an `interface` an implicit index signature, so a generated
    * `interface Created { gte?: number }` can never satisfy `Record<string, QueryValue>` however
    * correct it is — Stripe hit this on 40+ operations. Callers are still fully typed by the
-   * generated `*Params` interfaces; this is besdk's own plumbing, and {@link buildQuery} validates
+   * generated `*Params` interfaces; this is graft's own plumbing, and {@link buildQuery} validates
    * every value at runtime regardless.
    */
   readonly query?: Record<string, unknown>;
@@ -157,7 +157,7 @@ const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
  * Default header for an idempotency key.
  *
  * Not standardised — `Idempotency-Key`, `X-Idempotency-Key`, and `Idempotency-Token` are all in real use
- * — so a generated client overrides it from `besdk.yaml`.
+ * — so a generated client overrides it from `graft.yaml`.
  */
 export const DEFAULT_IDEMPOTENCY_HEADER = 'Idempotency-Key';
 

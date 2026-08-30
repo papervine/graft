@@ -39,7 +39,7 @@ func Time(t time.Time) *time.Time { return &t }
 
 // Deref returns the value a pointer holds, or the zero value when it is nil.
 //
-// The read half of the pointer convention: `besdk.Deref(widget.Name)` rather than an `if != nil`
+// The read half of the pointer convention: `graft.Deref(widget.Name)` rather than an `if != nil`
 // at every use.
 func Deref[T any](p *T) T {
 	if p == nil {

@@ -1,0 +1,47 @@
+#!/usr/bin/env sh
+#
+# Launch the .NET target.
+#
+# A wrapper rather than the built binary in configuration, for the same reason the Java target has one: the
+# compiled artifact is not self-sufficient. `dotnet build` produces an *apphost* — a native launcher that
+# still needs the shared .NET runtime — so running it on a machine whose runtime came from devbox rather than
+# a system install fails with `You must install .NET to run this application`, which reads as a missing
+# dependency rather than a missing PATH entry.
+#
+# So this finds a .NET SDK the way the suites do (devbox first, since that is what this repository pins) and
+# runs the assembly through it, rather than hoping the apphost can find a runtime on its own.
+#
+#   graft-target-dotnet --sdk-target-protocol   → handshake on stdout
+#   graft-target-dotnet                         → IR JSON on stdin, manifest on stdout
+
+set -e
+
+here=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$here/../../.." && pwd)
+dll="$here/../src/bin/Debug/net8.0/graft-target-dotnet.dll"
+
+if [ ! -f "$dll" ]; then
+  echo "graft-target-dotnet: $dll is missing; run \`pnpm test:dotnet\` or \`dotnet build\` in packages/target-dotnet" >&2
+  exit 2
+fi
+
+# Explicit first, for CI and for anyone with several SDKs installed.
+if [ -n "$SDK_DOTNET" ] && [ -x "$SDK_DOTNET" ]; then
+  exec "$SDK_DOTNET" exec "$dll" "$@"
+fi
+
+# devbox's, which is the SDK this repository pins. `devbox run` executes at the project root regardless of
+# the caller's directory, which is why the path is resolved rather than relative.
+if command -v devbox >/dev/null 2>&1 && [ -f "$root/devbox.json" ]; then
+  devbox_dotnet=$(cd "$root" && devbox run -- sh -c 'command -v dotnet' 2>/dev/null | tail -1 || true)
+  if [ -n "$devbox_dotnet" ] && [ -x "$devbox_dotnet" ]; then
+    exec "$devbox_dotnet" exec "$dll" "$@"
+  fi
+fi
+
+if command -v dotnet >/dev/null 2>&1; then
+  exec dotnet exec "$dll" "$@"
+fi
+
+echo "graft-target-dotnet: no dotnet found. Run \`devbox install\`, or set SDK_DOTNET to a .NET 8 SDK." >&2
+exit 2

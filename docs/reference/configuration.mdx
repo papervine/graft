@@ -1,13 +1,13 @@
 ---
 title: "Configuration"
-description: "Every besdk.yaml key, and why the file matters more than you would expect."
+description: "Every graft.yaml key, and why the file matters more than you would expect."
 ---
 
-`besdk.yaml` is not a patch kit for edge cases. On a real spec, most of what makes the output good
+`graft.yaml` is not a patch kit for edge cases. On a real spec, most of what makes the output good
 is expressed here — because most specs are under-specified, and the generator's job includes
 [enriching](/concepts/enrichment) them.
 
-`besdk init` writes a starting config with every inference spelled out. Edit that rather than
+`graft init` writes a starting config with every inference spelled out. Edit that rather than
 starting from scratch.
 
 <Note>
@@ -67,7 +67,7 @@ because they are plausibly part of a brand.
 ### `targets`
 
 Keyed by target name. `out` is required. `packageName` is target-specific; any other keys are passed
-through to the target untouched, so besdk never needs to know about them.
+through to the target untouched, so graft never needs to know about them.
 
 Generate one target with `--target <name>`, or omit the flag to use the first.
 
@@ -119,22 +119,22 @@ and namespace legitimately differ.
 
 Go only. The module path written into `go.mod`, and the prefix generated code uses to import its own
 vendored runtime. Required for a publishable module — Go has no equivalent of an unscoped package
-name, so without it besdk emits a placeholder and warns rather than guessing at your VCS host.
+name, so without it graft emits a placeholder and warns rather than guessing at your VCS host.
 
 #### `command`
 
-How to run the target, when it is not `besdk-target-<name>` on your `PATH`.
+How to run the target, when it is not `graft-target-<name>` on your `PATH`.
 
 ```yaml
 targets:
   python:
     out: sdks/python
-    command: ["uv", "run", "besdk-target-python"]
+    command: ["uv", "run", "graft-target-python"]
 ```
 
 An argv array, so no shell is involved and a path containing a space needs no quoting. Use it for a
 target that lives in a virtualenv, a monorepo checkout, or behind a launcher. Resolution order is
-this key, then an installed `@besdk/target-<name>` package, then `PATH`.
+this key, then an installed `@graft/target-<name>` package, then `PATH`.
 
 ## `models`
 
@@ -219,7 +219,7 @@ Keeps hand-written code across regeneration. See [Custom code](/guides/custom-co
 ```yaml
 preserve:
   regions: false           # opt out of carrying `#region` blocks; on by default
-  files:                   # files besdk must never write (gitignore syntax)
+  files:                   # files graft must never write (gitignore syntax)
     - src/custom/**
     - README.md
 ```
@@ -227,7 +227,7 @@ preserve:
 `regions` **defaults to `true`** — targets emit the markers whether or not you configure anything, so
 code between them is kept unless you explicitly turn it off.
 
-`.besdkignore` in the output directory is read as well. `package.json` additions are kept without
+`.graftignore` in the output directory is read as well. `package.json` additions are kept without
 configuration, so adding a dependency needs no config and no plan tier.
 
 ## `webhooks`
@@ -248,7 +248,7 @@ webhooks:
 ```
 
 Typed webhook events come from your spec and need no configuration. `signature` is what enables the
-verifier — OpenAPI has no field describing a signature scheme, so besdk cannot infer one, and it emits no
+verifier — OpenAPI has no field describing a signature scheme, so graft cannot infer one, and it emits no
 verifier rather than one that checks something meaningless. Reported as
 [`W001`](/reference/diagnostics) until you set it.
 
@@ -268,6 +268,6 @@ naming:
   words: [clerk, widget]   # extra vocabulary for splitting lowercase compounds
 ```
 
-besdk splits `assettypes` into `AssetTypes` using a built-in word list. Add domain words here
-rather than patching besdk. A wrong split is worse than none, so the splitter is conservative:
+graft splits `assettypes` into `AssetTypes` using a built-in word list. Add domain words here
+rather than patching graft. A wrong split is worse than none, so the splitter is conservative:
 it never splits a token that is itself a known word, and every segment must be recognised.

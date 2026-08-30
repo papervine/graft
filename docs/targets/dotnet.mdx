@@ -149,7 +149,7 @@ type still fails as a `DecodeException` naming the record and key. See
 
 .NET cannot disambiguate a type whose name is also a namespace segment. If your spec is titled `Widget Co` and your
 package is `WidgetCo.Sdk`, the natural client name `WidgetCo` collides with the namespace, and nothing outside the
-package could reference it. besdk detects this and names the client `WidgetCoClient`, warning as it does:
+package could reference it. graft detects this and names the client `WidgetCoClient`, warning as it does:
 
 ```
 warn: `WidgetCo` is also a segment of the namespace `WidgetCo.Sdk`, which C# cannot disambiguate,

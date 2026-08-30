@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 /**
  * Runtime response validation, walking a descriptor table (SPEC.md §3.4.1.1).

@@ -8,7 +8,7 @@
  * giants are fetched on demand.
  *
  * **Every entry is pinned to a commit SHA, never a branch.** A snapshot diff must be attributable
- * to a besdk change; if upstream could move under us, a diff would be ambiguous and the snapshots
+ * to a graft change; if upstream could move under us, a diff would be ambiguous and the snapshots
  * would be worthless as a regression signal.
  */
 
@@ -117,7 +117,7 @@ if (selected.length === 0) {
       '',
       'Fetched by `pnpm corpus:fetch`. **Gitignored** — not part of this repository.',
       '',
-      'Each is pinned to a commit so a snapshot diff is attributable to a besdk change rather than',
+      'Each is pinned to a commit so a snapshot diff is attributable to a graft change rather than',
       'to an upstream edit.',
       '',
       '| Spec | Source | Pinned commit | Licence |',
@@ -127,7 +127,7 @@ if (selected.length === 0) {
           `| ${s.name} | [${s.repo}](https://github.com/${s.repo}) \`${s.path}\` | \`${s.sha.slice(0, 12)}\` | ${s.licence} |`,
       ),
       '',
-      'besdk claims no ownership of these documents. They are used only to exercise the generator',
+      'graft claims no ownership of these documents. They are used only to exercise the generator',
       'against real API descriptions.',
       '',
     ].join('\n'),

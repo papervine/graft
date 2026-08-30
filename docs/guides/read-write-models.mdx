@@ -3,7 +3,7 @@ title: "Read and write models"
 description: "Splitting a schema that serves as both a request and a response body."
 ---
 
-Most specs reference one schema from both request and response positions — on the first spec besdk
+Most specs reference one schema from both request and response positions — on the first spec graft
 was built against, `WidgetsResponse` was the target for six roles: list item, get response, create
 request, create response, update request, and update response.
 
@@ -19,7 +19,7 @@ at generation time.
 
 ## Split it
 
-`besdk check` reports the reuse as [`M001`](/reference/diagnostics#m001-read-write-conflation) and
+`graft check` reports the reuse as [`M001`](/reference/diagnostics#m001-read-write-conflation) and
 hands you the config:
 
 ```yaml
@@ -79,7 +79,7 @@ components:
       properties:
         id:
           type: string
-          x-besdk-server-owned: true
+          x-graft-server-owned: true
 ```
 
 Better than a config list for one reason: it lives next to the field, so it cannot drift out of sync
@@ -100,12 +100,12 @@ models:
 <Warning>
   Changing `required` is a breaking change, and the direction matters. On a read model,
   required → optional breaks consumers who assumed presence. On a write model it is the reverse.
-  `besdk diff` classifies both correctly — see [Breaking changes](/guides/breaking-changes).
+  `graft diff` classifies both correctly — see [Breaking changes](/guides/breaking-changes).
 </Warning>
 
 ## Discriminated unions
 
-When your spec supplies a `discriminator`, besdk narrows each branch on the discriminating property.
+When your spec supplies a `discriminator`, graft narrows each branch on the discriminating property.
 That one step is what makes the union usable:
 
 ```yaml
@@ -159,7 +159,7 @@ adding an event type to your spec surfaces every place that needs updating.
 
 ### `anyOf` versus `oneOf`
 
-besdk records which keyword you used, but validates them identically: a value matching more than one
+graft records which keyword you used, but validates them identically: a value matching more than one
 branch of a `oneOf` is accepted. A strict reading would reject data your server legitimately sent, and
 overlapping branches are extremely common — usually because two schemas share most of their fields and
 nobody intended exclusivity.

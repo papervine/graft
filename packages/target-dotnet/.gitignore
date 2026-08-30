@@ -1,2 +1,5 @@
-bin/
-obj/
+# MSBuild output. Scoped to the project directory rather than a bare `bin/`, which also swallowed
+# `bin/graft-target-dotnet` — the launcher `graft.yaml` names, and the one file here that must be
+# committed. A fresh clone could build this target and still not run it.
+src/bin/
+src/obj/

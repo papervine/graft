@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime;
+namespace Graft\Runtime;
 
 /** OAuth2, holding a token source that refreshes itself. */
 final class OAuth2Auth implements Auth

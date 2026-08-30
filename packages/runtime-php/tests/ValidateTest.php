@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime\Tests;
+namespace Graft\Runtime\Tests;
 
-use Besdk\Runtime\ResponseValidationError;
-use Besdk\Runtime\Validate;
-use Besdk\Runtime\ValidationMode;
+use Graft\Runtime\ResponseValidationError;
+use Graft\Runtime\Validate;
+use Graft\Runtime\ValidationMode;
 use PHPUnit\Framework\TestCase;
 
 final class ValidateTest extends TestCase
@@ -130,7 +130,7 @@ final class ValidateTest extends TestCase
         // fold, so this stays a real test of the decision rather than a tautology.
         $parents = class_parents(ResponseValidationError::class);
         self::assertIsArray($parents);
-        self::assertNotContains(\Besdk\Runtime\ApiError::class, $parents);
-        self::assertContains(\Besdk\Runtime\SdkError::class, $parents);
+        self::assertNotContains(\Graft\Runtime\ApiError::class, $parents);
+        self::assertContains(\Graft\Runtime\SdkError::class, $parents);
     }
 }

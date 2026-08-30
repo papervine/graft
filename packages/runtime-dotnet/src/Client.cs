@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// The transport every generated resource calls into.

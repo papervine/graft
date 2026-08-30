@@ -1,5 +1,5 @@
 /**
- * A record of what besdk last wrote to an output directory, so the next run can remove what it no
+ * A record of what graft last wrote to an output directory, so the next run can remove what it no
  * longer generates.
  *
  * Without this, generated output only ever grows. Rename an operation and the previous run's
@@ -13,7 +13,7 @@
  * a resource name: a stale resource module still compiled. Paths derived from *operation* names change
  * whenever a spec does, so orphans became routine.
  *
- * **Only files besdk itself wrote are removed.** That is the entire reason a manifest exists rather than
+ * **Only files graft itself wrote are removed.** That is the entire reason a manifest exists rather than
  * simply clearing the directory: `--clean` can delete anything, and a default that behaved like `--clean`
  * would delete a `.git`, a `node_modules`, or a file the user added and never marked preserved. Deleting
  * something a generator did not create is unforgivable in a way that leaving a stale file is not.
@@ -25,7 +25,7 @@
 import { mkdir, readFile, rm, rmdir, writeFile } from 'node:fs/promises';
 import { dirname, join, relative, sep } from 'node:path';
 import { existsSync } from 'node:fs';
-import { BRAND } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
 
 interface WrittenManifest {
   /** Relative POSIX paths, sorted, as of the last successful generation. */
@@ -36,7 +36,7 @@ interface WrittenManifest {
  * Where the record for one output directory lives.
  *
  * Keyed by the output path rather than by the spec, because the record describes *a directory*: "these are
- * the files besdk last put here". Keying by spec would mean two specs writing to one directory each kept a
+ * the files graft last put here". Keying by spec would mean two specs writing to one directory each kept a
  * partial record and neither could tell an orphan from the other's output.
  *
  * Two specs sharing one output directory still conflict — each run would remove the other's files — but
@@ -53,7 +53,7 @@ export function writtenManifestPath(outDir: string): string {
   return join(BRAND.stateDir, `${slug}.written.json`);
 }
 
-/** Paths besdk wrote to this directory last time, or an empty set when there is no record. */
+/** Paths graft wrote to this directory last time, or an empty set when there is no record. */
 export async function readWritten(outDir: string): Promise<Set<string>> {
   const path = writtenManifestPath(outDir);
   if (!existsSync(path)) return new Set();
@@ -75,7 +75,7 @@ export async function writeWritten(outDir: string, files: readonly string[]): Pr
 }
 
 /**
- * Remove files besdk wrote last time and is not writing now.
+ * Remove files graft wrote last time and is not writing now.
  *
  * `keep` covers everything this run produced plus everything preservation is holding back, so a preserved
  * file is never a deletion candidate however it came to be preserved.

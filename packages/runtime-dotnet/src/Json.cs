@@ -1,7 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// Parsing and writing JSON.

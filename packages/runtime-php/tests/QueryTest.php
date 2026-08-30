@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Runtime\Tests;
+namespace Graft\Runtime\Tests;
 
-use Besdk\Runtime\Query;
+use Graft\Runtime\Query;
 use PHPUnit\Framework\TestCase;
 
 enum Kind: string

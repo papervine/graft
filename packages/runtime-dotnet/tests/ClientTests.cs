@@ -1,7 +1,7 @@
-using Besdk.Runtime;
+using Graft.Runtime;
 using Xunit;
 
-namespace Besdk.Runtime.Tests;
+namespace Graft.Runtime.Tests;
 
 public sealed class ClientTests
 {

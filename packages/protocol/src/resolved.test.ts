@@ -1,8 +1,8 @@
 /**
  * Suppressing diagnostics the config already answers.
  *
- * The bug: `besdk init` writes the split, the promoted required fields, and the pagination scheme into
- * `besdk.yaml` — and `check` reported all three anyway, because nothing connected a diagnostic to the
+ * The bug: `graft init` writes the split, the promoted required fields, and the pagination scheme into
+ * `graft.yaml` — and `check` reported all three anyway, because nothing connected a diagnostic to the
  * config key that resolves it. So the documented flow (init, edit, gate CI on `check --strict`) could
  * never pass, which makes `--strict` unusable for the one job it exists to do.
  */

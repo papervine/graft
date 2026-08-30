@@ -128,7 +128,7 @@ for (const pkg of PACKAGES) {
 
   // `mvn test` compiles with `-Xlint:all -Werror` (configured in the pom) and then runs JUnit. One step,
   // because a compile failure makes the test run meaningless anyway.
-  // `package` for the target, because `corpus/kitchen-sink/besdk.yaml` points at the built jar and a stale one
+  // `package` for the target, because `corpus/kitchen-sink/graft.yaml` points at the built jar and a stale one
   // would silently generate from yesterday's emitter — the same trap the Go suite documents.
   const goal = pkg.endsWith('target-java') ? 'package' : 'test';
   const maven = run(['mvn', '--batch-mode', '--quiet', goal], cwd);

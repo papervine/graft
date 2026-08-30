@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { IR, Method, NamedType, Resource } from '@besdk/protocol';
+import type { IR, Method, NamedType, Resource } from '@graft/protocol';
 import { computeOwnership } from './ownership.js';
 
 const docs = {};

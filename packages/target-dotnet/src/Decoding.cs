@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// Generating the expressions that turn a decoded JSON value into a typed property.

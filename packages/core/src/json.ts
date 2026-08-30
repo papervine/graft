@@ -4,7 +4,7 @@
  * Deliberately *not* a validated model. Real specs violate OpenAPI in ways that must be
  * absorbed rather than rejected (SPEC.md §3.1: "Absorb real-world spec violations without
  * crashing"), so the loader keeps the document as plain JSON and every read goes through a
- * guard. A strict up-front parse would fail on exactly the specs besdk exists to handle.
+ * guard. A strict up-front parse would fail on exactly the specs graft exists to handle.
  *
  * The tradeoff is accepted knowingly: verbosity here buys tolerance at the edges.
  */

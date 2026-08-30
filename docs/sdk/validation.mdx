@@ -3,7 +3,7 @@ title: "Response validation"
 description: "Generated SDKs check that responses match the shape your spec declared, and tell you which field broke."
 ---
 
-A generated type is a *claim* about what the server sends. besdk checks it.
+A generated type is a *claim* about what the server sends. graft checks it.
 
 ```ts
 const widgets = await client.widgets.list();
@@ -55,7 +55,7 @@ const client = new Acme({ validation: 'warn' });
 **Unknown fields are always ignored.** A server adding a field must never break a client. Extra keys
 pass, at every level.
 
-**Enum membership is never checked.** Servers add enum values without warning, which is why besdk types
+**Enum membership is never checked.** Servers add enum values without warning, which is why graft types
 them openly in the first place. Checking membership would reintroduce exactly the decode failure that
 design avoids — so an enum is validated as its base type, `string` or `number`.
 
@@ -115,7 +115,7 @@ is a tested guarantee rather than three separate implementations that happen to 
   Go needs validation **more** than the other two, not less. `encoding/json` silently ignores a field
   whose type does not match, so a server sending `"slug": 123` for a string leaves the field empty and
   your code cannot tell that from a legitimate empty string. Nothing fails, and the wrong value
-  propagates. besdk validates before decoding into the struct, which is the only point where that
+  propagates. graft validates before decoding into the struct, which is the only point where that
   mismatch is still visible.
 </Note>
 
@@ -167,10 +167,10 @@ if errors.As(err, &validation) {
 
 `ResponseValidationError` is not an `APIError` here either, so `AsAPIError` will not match it.
 
-## Relationship to `besdk check`
+## Relationship to `graft check`
 
-[`besdk check`](/reference/cli) reports where your spec is *under-specified* — fields with no declared
+[`graft check`](/reference/cli) reports where your spec is *under-specified* — fields with no declared
 type, schemas where nothing is required. Validation is the runtime consequence of that same
-under-specification: a field the spec never marked required is a field besdk cannot check for you.
+under-specification: a field the spec never marked required is a field graft cannot check for you.
 
 Filling in `required` is what makes validation worth having.

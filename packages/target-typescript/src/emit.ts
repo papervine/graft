@@ -26,7 +26,7 @@ import {
   type SourceFile,
   type StatementStructures,
 } from 'ts-morph';
-import { attribution, BRAND } from '@besdk/protocol';
+import { attribution, BRAND } from '@graft/protocol';
 import type {
   Brand,
   Docs,
@@ -39,7 +39,7 @@ import type {
   Server,
   TypeRef,
   GeneratedFile,
-} from '@besdk/protocol';
+} from '@graft/protocol';
 import { TypeMapper } from './types.js';
 import { camel, pascal, propertyKey, safeIdentifier, safeMemberName, serviceLabel } from './naming.js';
 import { computeOwnership, type Ownership } from './ownership.js';
@@ -65,7 +65,7 @@ export interface EmitOptions {
    */
   readonly validation?: 'strict' | 'warn' | 'off';
   /**
-   * The SDK's own version, recorded by `besdk release`.
+   * The SDK's own version, recorded by `graft release`.
    *
    * Distinct from `ir.service.version`, which is the *API's* version — Stripe's is
    * `2026-07-29.dahlia`, which no package manager accepts (SPEC.md §3.5.1).
@@ -76,7 +76,7 @@ export interface EmitOptions {
   /**
    * The project's own name and the strings derived from it, from `TargetInput.brand`.
    *
-   * Taken from the protocol rather than imported from `@besdk/protocol`, even though this target
+   * Taken from the protocol rather than imported from `@graft/protocol`, even though this target
    * *can* import it. A field only the non-TypeScript targets read is a field that rots, and the
    * blessed target exercising the protocol it ships is the same argument as it running as a
    * subprocess (SPEC.md §3.7).
@@ -350,7 +350,7 @@ export class TypeScriptEmitter {
       .sort((a, b) => a.path.localeCompare(b.path));
 
     // The hand-written runtime is vendored verbatim so generated SDKs are self-contained and
-    // carry no besdk dependency at all (SPEC.md §9).
+    // carry no graft dependency at all (SPEC.md §9).
     for (const [name, contents] of this.options.runtimeFiles) {
       files.push({ path: `src/core/${name}`, contents });
     }
@@ -1161,7 +1161,7 @@ export class TypeScriptEmitter {
         noteLines.push('Yields events as they arrive; iterate with `for await`.');
 
         // The metadata sibling. Same request, same payload type; it yields the `id` needed to resume and
-        // the `retry` the server suggested. besdk does not reconnect — see SPEC.md §3.4.1.2.
+        // the `retry` the server suggested. graft does not reconnect — see SPEC.md §3.4.1.2.
         const siblingName = safeMemberName(camel({ tokens: [...method.name.tokens, 'events'] }));
         const siblingNotes = [
           `As \`${camel(method.name)}\`, with each event's framing metadata.`,
@@ -1857,7 +1857,7 @@ export class TypeScriptEmitter {
         rootDir: '.',
         outDir: undefined,
         // No ambient `@types/*` packages. Without this the examples typecheck only where
-        // `@types/node` happens to be resolvable — which made the gate pass inside besdk's own
+        // `@types/node` happens to be resolvable — which made the gate pass inside graft's own
         // workspace and fail in a bare directory. `env.d.ts` supplies the one global they need,
         // and an empty `types` guarantees it cannot collide with a real `@types/node`.
         types: [],

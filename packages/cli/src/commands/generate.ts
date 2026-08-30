@@ -1,5 +1,5 @@
 /**
- * `besdk generate` — the main verb.
+ * `graft generate` — the main verb.
  *
  * Spawns the target as a subprocess, writes its manifest, and runs the language's own
  * formatter and typechecker as gates (SPEC.md §3.4). The subprocess boundary is not bypassed
@@ -23,7 +23,7 @@ import {
   TARGET_EXECUTABLE_PREFIX,
   type Handshake,
   type TargetInput,
-} from '@besdk/protocol';
+} from '@graft/protocol';
 import {
   buildIR,
   compileIgnore,
@@ -35,7 +35,7 @@ import {
   SpecLoadError,
   type Config,
   type PreservedRegion,
-} from '@besdk/core';
+} from '@graft/core';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
 import type { CommandContext } from './context.js';
 import { resolveConfig } from './ir.js';
@@ -146,14 +146,14 @@ export async function runGenerate(args: ParsedArgs, ctx: CommandContext): Promis
   }
 
   // --- emit --------------------------------------------------------------
-  // `command` and `out` are besdk's plumbing, not the target's business — a target that received
+  // `command` and `out` are graft's plumbing, not the target's business — a target that received
   // them might reasonably think it was being told where to write, which it never is.
   const { command: _command, out: _out, ...forwardedOptions } = targetOptions as Record<
     string,
     unknown
   >;
 
-  // The released SDK version, when `besdk release` has recorded one. Passed to every target so one
+  // The released SDK version, when `graft release` has recorded one. Passed to every target so one
   // spec produces one version across all languages — three SDKs from one contract at three different
   // numbers is a support burden with no upside.
   //
@@ -226,10 +226,10 @@ export async function runGenerate(args: ParsedArgs, ctx: CommandContext): Promis
     await rm(absoluteOut, { recursive: true, force: true });
   }
 
-  // What besdk wrote here last time, read before writing so the two sets can be compared.
+  // What graft wrote here last time, read before writing so the two sets can be compared.
   //
   // Keyed by the *configured* output path rather than the absolute one. Passing `absoluteOut` produced
-  // `.besdk/users-jeff-www-besdk-sdks-kitchen-sink.written.json` — a filename carrying one machine's home
+  // `.graft/users-jeff-www-graft-sdks-kitchen-sink.written.json` — a filename carrying one machine's home
   // directory into a directory the repository commits, which would both churn per checkout and stop
   // matching the moment the repo moved.
   const previouslyWritten = await readWritten(outDir);
@@ -252,11 +252,11 @@ export async function runGenerate(args: ParsedArgs, ctx: CommandContext): Promis
     await writeFile(destination, contents, 'utf8');
   }
 
-  // Remove what this run no longer generates. Only files besdk itself wrote last time are candidates —
+  // Remove what this run no longer generates. Only files graft itself wrote last time are candidates —
   // see `written.ts` for why that guarantee is the whole point of keeping a record.
   //
   // Everything preserved is kept regardless of how it came to be preserved, so a file the user claimed is
-  // never a deletion candidate even if besdk once wrote it.
+  // never a deletion candidate even if graft once wrote it.
   const keep = new Set([...nowWritten, ...preservation.skipped, ...preservation.restore.keys()]);
   // The *removal* still works from the absolute path, because that is where the files are.
   const orphans = await removeOrphans(absoluteOut, previouslyWritten, keep);
@@ -278,11 +278,11 @@ export async function runGenerate(args: ParsedArgs, ctx: CommandContext): Promis
   }
   reportPreservation(preservation, ctx);
 
-  // Bootstrap the baseline `besdk diff` compares against, but **only when it does not exist**.
+  // Bootstrap the baseline `graft diff` compares against, but **only when it does not exist**.
   //
   // Writing it on every run destroys the comparison point: the normal workflow is generate then
   // diff, so an unconditional write meant `diff` always reported "no contract changes" and the
-  // CI gate could never fire. Updating the baseline is a deliberate act — `besdk diff --accept`.
+  // CI gate could never fire. Updating the baseline is a deliberate act — `graft diff --accept`.
   //
   // Kept outside the output directory so it never ships to SDK consumers.
   const baselinePath = flagString(args, 'baseline') ?? defaultBaselinePath(specPath);
@@ -402,7 +402,7 @@ async function planPreservation(
 
   if (!existsSync(absoluteOut)) return plan;
 
-  // `.besdkignore` in the output directory, plus `preserve.files` from config.
+  // `.graftignore` in the output directory, plus `preserve.files` from config.
   const ignoreFile = join(absoluteOut, `.${BRAND.name}ignore`);
   const fromFile = existsSync(ignoreFile)
     ? (await readFile(ignoreFile, 'utf8')).split('\n')

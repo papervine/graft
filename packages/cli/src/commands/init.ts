@@ -1,5 +1,5 @@
 /**
- * `besdk init` — write a `besdk.yaml` scaffolded from analysis.
+ * `graft init` — write a `graft.yaml` scaffolded from analysis.
  *
  * Refuses to overwrite an existing config without `--force`. The config accumulates hand-made
  * judgments about the API, so clobbering it silently would destroy the most expensive thing in
@@ -8,10 +8,10 @@
 
 import { writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { inspectSpecFile, renderInitConfig, SpecLoadError } from '@besdk/core';
+import { inspectSpecFile, renderInitConfig, SpecLoadError } from '@graft/core';
 import { flagBoolean, flagString, type ParsedArgs } from '../args.js';
 import type { CommandContext } from './context.js';
-import { BRAND } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
 
 export async function runInit(args: ParsedArgs, ctx: CommandContext): Promise<number> {
   const specPath = args.positionals[0];

@@ -1,14 +1,14 @@
 /**
- * `@besdk/target-typescript` — the TypeScript target.
+ * `@graft/target-typescript` — the TypeScript target.
  *
- * Boundary rule (SPEC.md §3.7): must never import `@besdk/core`. It communicates only via
+ * Boundary rule (SPEC.md §3.7): must never import `@graft/core`. It communicates only via
  * the protocol on stdin/stdout, exactly like a third-party target.
  */
 
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { IR_VERSION, type Handshake } from '@besdk/protocol';
+import { IR_VERSION, type Handshake } from '@graft/protocol';
 
 /**
  * Absolute path to an executable inside this package's own dependencies.
@@ -79,7 +79,7 @@ function gates(): Handshake['gates'] {
   //
   // Optional, and that is a deliberate asymmetry with `tsc`: a typechecker ships with the target's own
   // dependencies, while a test runner has to be installed in the *output* package. Generating into a
-  // directory where `npm install` has not been run is normal — it is what `besdk generate` does on a
+  // directory where `npm install` has not been run is normal — it is what `graft generate` does on a
   // first run — and failing generation because a devDependency is absent would make the feature a
   // liability. When vitest is there, the tests run and a broken request fails the build.
   //
@@ -108,7 +108,7 @@ export const handshake: Handshake = {
    *
    * It declared `pagination` and `read-write-split` only, while emitting `async *stream()` over SSE,
    * `Blob`/stream handling for binary responses, and `FormData` for multipart bodies — all three
-   * covered by tests. `besdk targets` prints this list, so a third-party author reading it to see what
+   * covered by tests. `graft targets` prints this list, so a third-party author reading it to see what
    * a reference target supports was told less than the truth.
    *
    * `sync-and-async` is deliberately absent, and that one is honest: every method returns a promise,

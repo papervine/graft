@@ -3,7 +3,7 @@ title: "What gets generated"
 description: "The files a generated SDK contains, which ones are yours, and where the runtime lives."
 ---
 
-`besdk generate` writes a complete, publishable package — not a folder of modules you have to wire
+`graft generate` writes a complete, publishable package — not a folder of modules you have to wire
 up. Every language follows the same shape: a client, one module per resource, the models, and a
 vendored runtime.
 
@@ -121,7 +121,7 @@ sdks/dotnet/
 and response validation all live there, hand-written and unit-tested independently of any generated
 code.
 
-This is the answer to "what happens if besdk goes away": nothing. Your published SDK has no runtime
+This is the answer to "what happens if graft goes away": nothing. Your published SDK has no runtime
 dependency on this tool, so its users are unaffected by anything that happens to it.
 
 <Note>
@@ -130,9 +130,9 @@ dependency on this tool, so its users are unaffected by anything that happens to
   surface, and the reason output reads as written rather than emitted.
 </Note>
 
-## What besdk will overwrite — and remove
+## What graft will overwrite — and remove
 
-Everything above, on every run. besdk also **removes files it previously generated and no longer
+Everything above, on every run. graft also **removes files it previously generated and no longer
 generates**, so renaming a resource or an operation does not leave an orphan behind:
 
 ```
@@ -144,7 +144,7 @@ Removed 3 files no longer generated:
 ```
 
 <Note>
-  Only files besdk itself wrote are ever removed — it keeps a record of them in `.besdk/`. A file you
+  Only files graft itself wrote are ever removed — it keeps a record of them in `.graft/`. A file you
   added and never marked preserved is left alone, because deleting something a generator did not create is
   worse than leaving a stale file. If the record is missing or unreadable, nothing is removed.
 </Note>
@@ -154,17 +154,17 @@ Three things survive a regeneration:
 1. **Preservation regions.** Code between the `region`/`endregion` markers in a resource file is
    carried across. On by default. Note that `examples/` and `tests/` have none — see
    [Examples and tests](/sdk/examples-and-tests#editing-them).
-2. **Files you claim.** `preserve.files` and `.besdkignore` mark paths besdk must never write.
+2. **Files you claim.** `preserve.files` and `.graftignore` mark paths graft must never write.
 3. **`package.json` additions.** Dependencies and scripts you added are kept without configuration.
 
 See [Custom code](/guides/custom-code) for all three.
 
 ## Should you commit it?
 
-Yes, in most cases. It makes [`besdk diff`](/guides/breaking-changes) meaningful, it lets reviewers
+Yes, in most cases. It makes [`graft diff`](/guides/breaking-changes) meaningful, it lets reviewers
 see what a spec change did to the public surface, and it lets CI assert that regenerating changes
 nothing — which is how you know what you are publishing matches the spec.
 
 ```sh
-besdk generate openapi.yaml && git diff --exit-code
+graft generate openapi.yaml && git diff --exit-code
 ```

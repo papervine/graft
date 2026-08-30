@@ -2,22 +2,22 @@
  * Target resolution, which two commands used to implement separately and disagree about.
  *
  * `generate` honoured `targets.<name>.command`; `targets` read only the config keys and went straight
- * to `PATH`. So `besdk targets` reported the configured Python and Go targets as "not installed" while
+ * to `PATH`. So `graft targets` reported the configured Python and Go targets as "not installed" while
  * `generate` ran them without complaint — the command whose entire job is reporting usability was wrong
  * about two thirds of the project. These tests pin the order so one resolver stays one resolver.
  */
 
 import { describe, expect, it } from 'vitest';
-import { TARGET_EXECUTABLE_PREFIX } from '@besdk/protocol';
+import { TARGET_EXECUTABLE_PREFIX } from '@graft/protocol';
 import { resolveTarget } from './target-resolution.js';
 
 describe('resolveTarget', () => {
   it('prefers a configured command, which is the whole bug', () => {
     // The only way to reach a target that is neither an npm package nor on PATH — the normal situation
     // for a target written in another language, which is how Python and Go run from a checkout.
-    const resolved = resolveTarget('python', ['uv', 'run', 'besdk-target-python']);
+    const resolved = resolveTarget('python', ['uv', 'run', 'graft-target-python']);
     expect(resolved.command).toBe('uv');
-    expect(resolved.args).toEqual(['run', 'besdk-target-python']);
+    expect(resolved.args).toEqual(['run', 'graft-target-python']);
     expect(resolved.origin).toBe('config');
   });
 

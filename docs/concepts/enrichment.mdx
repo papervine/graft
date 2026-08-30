@@ -1,14 +1,14 @@
 ---
 title: "Enrichment, not translation"
-description: "Why real specs need more than translating, and what besdk asks you for."
+description: "Why real specs need more than translating, and what graft asks you for."
 ---
 
-The premise behind `besdk check` and `besdk.yaml`:
+The premise behind `graft check` and `graft.yaml`:
 
 > **Real specs are under-specified, not merely irregular.**
 
 Translating an under-specified spec faithfully produces an SDK that compiles and is unpleasant. So
-besdk's job is not only to translate — it is to *enrich*.
+graft's job is not only to translate — it is to *enrich*.
 
 ## What that looks like in practice
 
@@ -26,12 +26,12 @@ not say enough to build a good client from.
 
 ## Two consequences
 
-**`besdk.yaml` is a primary surface, not a patch kit.** Most of what makes output good on a real spec
-is expressed there — which is why `besdk init` writes a starting config rather than leaving you a
+**`graft.yaml` is a primary surface, not a patch kit.** Most of what makes output good on a real spec
+is expressed there — which is why `graft init` writes a starting config rather than leaving you a
 blank file.
 
 **Under-specification is surfaced, never papered over.** A generator that quietly emits an
-all-optional, error-untyped SDK has produced something that compiles and misleads. `besdk check`
+all-optional, error-untyped SDK has produced something that compiles and misleads. `graft check`
 makes the invisible visible, with a config fragment for each finding:
 
 ```
@@ -44,7 +44,7 @@ makes the invisible visible, with a config fragment for each finding:
 
 ## What only you can answer
 
-besdk marks these `REVIEW` in the config it generates, because no amount of analysis can infer them:
+graft marks these `REVIEW` in the config it generates, because no amount of analysis can infer them:
 
 **Which fields the server assigns.** Guessed from naming conventions, and usually right — but you
 know. Getting it wrong leaves `_id` in your create model.
@@ -52,10 +52,10 @@ know. Getting it wrong leaves `_id` in your create model.
 **Which fields are always present.** If your spec declares nothing `required`, every field is
 optional and your users null-check everything. This is the single biggest quality lever you control.
 
-**Whether an endpoint really paginates.** besdk declines to paginate operations whose response does
+**Whether an endpoint really paginates.** graft declines to paginate operations whose response does
 not look like a collection, and lists them so you can correct it.
 
 <Tip>
-  You can also answer these in the spec itself with [`x-besdk-*` extensions](/reference/extensions),
+  You can also answer these in the spec itself with [`x-graft-*` extensions](/reference/extensions),
   which travel with your API instead of living in the generator's config.
 </Tip>

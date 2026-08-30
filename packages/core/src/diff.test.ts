@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Field, IR, Method, NamedType, Resource } from '@besdk/protocol';
+import type { Field, IR, Method, NamedType, Resource } from '@graft/protocol';
 import { diffIR, impliedBump } from './diff.js';
 
 const docs = {};

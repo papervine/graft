@@ -1,4 +1,4 @@
-namespace Besdk.Target.Dotnet;
+namespace Graft.Target.Dotnet;
 
 /// <summary>
 /// IR type references to C# types.

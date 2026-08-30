@@ -1,8 +1,8 @@
 /**
- * `besdk init` — scaffold a `besdk.yaml` from what analysis found.
+ * `graft init` — scaffold a `graft.yaml` from what analysis found.
  *
  * The design rule, from SPEC.md §6: **write inferred values explicitly.** A config that omits
- * everything besdk could guess would leave the user unable to see, review, or override those
+ * everything graft could guess would leave the user unable to see, review, or override those
  * guesses — the overlay would be magic. So this writes the inferences down, with the
  * diagnostic code that produced each one, and marks the judgments only the API owner can make.
  *
@@ -22,7 +22,7 @@ import {
   suggestModelName,
   surveyErrorResponses,
 } from './analyze.js';
-import { BRAND } from '@besdk/protocol';
+import { BRAND } from '@graft/protocol';
 
 /** Field names conventionally assigned by the server rather than supplied by the client. */
 const SERVER_OWNED_PATTERNS = [
@@ -54,7 +54,7 @@ const YAML_KEYWORDS = new Set([
  * Conservative by construction: emit plain only for values that are unambiguously safe, and
  * double-quote everything else. The failure this guards against is real — an earlier version
  * emitted `packageName: @scope/sdk` plain, and `@` is a *reserved* indicator that cannot begin
- * a plain scalar, so `besdk init` produced a config `besdk` itself refused to parse.
+ * a plain scalar, so `graft init` produced a config `graft` itself refused to parse.
  */
 export function scalar(value: string): string {
   if (value === '') return "''";
@@ -155,7 +155,7 @@ export function renderInitConfig(inspection: Inspection, options: InitOptions): 
         const isRequired = requiredList.includes(field);
         // The shorthand only expresses scalars, so anything else becomes `unknown` — honest, and
         // still valid config. Emitting the spec's own `array`/`object` produced a config that
-        // besdk itself rejected: GitHub's error body has an `errors` array.
+        // graft itself rejected: GitHub's error body has an `errors` array.
         push(`      ${field}: ${shorthandTypeFor(def)}${isRequired ? '' : '?'}`);
       }
     } else {

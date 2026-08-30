@@ -1,15 +1,15 @@
 /**
- * The analysis pass behind `besdk check` (SPEC.md §3.6).
+ * The analysis pass behind `graft check` (SPEC.md §3.6).
  *
  * Each analyzer answers one question about what the spec fails to say, and every diagnostic
- * carries a `besdk.yaml` fragment that resolves it. A diagnostic the user cannot act on has
+ * carries a `graft.yaml` fragment that resolves it. A diagnostic the user cannot act on has
  * not done its job — under-specification must be surfaced, never silently papered over.
  *
  * These analyzers are also the detection half of the normalizer rules in SPEC.md §3.1.2: the
  * same predicates that report a problem in `check` are what `generate` acts on.
  */
 
-import { BRAND, DIAGNOSTIC_CODES, type Diagnostic } from '@besdk/protocol';
+import { BRAND, DIAGNOSTIC_CODES, type Diagnostic } from '@graft/protocol';
 import {
   entriesOf,
   getArray,
@@ -45,7 +45,7 @@ function plural(count: number, singular: string, verb?: [string, string]): strin
  * Naive singularization, used only to *suggest* a better model name.
  *
  * `AssetsResponse` → `Asset`, because a list-item type named in the plural reads wrong on a
- * single value. Wrong guesses are harmless here: the output is a `besdk.yaml` fragment the
+ * single value. Wrong guesses are harmless here: the output is a `graft.yaml` fragment the
  * user edits, never a name applied automatically.
  */
 export function suggestModelName(
@@ -354,7 +354,7 @@ export function isScalarUnion(schema: JsonObject): boolean {
  * `oneOf` promises *exactly one* branch matches, and a consumer has to work out which. With a
  * `discriminator` that is trivial. Without one, the only remaining handle is structure — and when two
  * branches are `$ref`s, or share the same declared properties, there is nothing to decide on. Such a
- * union decodes ambiguously in every language, so besdk reports it rather than absorbing it.
+ * union decodes ambiguously in every language, so graft reports it rather than absorbing it.
  *
  * Deliberately narrow. A union of *differently shaped* branches is fine — `string | Widget` is
  * unambiguous — and flagging every discriminator-less `oneOf` would bury the real cases. This looks
@@ -1032,7 +1032,7 @@ export function analyze(resolved: ResolvedSpec, index: OperationIndex): Analysis
   };
 }
 
-/** Convenience: everything `besdk check` needs, from a loaded spec. */
+/** Convenience: everything `graft check` needs, from a loaded spec. */
 export function checkSpec(
   resolved: ResolvedSpec,
   index: OperationIndex,

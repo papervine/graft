@@ -3,7 +3,7 @@ title: "Examples and tests"
 description: "Every operation gets a runnable example and a test, generated from your spec."
 ---
 
-Alongside the client, besdk emits one example and one test per operation:
+Alongside the client, graft emits one example and one test per operation:
 
 ```
 sdks/typescript/
@@ -108,7 +108,7 @@ They are also shallow by design. One assertion per operation, across every opera
 class of bug than a deep test of one endpoint — and it is the class that actually ships.
 
 <Note>
-  This is not a hypothetical. On its first run against a real spec, this suite found that besdk was sending
+  This is not a hypothetical. On its first run against a real spec, this suite found that graft was sending
   JSON to all 62 of Twilio's `application/x-www-form-urlencoded` endpoints — a Twilio SDK that could not
   perform a single write. It had passed `tsc --noEmit`, prettier, and the cross-language conformance suite.
   A content type is invisible to a typechecker.
@@ -158,9 +158,9 @@ Don't — they are overwritten on every run and carry no
 [preservation regions](/guides/custom-code). A generated test you have edited is a test that no longer
 follows the spec, and it would silently stop tracking a renamed operation.
 
-For tests of your own, claim a path besdk will never write:
+For tests of your own, claim a path graft will never write:
 
-```yaml besdk.yaml
+```yaml graft.yaml
 preserve:
   files:
     - tests/integration/**
@@ -171,7 +171,7 @@ derived from it.
 
 ## Language support
 
-**All six languages.** The example *values* are synthesized in besdk's core and carried in the IR, so every
+**All six languages.** The example *values* are synthesized in graft's core and carried in the IR, so every
 language shows the same data for the same operation. Each target renders them in its own idiom and puts
 them where that language expects:
 

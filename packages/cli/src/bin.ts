@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { BRAND, IR_VERSION } from '@besdk/protocol';
+import { BRAND, IR_VERSION } from '@graft/protocol';
 import { parseArgs, flagBoolean } from './args.js';
 import { runCheck } from './commands/check.js';
 import type { CommandContext } from './commands/context.js';
@@ -17,7 +17,7 @@ usage: ${BRAND.name} <command> [options]
 
 commands:
   check <spec>      Validate a spec and report what it fails to say
-  init <spec>       Scaffold besdk.yaml from a spec
+  init <spec>       Scaffold graft.yaml from a spec
   generate <spec>   Generate an SDK
   ir <spec>         Dump the semantic IR as JSON
   targets           List installed targets and their handshake results
@@ -27,16 +27,16 @@ commands:
 options:
   --strict          check: exit non-zero on any warning (for CI)
   --json            check: machine-readable output
-  --out <path>      init: where to write (default besdk.yaml)
+  --out <path>      init: where to write (default graft.yaml)
   --stdout          init: print instead of writing
   --target <name>   init: which target to scaffold (default typescript)
-  --force           init: overwrite an existing besdk.yaml
-  --config <path>   Path to besdk.yaml (default ./besdk.yaml if present)
+  --force           init: overwrite an existing graft.yaml
+  --config <path>   Path to graft.yaml (default ./graft.yaml if present)
   --summary         ir: print a summary instead of full JSON
   --out <dir>       generate: output directory
   --skip-gates      generate: skip prettier and tsc gates
   --clean           generate: remove the output directory first
-  --baseline <path> diff/generate: IR baseline (default .besdk/ir.json)
+  --baseline <path> diff/generate: IR baseline (default .graft/ir.json)
   --accept          diff: update the baseline to the current contract
   --no-baseline     generate: skip writing the IR baseline
   --no-color        Disable colored output
@@ -85,12 +85,12 @@ main().then(
   (code) => {
     // Set exitCode and let Node exit naturally once stdout drains. Calling process.exit()
     // here silently truncates piped output: writes to a pipe are asynchronous, so anything
-    // still buffered is discarded. `besdk ir | jq` on a real spec lost everything past the
+    // still buffered is discarded. `graft ir | jq` on a real spec lost everything past the
     // 64KB pipe buffer, producing invalid JSON with no error.
     process.exitCode = code;
   },
   (error: unknown) => {
-    // Anything reaching here is a besdk bug, not user error — say so plainly.
+    // Anything reaching here is a graft bug, not user error — say so plainly.
     process.stderr.write(
       `${BRAND.name}: internal error\n${
         error instanceof Error ? (error.stack ?? error.message) : String(error)

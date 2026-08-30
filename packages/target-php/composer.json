@@ -1,8 +1,8 @@
 {
-  "name": "besdk/target-php",
+  "name": "graft/target-php",
   "description": "The PHP target: IR JSON on stdin, a file manifest on stdout.",
   "type": "library",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "require": {
     "php": ">=8.4",
     "ext-json": "*"
@@ -13,11 +13,11 @@
     "friendsofphp/php-cs-fixer": "^3.64"
   },
   "autoload": {
-    "psr-4": { "Besdk\\Target\\Php\\": "src/" }
+    "psr-4": { "Graft\\Target\\Php\\": "src/" }
   },
   "autoload-dev": {
-    "psr-4": { "Besdk\\Target\\Php\\Tests\\": "tests/" }
+    "psr-4": { "Graft\\Target\\Php\\Tests\\": "tests/" }
   },
-  "bin": ["bin/besdk-target-php"],
+  "bin": ["bin/graft-target-php"],
   "config": { "sort-packages": true }
 }

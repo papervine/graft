@@ -1,4 +1,4 @@
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>
 /// The base of every error this runtime raises.

@@ -30,7 +30,7 @@ if (!existsSync(VENV)) {
 /** Each step is (label, argv, cwd). A non-zero exit fails the suite. */
 const steps = [
   ['runtime: ruff', [VENV, '-m', 'ruff', 'check', 'src', 'tests'], 'packages/runtime-python'],
-  ['runtime: mypy --strict', [VENV, '-m', 'mypy', '--strict', 'src/besdk_runtime'], 'packages/runtime-python'],
+  ['runtime: mypy --strict', [VENV, '-m', 'mypy', '--strict', 'src/graft_runtime'], 'packages/runtime-python'],
   ['runtime: pytest', [VENV, '-m', 'pytest', '-q', 'tests'], 'packages/runtime-python'],
   ['target: ruff', [VENV, '-m', 'ruff', 'check', 'src'], 'packages/target-python'],
   ['target: pytest', [VENV, '-m', 'pytest', '-q', 'tests'], 'packages/target-python'],

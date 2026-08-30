@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Besdk\Target\Php\Tests;
+namespace Graft\Target\Php\Tests;
 
-use Besdk\Target\Php\Handshake;
+use Graft\Target\Php\Handshake;
 use PHPUnit\Framework\TestCase;
 
 final class HandshakeTest extends TestCase
@@ -64,6 +64,6 @@ final class HandshakeTest extends TestCase
     {
         // A target hardcodes this flag because it cannot import the constant that owns it, which makes it a
         // promise to third-party target authors rather than an internal detail (SPEC.md §1.2).
-        self::assertStringNotContainsStringIgnoringCase('besdk', Handshake::FLAG);
+        self::assertStringNotContainsStringIgnoringCase('graft', Handshake::FLAG);
     }
 }

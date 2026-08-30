@@ -3,7 +3,7 @@ title: "Naming"
 description: "Renaming the client, resources, methods, and types your users will type."
 ---
 
-Every name in a generated SDK is something your users type. besdk derives them from your spec and
+Every name in a generated SDK is something your users type. graft derives them from your spec and
 lets you override any of them — and where it has to guess, it tells you.
 
 ## The client class
@@ -55,7 +55,7 @@ problem.
 
 ## Resources
 
-A resource is the group an operation belongs to — `client.widgets.list()`. besdk takes it from the
+A resource is the group an operation belongs to — `client.widgets.list()`. graft takes it from the
 first path segment, or from a grouping extension when your spec has one.
 
 ```yaml
@@ -69,10 +69,10 @@ Nested groups come from a dotted extension value:
 paths:
   /orgs/{id}/invoices:
     get:
-      x-besdk-group: orgs.invoices     # client.orgs.invoices.list()
+      x-graft-group: orgs.invoices     # client.orgs.invoices.list()
 ```
 
-besdk reads `x-fern-sdk-group-name` and `x-speakeasy-group` natively, so a spec already annotated for
+graft reads `x-fern-sdk-group-name` and `x-speakeasy-group` natively, so a spec already annotated for
 another generator groups correctly with no config. See [Extensions](/reference/extensions).
 
 ## Methods
@@ -83,13 +83,13 @@ From `operationId`, or from the HTTP verb and path when there is none. Override 
 paths:
   /widgets/{id}/archive:
     post:
-      x-besdk-method: archive          # client.widgets.archive(id)
+      x-graft-method: archive          # client.widgets.archive(id)
 ```
 
 `x-fern-sdk-method-name` and `x-speakeasy-name-override` are read too.
 
 <Warning>
-  **besdk does not sanitize names it does not understand.** A path `/translations/ass` yields a method
+  **graft does not sanitize names it does not understand.** A path `/translations/ass` yields a method
   `ass` — that is the ASS subtitle format, and renaming it would be wrong. If a name reads badly in your
   domain, rename it explicitly; the generator will not second-guess your vocabulary.
 </Warning>
@@ -112,7 +112,7 @@ Or annotate the schema itself:
 components:
   schemas:
     WidgetsResponse:
-      x-besdk-name: Widget
+      x-graft-name: Widget
 ```
 
 Where one schema serves as both a request and a response, `rename` is usually not enough — see
@@ -120,7 +120,7 @@ Where one schema serves as both a request and a response, `rename` is usually no
 
 ## Splitting lowercase compounds
 
-`assettypes` should be `AssetTypes`, and getting there needs a word list. besdk ships one; add your
+`assettypes` should be `AssetTypes`, and getting there needs a word list. graft ships one; add your
 domain's vocabulary rather than patching the generator:
 
 ```yaml

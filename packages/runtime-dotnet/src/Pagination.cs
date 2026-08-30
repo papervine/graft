@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Besdk.Runtime;
+namespace Graft.Runtime;
 
 /// <summary>A page before decoding: the raw body plus the response it came in.</summary>
 /// <remarks>Both are needed — items come from the body, and a total may arrive in a header.</remarks>
